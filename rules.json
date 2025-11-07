@@ -2883,7 +2883,7 @@
     ],
     "fix": "Fix is always available.",
     "fix_availability": "Always",
-    "explanation": "## What it does\nChecks for uses of `getattr` that take a constant attribute value as an\nargument (e.g., `getattr(obj, \"foo\")`).\n\n## Why is this bad?\n`getattr` is used to access attributes dynamically. If the attribute is\ndefined as a constant, it is no safer than a typical property access. When\npossible, prefer property access over `getattr` calls, as the former is\nmore concise and idiomatic.\n\n\n## Example\n```python\ngetattr(obj, \"foo\")\n```\n\nUse instead:\n```python\nobj.foo\n```\n\n## References\n- [Python documentation: `getattr`](https://docs.python.org/3/library/functions.html#getattr)\n",
+    "explanation": "## What it does\nChecks for uses of `getattr` that take a constant attribute value as an\nargument (e.g., `getattr(obj, \"foo\")`).\n\n## Why is this bad?\n`getattr` is used to access attributes dynamically. If the attribute is\ndefined as a constant, it is no safer than a typical property access. When\npossible, prefer property access over `getattr` calls, as the former is\nmore concise and idiomatic.\n\n\n## Example\n```python\ngetattr(obj, \"foo\")\n```\n\nUse instead:\n```python\nobj.foo\n```\n\n## Fix safety\nThe fix is marked as unsafe for attribute names that are not in NFKC (Normalization Form KC)\nnormalization. Python normalizes identifiers using NFKC when using attribute access syntax\n(e.g., `obj.attr`), but does not normalize string arguments passed to `getattr`. Rewriting\n`getattr(obj, \"ſ\")` to `obj.ſ` would be interpreted as `obj.s` at runtime, changing behavior.\n\nFor example, the long s character `\"ſ\"` normalizes to `\"s\"` under NFKC, so:\n```python\n# This accesses an attribute with the exact name \"ſ\" (if it exists)\nvalue = getattr(obj, \"ſ\")\n\n# But this would normalize to \"s\" and access a different attribute\nobj.ſ  # This is interpreted as obj.s, not obj.ſ\n```\n\n## References\n- [Python documentation: `getattr`](https://docs.python.org/3/library/functions.html#getattr)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -2892,7 +2892,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bugbear/rules/getattr_with_constant.rs",
-      "line": 34
+      "line": 50
     }
   },
   {
@@ -2905,7 +2905,7 @@
     ],
     "fix": "Fix is always available.",
     "fix_availability": "Always",
-    "explanation": "## What it does\nChecks for uses of `setattr` that take a constant attribute value as an\nargument (e.g., `setattr(obj, \"foo\", 42)`).\n\n## Why is this bad?\n`setattr` is used to set attributes dynamically. If the attribute is\ndefined as a constant, it is no safer than a typical property access. When\npossible, prefer property access over `setattr` calls, as the former is\nmore concise and idiomatic.\n\n## Example\n```python\nsetattr(obj, \"foo\", 42)\n```\n\nUse instead:\n```python\nobj.foo = 42\n```\n\n## References\n- [Python documentation: `setattr`](https://docs.python.org/3/library/functions.html#setattr)\n",
+    "explanation": "## What it does\nChecks for uses of `setattr` that take a constant attribute value as an\nargument (e.g., `setattr(obj, \"foo\", 42)`).\n\n## Why is this bad?\n`setattr` is used to set attributes dynamically. If the attribute is\ndefined as a constant, it is no safer than a typical property access. When\npossible, prefer property access over `setattr` calls, as the former is\nmore concise and idiomatic.\n\n## Example\n```python\nsetattr(obj, \"foo\", 42)\n```\n\nUse instead:\n```python\nobj.foo = 42\n```\n\n## Fix safety\nThe fix is marked as unsafe for attribute names that are not in NFKC (Normalization Form KC)\nnormalization. Python normalizes identifiers using NFKC when using attribute access syntax\n(e.g., `obj.attr = value`), but does not normalize string arguments passed to `setattr`.\nRewriting `setattr(obj, \"ſ\", 1)` to `obj.ſ = 1` would be interpreted as `obj.s = 1` at\nruntime, changing behavior.\n\nFor example, the long s character `\"ſ\"` normalizes to `\"s\"` under NFKC, so:\n```python\n# This creates an attribute with the exact name \"ſ\"\nsetattr(obj, \"ſ\", 1)\ngetattr(obj, \"ſ\")  # Returns 1\n\n# But this would normalize to \"s\" and set a different attribute\nobj.ſ = 1  # This is interpreted as obj.s = 1, not obj.ſ = 1\n```\n\n## References\n- [Python documentation: `setattr`](https://docs.python.org/3/library/functions.html#setattr)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -2914,7 +2914,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bugbear/rules/setattr_with_constant.rs",
-      "line": 33
+      "line": 51
     }
   },
   {
@@ -4175,7 +4175,7 @@
     ],
     "fix": "Fix is always available.",
     "fix_availability": "Always",
-    "explanation": "## What it does\nChecks for unnecessary dict, list, and set comprehension.\n\n## Why is this bad?\nIt's unnecessary to use a dict/list/set comprehension to build a data structure if the\nelements are unchanged. Wrap the iterable with `dict()`, `list()`, or `set()` instead.\n\n## Example\n```python\n{a: b for a, b in iterable}\n[x for x in iterable]\n{x for x in iterable}\n```\n\nUse instead:\n```python\ndict(iterable)\nlist(iterable)\nset(iterable)\n```\n\n## Known problems\n\nThis rule may produce false positives for dictionary comprehensions that iterate over a mapping.\nThe dict constructor behaves differently depending on if it receives a sequence (e.g., a\nlist) or a mapping (e.g., a dict). When a comprehension iterates over the keys of a mapping,\nreplacing it with a `dict()` constructor call will give a different result.\n\nFor example:\n\n```pycon\n>>> d1 = {(1, 2): 3, (4, 5): 6}\n>>> {x: y for x, y in d1}  # Iterates over the keys of a mapping\n{1: 2, 4: 5}\n>>> dict(d1)               # Ruff's incorrect suggested fix\n(1, 2): 3, (4, 5): 6}\n>>> dict(d1.keys())        # Correct fix\n{1: 2, 4: 5}\n```\n\nWhen the comprehension iterates over a sequence, Ruff's suggested fix is correct. However, Ruff\ncannot consistently infer if the iterable type is a sequence or a mapping and cannot suggest\nthe correct fix for mappings.\n\n## Fix safety\nDue to the known problem with dictionary comprehensions, this fix is marked as unsafe.\n\nAdditionally, this fix may drop comments when rewriting the comprehension.\n",
+    "explanation": "## What it does\nChecks for unnecessary dict, list, and set comprehension.\n\n## Why is this bad?\nIt's unnecessary to use a dict/list/set comprehension to build a data structure if the\nelements are unchanged. Wrap the iterable with `dict()`, `list()`, or `set()` instead.\n\n## Example\n```python\n{a: b for a, b in iterable}\n[x for x in iterable]\n{x for x in iterable}\n```\n\nUse instead:\n```python\ndict(iterable)\nlist(iterable)\nset(iterable)\n```\n\n## Known problems\n\nThis rule may produce false positives for dictionary comprehensions that iterate over a mapping.\nThe dict constructor behaves differently depending on if it receives a sequence (e.g., a\nlist) or a mapping (e.g., a dict). When a comprehension iterates over the keys of a mapping,\nreplacing it with a `dict()` constructor call will give a different result.\n\nFor example:\n\n```pycon\n>>> d1 = {(1, 2): 3, (4, 5): 6}\n>>> {x: y for x, y in d1}  # Iterates over the keys of a mapping\n{1: 2, 4: 5}\n>>> dict(d1)               # Ruff's incorrect suggested fix\n{(1, 2): 3, (4, 5): 6}\n>>> dict(d1.keys())        # Correct fix\n{1: 2, 4: 5}\n```\n\nWhen the comprehension iterates over a sequence, Ruff's suggested fix is correct. However, Ruff\ncannot consistently infer if the iterable type is a sequence or a mapping and cannot suggest\nthe correct fix for mappings.\n\n## Fix safety\nDue to the known problem with dictionary comprehensions, this fix is marked as unsafe.\n\nAdditionally, this fix may drop comments when rewriting the comprehension.\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -15185,7 +15185,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pylint/rules/nonlocal_without_binding.rs",
-      "line": 36
+      "line": 33
     }
   },
   {
@@ -18328,7 +18328,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/refurb/rules/write_whole_file.rs",
-      "line": 46
+      "line": 45
     }
   },
   {
