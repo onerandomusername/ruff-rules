@@ -671,7 +671,7 @@
     ],
     "fix": "Fix is not available.",
     "fix_availability": "None",
-    "explanation": "## What it does\nChecks that function arguments are annotated with a more specific type than\n`Any`.\n\n## Why is this bad?\n`Any` is a special type indicating an unconstrained type. When an\nexpression is annotated with type `Any`, type checkers will allow all\noperations on it.\n\nIt's better to be explicit about the type of an expression, and to use\n`Any` as an \"escape hatch\" only when it is really needed.\n\n## Example\n\n```python\nfrom typing import Any\n\n\ndef foo(x: Any): ...\n```\n\nUse instead:\n\n```python\ndef foo(x: int): ...\n```\n\n## Known problems\n\nType aliases are unsupported and can lead to false positives.\nFor example, the following will trigger this rule inadvertently:\n\n```python\nfrom typing import Any\n\nMyAny = Any\n\n\ndef foo(x: MyAny): ...\n```\n\n## References\n- [Typing spec: `Any`](https://typing.python.org/en/latest/spec/special-types.html#any)\n- [Python documentation: `typing.Any`](https://docs.python.org/3/library/typing.html#typing.Any)\n- [Mypy documentation: The Any type](https://mypy.readthedocs.io/en/stable/kinds_of_types.html#the-any-type)\n",
+    "explanation": "## What it does\nChecks that function arguments are annotated with a more specific type than\n`Any`.\n\n## Why is this bad?\n`Any` is a special type indicating an unconstrained type. When an\nexpression is annotated with type `Any`, type checkers will allow all\noperations on it.\n\nIt's better to be explicit about the type of an expression, and to use\n`Any` as an \"escape hatch\" only when it is really needed.\n\n## Example\n\n```python\nfrom typing import Any\n\n\ndef foo(x: Any): ...\n```\n\nUse instead:\n\n```python\ndef foo(x: int): ...\n```\n\n## Known problems\n\nType aliases are unsupported and can lead to false positives.\nFor example, the following will trigger this rule inadvertently:\n\n```python\nfrom typing import Any\n\nMyAny = Any\n\n\ndef foo(x: MyAny): ...\n```\n\n## Options\n- `lint.flake8-annotations.allow-star-arg-any`\n\n## References\n- [Typing spec: `Any`](https://typing.python.org/en/latest/spec/special-types.html#any)\n- [Python documentation: `typing.Any`](https://docs.python.org/3/library/typing.html#typing.Any)\n- [Mypy documentation: The Any type](https://mypy.readthedocs.io/en/stable/kinds_of_types.html#the-any-type)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -680,7 +680,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_annotations/rules/definition.rs",
-      "line": 520
+      "line": 523
     }
   },
   {
@@ -8229,7 +8229,7 @@
     ],
     "fix": "Fix is not available.",
     "fix_availability": "None",
-    "explanation": "## What it does\nChecks for `for` loops with explicit loop-index variables that can be replaced\nwith `enumerate()`.\n\n## Why is this bad?\nWhen iterating over a sequence, it's often desirable to keep track of the\nindex of each element alongside the element itself. Prefer the `enumerate`\nbuiltin over manually incrementing a counter variable within the loop, as\n`enumerate` is more concise and idiomatic.\n\n## Example\n```python\nfruits = [\"apple\", \"banana\", \"cherry\"]\ni = 0\nfor fruit in fruits:\n    print(f\"{i + 1}. {fruit}\")\n    i += 1\n```\n\nUse instead:\n```python\nfruits = [\"apple\", \"banana\", \"cherry\"]\nfor i, fruit in enumerate(fruits):\n    print(f\"{i + 1}. {fruit}\")\n```\n\n## References\n- [Python documentation: `enumerate`](https://docs.python.org/3/library/functions.html#enumerate)\n",
+    "explanation": "## What it does\nChecks for `for` loops with explicit loop-index variables that can be replaced\nwith `enumerate()`.\n\nIn [preview], this rule checks for index variables initialized with any integer rather than only\na literal zero.\n\n## Why is this bad?\nWhen iterating over a sequence, it's often desirable to keep track of the\nindex of each element alongside the element itself. Prefer the `enumerate`\nbuiltin over manually incrementing a counter variable within the loop, as\n`enumerate` is more concise and idiomatic.\n\n## Example\n```python\nfruits = [\"apple\", \"banana\", \"cherry\"]\ni = 0\nfor fruit in fruits:\n    print(f\"{i + 1}. {fruit}\")\n    i += 1\n```\n\nUse instead:\n```python\nfruits = [\"apple\", \"banana\", \"cherry\"]\nfor i, fruit in enumerate(fruits):\n    print(f\"{i + 1}. {fruit}\")\n```\n\n## References\n- [Python documentation: `enumerate`](https://docs.python.org/3/library/functions.html#enumerate)\n\n[preview]: https://docs.astral.sh/ruff/preview/\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -8238,7 +8238,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_simplify/rules/enumerate_for_loop.rs",
-      "line": 38
+      "line": 45
     }
   },
   {
