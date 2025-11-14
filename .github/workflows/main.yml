@@ -55,7 +55,7 @@ jobs:
       - name: Commit and tag rules.json if changed
         if: steps.rules_changed.outputs.changed == 'true'
         run: |
-          git add rules.json
+          git add .
           git commit -m "Update data files for ruff ${{ steps.ruff_version.outputs.version }}"
           git tag "ruff-${{ steps.ruff_version.outputs.version }}"
           git push origin HEAD:refs/heads/main
