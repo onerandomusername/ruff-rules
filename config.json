@@ -47,6 +47,14 @@
     "example": "string-imports-min-dots = 2",
     "deprecated": null
   },
+  "analyze.type-checking-imports": {
+    "doc": "Whether to include imports that are only used for type checking (i.e., imports within `if TYPE_CHECKING:` blocks).\nWhen enabled (default), type-checking-only imports are included in the import graph.\nWhen disabled, they are excluded.",
+    "default": "true",
+    "value_type": "bool",
+    "scope": null,
+    "example": "# Exclude type-checking-only imports from the graph\ntype-checking-imports = false",
+    "deprecated": null
+  },
   "builtins": {
     "doc": "A list of builtins to treat as defined references, in addition to the\nsystem builtins.",
     "default": "[]",

@@ -2267,7 +2267,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/snmp_insecure_version.rs",
-      "line": 33
+      "line": 34
     }
   },
   {
@@ -2289,7 +2289,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/snmp_weak_cryptography.rs",
-      "line": 31
+      "line": 32
     }
   },
   {
@@ -18328,7 +18328,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/refurb/rules/write_whole_file.rs",
-      "line": 45
+      "line": 43
     }
   },
   {
@@ -19328,7 +19328,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/ruff/rules/mutable_class_default.rs",
-      "line": 86
+      "line": 87
     }
   },
   {
@@ -20372,7 +20372,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/ruff/rules/logging_eager_conversion.rs",
-      "line": 62
+      "line": 64
     }
   },
   {
