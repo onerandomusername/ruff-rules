@@ -7130,7 +7130,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_pytest_style/rules/parametrize.rs",
-      "line": 68
+      "line": 67
     }
   },
   {
@@ -7152,7 +7152,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_pytest_style/rules/parametrize.rs",
-      "line": 203
+      "line": 202
     }
   },
   {
@@ -7306,7 +7306,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_pytest_style/rules/parametrize.rs",
-      "line": 268
+      "line": 267
     }
   },
   {
@@ -7592,7 +7592,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_pytest_style/rules/assertion.rs",
-      "line": 349
+      "line": 348
     }
   },
   {
@@ -9850,7 +9850,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_use_pathlib/rules/path_constructor_current_directory.rs",
-      "line": 43
+      "line": 42
     }
   },
   {
@@ -10602,7 +10602,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pandas_vet/rules/inplace_argument.rs",
-      "line": 38
+      "line": 37
     }
   },
   {
@@ -13142,7 +13142,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pydocstyle/rules/sections.rs",
-      "line": 91
+      "line": 93
     }
   },
   {
@@ -13164,7 +13164,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pydocstyle/rules/sections.rs",
-      "line": 195
+      "line": 197
     }
   },
   {
@@ -13341,7 +13341,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pydocstyle/rules/sections.rs",
-      "line": 279
+      "line": 281
     }
   },
   {
@@ -13363,7 +13363,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pydocstyle/rules/sections.rs",
-      "line": 378
+      "line": 380
     }
   },
   {
@@ -13385,7 +13385,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pydocstyle/rules/sections.rs",
-      "line": 482
+      "line": 484
     }
   },
   {
@@ -13407,7 +13407,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pydocstyle/rules/sections.rs",
-      "line": 589
+      "line": 591
     }
   },
   {
@@ -13429,7 +13429,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pydocstyle/rules/sections.rs",
-      "line": 694
+      "line": 696
     }
   },
   {
@@ -13451,7 +13451,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pydocstyle/rules/sections.rs",
-      "line": 792
+      "line": 794
     }
   },
   {
@@ -13473,7 +13473,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pydocstyle/rules/sections.rs",
-      "line": 886
+      "line": 888
     }
   },
   {
@@ -13495,7 +13495,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pydocstyle/rules/sections.rs",
-      "line": 1319
+      "line": 1325
     }
   },
   {
@@ -13517,7 +13517,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pydocstyle/rules/sections.rs",
-      "line": 982
+      "line": 984
     }
   },
   {
@@ -13539,7 +13539,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pydocstyle/rules/sections.rs",
-      "line": 1072
+      "line": 1074
     }
   },
   {
@@ -13583,7 +13583,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pydocstyle/rules/sections.rs",
-      "line": 1150
+      "line": 1152
     }
   },
   {
@@ -13597,7 +13597,7 @@
     ],
     "fix": "Fix is not available.",
     "fix_availability": "None",
-    "explanation": "## What it does\nChecks for function docstrings that do not include documentation for all\nparameters in the function.\n\n## Why is this bad?\nThis rule helps prevent you from leaving Google-style docstrings unfinished\nor incomplete. Multiline Google-style docstrings should describe all\nparameters for the function they are documenting.\n\nMultiline docstrings are typically composed of a summary line, followed by\na blank line, followed by a series of sections, each with a section header\nand a section body. Function docstrings often include a section for\nfunction arguments; this rule is concerned with that section only.\nNote that this rule only checks docstrings with an arguments (e.g. `Args`) section.\n\nThis rule is enabled when using the `google` convention, and disabled when\nusing the `pep257` and `numpy` conventions.\n\n## Example\n```python\ndef calculate_speed(distance: float, time: float) -> float:\n    \"\"\"Calculate speed as distance divided by time.\n\n    Args:\n        distance: Distance traveled.\n\n    Returns:\n        Speed as distance divided by time.\n\n    Raises:\n        FasterThanLightError: If speed is greater than the speed of light.\n    \"\"\"\n    try:\n        return distance / time\n    except ZeroDivisionError as exc:\n        raise FasterThanLightError from exc\n```\n\nUse instead:\n```python\ndef calculate_speed(distance: float, time: float) -> float:\n    \"\"\"Calculate speed as distance divided by time.\n\n    Args:\n        distance: Distance traveled.\n        time: Time spent traveling.\n\n    Returns:\n        Speed as distance divided by time.\n\n    Raises:\n        FasterThanLightError: If speed is greater than the speed of light.\n    \"\"\"\n    try:\n        return distance / time\n    except ZeroDivisionError as exc:\n        raise FasterThanLightError from exc\n```\n\n## Options\n- `lint.pydocstyle.convention`\n- `lint.pydocstyle.ignore-var-parameters`\n\n## References\n- [PEP 257 – Docstring Conventions](https://peps.python.org/pep-0257/)\n- [PEP 287 – reStructuredText Docstring Format](https://peps.python.org/pep-0287/)\n- [Google Python Style Guide - Docstrings](https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings)\n",
+    "explanation": "## What it does\nChecks for function docstrings that do not include documentation for all\nparameters in the function.\n\n## Why is this bad?\nThis rule helps prevent you from leaving Google-style docstrings unfinished\nor incomplete. Multiline Google-style docstrings should describe all\nparameters for the function they are documenting.\n\nMultiline docstrings are typically composed of a summary line, followed by\na blank line, followed by a series of sections, each with a section header\nand a section body. Function docstrings often include a section for\nfunction arguments; this rule is concerned with that section only.\nNote that this rule only checks docstrings with an arguments (e.g. `Args`) section.\n\nThis rule is enabled when using the `google` convention, and disabled when\nusing the `pep257` and `numpy` conventions.\n\nParameters annotated with `typing.Unpack` are exempt from this rule.\nThis follows the Python typing specification for unpacking keyword arguments.\n\n## Example\n```python\ndef calculate_speed(distance: float, time: float) -> float:\n    \"\"\"Calculate speed as distance divided by time.\n\n    Args:\n        distance: Distance traveled.\n\n    Returns:\n        Speed as distance divided by time.\n\n    Raises:\n        FasterThanLightError: If speed is greater than the speed of light.\n    \"\"\"\n    try:\n        return distance / time\n    except ZeroDivisionError as exc:\n        raise FasterThanLightError from exc\n```\n\nUse instead:\n```python\ndef calculate_speed(distance: float, time: float) -> float:\n    \"\"\"Calculate speed as distance divided by time.\n\n    Args:\n        distance: Distance traveled.\n        time: Time spent traveling.\n\n    Returns:\n        Speed as distance divided by time.\n\n    Raises:\n        FasterThanLightError: If speed is greater than the speed of light.\n    \"\"\"\n    try:\n        return distance / time\n    except ZeroDivisionError as exc:\n        raise FasterThanLightError from exc\n```\n\n## Options\n- `lint.pydocstyle.convention`\n- `lint.pydocstyle.ignore-var-parameters`\n\n## References\n- [PEP 257 – Docstring Conventions](https://peps.python.org/pep-0257/)\n- [PEP 287 – reStructuredText Docstring Format](https://peps.python.org/pep-0287/)\n- [Google Python Style Guide - Docstrings](https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings)\n- [Python - Unpack for keyword arguments](https://typing.python.org/en/latest/spec/callables.html#unpack-kwargs)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -13606,7 +13606,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pydocstyle/rules/sections.rs",
-      "line": 1236
+      "line": 1242
     }
   },
   {
@@ -16769,7 +16769,7 @@
     ],
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
-    "explanation": "## What it does\nChecks for an exception that is not raised.\n\n## Why is this bad?\nIt's unnecessary to create an exception without raising it. For example,\n`ValueError(\"...\")` on its own will have no effect (unlike\n`raise ValueError(\"...\")`) and is likely a mistake.\n\n## Known problems\nThis rule only detects built-in exceptions, like `ValueError`, and does\nnot catch user-defined exceptions.\n\n## Example\n```python\nValueError(\"...\")\n```\n\nUse instead:\n```python\nraise ValueError(\"...\")\n```\n\n## Fix safety\nThis rule's fix is marked as unsafe, as converting a useless exception\nstatement to a `raise` statement will change the program's behavior.\n",
+    "explanation": "## What it does\nChecks for an exception that is not raised.\n\n## Why is this bad?\nIt's unnecessary to create an exception without raising it. For example,\n`ValueError(\"...\")` on its own will have no effect (unlike\n`raise ValueError(\"...\")`) and is likely a mistake.\n\n## Known problems\nThis rule only detects built-in exceptions, like `ValueError`, and does\nnot catch user-defined exceptions.\n\nIn [preview], this rule will also detect user-defined exceptions, but only\nthe ones defined in the file being checked.\n\n## Example\n```python\nValueError(\"...\")\n```\n\nUse instead:\n```python\nraise ValueError(\"...\")\n```\n\n## Fix safety\nThis rule's fix is marked as unsafe, as converting a useless exception\n\n[preview]: https://docs.astral.sh/ruff/preview/\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -16778,7 +16778,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pylint/rules/useless_exception_statement.rs",
-      "line": 36
+      "line": 41
     }
   },
   {
@@ -17133,7 +17133,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pylint/rules/unspecified_encoding.rs",
-      "line": 57
+      "line": 56
     }
   },
   {
@@ -17687,7 +17687,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pyupgrade/rules/replace_stdout_stderr.rs",
-      "line": 46
+      "line": 45
     }
   },
   {
@@ -18374,7 +18374,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/refurb/rules/if_exp_instead_of_or_operator.rs",
-      "line": 41
+      "line": 40
     }
   },
   {
@@ -20401,11 +20401,11 @@
     "name": "unused-noqa",
     "code": "RUF100",
     "linter": "Ruff-specific rules",
-    "summary": "Unused `noqa` directive",
+    "summary": "Unused {}",
     "message_formats": [
-      "Unused `noqa` directive",
-      "Unused `noqa` directive ({})",
-      "Unused blanket `noqa` directive"
+      "Unused {}",
+      "Unused {} ({})",
+      "Unused blanket {}"
     ],
     "fix": "Fix is always available.",
     "fix_availability": "Always",
@@ -20418,7 +20418,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/ruff/rules/unused_noqa.rs",
-      "line": 45
+      "line": 60
     }
   },
   {
