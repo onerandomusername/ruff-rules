@@ -2616,7 +2616,7 @@
     ],
     "fix": "Fix is not available.",
     "fix_availability": "None",
-    "explanation": "## What it does\nChecks for non-literal strings being passed to [`markupsafe.Markup`][markupsafe-markup].\n\n## Why is this bad?\n[`markupsafe.Markup`] does not perform any escaping, so passing dynamic\ncontent, like f-strings, variables or interpolated strings will potentially\nlead to XSS vulnerabilities.\n\nInstead you should interpolate the `Markup` object.\n\nUsing [`lint.flake8-bandit.extend-markup-names`] additional objects can be\ntreated like `Markup`.\n\nThis rule was originally inspired by [flake8-markupsafe] but doesn't carve\nout any exceptions for i18n related calls by default.\n\nYou can use [`lint.flake8-bandit.allowed-markup-calls`] to specify exceptions.\n\n## Example\nGiven:\n```python\nfrom markupsafe import Markup\n\ncontent = \"<script>alert('Hello, world!')</script>\"\nhtml = Markup(f\"<b>{content}</b>\")  # XSS\n```\n\nUse instead:\n```python\nfrom markupsafe import Markup\n\ncontent = \"<script>alert('Hello, world!')</script>\"\nhtml = Markup(\"<b>{}</b>\").format(content)  # Safe\n```\n\nGiven:\n```python\nfrom markupsafe import Markup\n\nlines = [\n    Markup(\"<b>heading</b>\"),\n    \"<script>alert('XSS attempt')</script>\",\n]\nhtml = Markup(\"<br>\".join(lines))  # XSS\n```\n\nUse instead:\n```python\nfrom markupsafe import Markup\n\nlines = [\n    Markup(\"<b>heading</b>\"),\n    \"<script>alert('XSS attempt')</script>\",\n]\nhtml = Markup(\"<br>\").join(lines)  # Safe\n```\n## Options\n- `lint.flake8-bandit.extend-markup-names`\n- `lint.flake8-bandit.allowed-markup-calls`\n\n## References\n- [MarkupSafe on PyPI](https://pypi.org/project/MarkupSafe/)\n- [`markupsafe.Markup` API documentation](https://markupsafe.palletsprojects.com/en/stable/escaping/#markupsafe.Markup)\n\n[markupsafe-markup]: https://markupsafe.palletsprojects.com/en/stable/escaping/#markupsafe.Markup\n[flake8-markupsafe]: https://github.com/vmagamedov/flake8-markupsafe\n",
+    "explanation": "## What it does\nChecks for non-literal strings being passed to [`markupsafe.Markup`][markupsafe-markup].\n\n## Why is this bad?\n[`markupsafe.Markup`][markupsafe-markup] does not perform any escaping, so passing dynamic\ncontent, like f-strings, variables or interpolated strings will potentially\nlead to XSS vulnerabilities.\n\nInstead you should interpolate the `Markup` object.\n\nUsing [`lint.flake8-bandit.extend-markup-names`] additional objects can be\ntreated like `Markup`.\n\nThis rule was originally inspired by [flake8-markupsafe] but doesn't carve\nout any exceptions for i18n related calls by default.\n\nYou can use [`lint.flake8-bandit.allowed-markup-calls`] to specify exceptions.\n\n## Example\nGiven:\n```python\nfrom markupsafe import Markup\n\ncontent = \"<script>alert('Hello, world!')</script>\"\nhtml = Markup(f\"<b>{content}</b>\")  # XSS\n```\n\nUse instead:\n```python\nfrom markupsafe import Markup\n\ncontent = \"<script>alert('Hello, world!')</script>\"\nhtml = Markup(\"<b>{}</b>\").format(content)  # Safe\n```\n\nGiven:\n```python\nfrom markupsafe import Markup\n\nlines = [\n    Markup(\"<b>heading</b>\"),\n    \"<script>alert('XSS attempt')</script>\",\n]\nhtml = Markup(\"<br>\".join(lines))  # XSS\n```\n\nUse instead:\n```python\nfrom markupsafe import Markup\n\nlines = [\n    Markup(\"<b>heading</b>\"),\n    \"<script>alert('XSS attempt')</script>\",\n]\nhtml = Markup(\"<br>\").join(lines)  # Safe\n```\n## Options\n- `lint.flake8-bandit.extend-markup-names`\n- `lint.flake8-bandit.allowed-markup-calls`\n\n## References\n- [MarkupSafe on PyPI](https://pypi.org/project/MarkupSafe/)\n- [`markupsafe.Markup` API documentation](https://markupsafe.palletsprojects.com/en/stable/escaping/#markupsafe.Markup)\n\n[markupsafe-markup]: https://markupsafe.palletsprojects.com/en/stable/escaping/#markupsafe.Markup\n[flake8-markupsafe]: https://github.com/vmagamedov/flake8-markupsafe\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -5140,6 +5140,28 @@
     }
   },
   {
+    "name": "implicit-string-concatenation-in-collection-literal",
+    "code": "ISC004",
+    "linter": "flake8-implicit-str-concat",
+    "summary": "Unparenthesized implicit string concatenation in collection",
+    "message_formats": [
+      "Unparenthesized implicit string concatenation in collection"
+    ],
+    "fix": "Fix is always available.",
+    "fix_availability": "Always",
+    "explanation": "## What it does\nChecks for implicitly concatenated strings inside list, tuple, and set literals.\n\n## Why is this bad?\nIn collection literals, implicit string concatenation is often the result of\na missing comma between elements, which can silently merge items together.\n\n## Example\n```python\nfacts = (\n    \"Lobsters have blue blood.\",\n    \"The liver is the only human organ that can fully regenerate itself.\",\n    \"Clarinets are made almost entirely out of wood from the mpingo tree.\"\n    \"In 1971, astronaut Alan Shepard played golf on the moon.\",\n)\n```\n\nInstead, you likely intended:\n```python\nfacts = (\n    \"Lobsters have blue blood.\",\n    \"The liver is the only human organ that can fully regenerate itself.\",\n    \"Clarinets are made almost entirely out of wood from the mpingo tree.\",\n    \"In 1971, astronaut Alan Shepard played golf on the moon.\",\n)\n```\n\nIf the concatenation is intentional, wrap it in parentheses to make it\nexplicit:\n```python\nfacts = (\n    \"Lobsters have blue blood.\",\n    \"The liver is the only human organ that can fully regenerate itself.\",\n    (\n        \"Clarinets are made almost entirely out of wood from the mpingo tree.\"\n        \"In 1971, astronaut Alan Shepard played golf on the moon.\"\n    ),\n)\n```\n\n## Fix safety\nThe fix is safe in that it does not change the semantics of your code.\nHowever, the issue is that you may often want to change semantics\nby adding a missing comma.\n",
+    "preview": true,
+    "status": {
+      "Preview": {
+        "since": "0.14.10"
+      }
+    },
+    "source_location": {
+      "file": "crates/ruff_linter/src/rules/flake8_implicit_str_concat/rules/collection_literal.rs",
+      "line": 53
+    }
+  },
+  {
     "name": "unconventional-import-alias",
     "code": "ICN001",
     "linter": "flake8-import-conventions",
@@ -7209,7 +7231,7 @@
     ],
     "fix": "Fix is not available.",
     "fix_availability": "None",
-    "explanation": "## What it does\nChecks for `pytest.raises` calls without an expected exception.\n\n## Why is this bad?\n`pytest.raises` expects to receive an expected exception as its first\nargument. If omitted, the `pytest.raises` call will fail at runtime.\n\n## Example\n```python\nimport pytest\n\n\ndef test_foo():\n    with pytest.raises():\n        do_something()\n```\n\nUse instead:\n```python\nimport pytest\n\n\ndef test_foo():\n    with pytest.raises(SomeException):\n        do_something()\n```\n\n## References\n- [`pytest` documentation: `pytest.raises`](https://docs.pytest.org/en/latest/reference/reference.html#pytest-raises)\n",
+    "explanation": "## What it does\nChecks for `pytest.raises` calls without an expected exception.\n\n## Why is this bad?\n`pytest.raises` expects to receive an expected exception as its first\nargument. If omitted, the `pytest.raises` call will fail at runtime.\nThe rule will also accept calls without an expected exception but with\n`match` and/or `check` keyword arguments, which are also valid after\npytest version 8.4.0.\n\n## Example\n```python\nimport pytest\n\n\ndef test_foo():\n    with pytest.raises():\n        do_something()\n```\n\nUse instead:\n```python\nimport pytest\n\n\ndef test_foo():\n    with pytest.raises(SomeException):\n        do_something()\n```\n\n## References\n- [`pytest` documentation: `pytest.raises`](https://docs.pytest.org/en/latest/reference/reference.html#pytest-raises)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -7218,7 +7240,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_pytest_style/rules/raises.rs",
-      "line": 151
+      "line": 154
     }
   },
   {
@@ -18291,8 +18313,9 @@
     "name": "read-whole-file",
     "code": "FURB101",
     "linter": "refurb",
-    "summary": "`open` and `read` should be replaced by `Path({filename}).{suggestion}`",
+    "summary": "`Path.open()` followed by `read()` can be replaced by `{filename}.{suggestion}`",
     "message_formats": [
+      "`Path.open()` followed by `read()` can be replaced by `{filename}.{suggestion}`",
       "`open` and `read` should be replaced by `Path({filename}).{suggestion}`"
     ],
     "fix": "Fix is sometimes available.",
@@ -18313,8 +18336,9 @@
     "name": "write-whole-file",
     "code": "FURB103",
     "linter": "refurb",
-    "summary": "`open` and `write` should be replaced by `Path({filename}).{suggestion}`",
+    "summary": "`Path.open()` followed by `write()` can be replaced by `{filename}.{suggestion}`",
     "message_formats": [
+      "`Path.open()` followed by `write()` can be replaced by `{filename}.{suggestion}`",
       "`open` and `write` should be replaced by `Path({filename}).{suggestion}`"
     ],
     "fix": "Fix is sometimes available.",
