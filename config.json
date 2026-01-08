@@ -1292,6 +1292,14 @@
     "example": "# Make it a violation to use a tuple in a subscript without parentheses.\nparenthesize-tuple-in-subscript = true",
     "deprecated": null
   },
+  "lint.ruff.strictly-empty-init-modules": {
+    "doc": "Whether to require `__init__.py` files to contain no code at all, including imports and\ndocstrings (see `RUF067`).",
+    "default": "false",
+    "value_type": "bool",
+    "scope": null,
+    "example": "# Make it a violation to include any code, including imports and docstrings in `__init__.py`\nstrictly-empty-init-modules = true",
+    "deprecated": null
+  },
   "lint.select": {
     "doc": "A list of rule codes or prefixes to enable. Prefixes can specify exact\nrules (like `F841`), entire categories (like `F`), or anything in\nbetween.\n\nWhen breaking ties between enabled and disabled rules (via `select` and\n`ignore`, respectively), more specific prefixes override less\nspecific prefixes. `ignore` takes precedence over `select` if the\nsame prefix appears in both.",
     "default": "[\"E4\", \"E7\", \"E9\", \"F\"]",
