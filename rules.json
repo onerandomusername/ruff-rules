@@ -2660,7 +2660,7 @@
     ],
     "fix": "Fix is not available.",
     "fix_availability": "None",
-    "explanation": "## What it does\nChecks for `except` clauses that catch all exceptions.  This includes\n`except BaseException` and `except Exception`.\n\n\n## Why is this bad?\nOverly broad `except` clauses can lead to unexpected behavior, such as\ncatching `KeyboardInterrupt` or `SystemExit` exceptions that prevent the\nuser from exiting the program.\n\nInstead of catching all exceptions, catch only those that are expected to\nbe raised in the `try` block.\n\n## Example\n```python\ntry:\n    foo()\nexcept BaseException:\n    ...\n```\n\nUse instead:\n```python\ntry:\n    foo()\nexcept FileNotFoundError:\n    ...\n```\n\nExceptions that are re-raised will _not_ be flagged, as they're expected to\nbe caught elsewhere:\n```python\ntry:\n    foo()\nexcept BaseException:\n    raise\n```\n\nExceptions that are logged via `logging.exception()` or are logged via\n`logging.error()` or `logging.critical()` with `exc_info` enabled will\n_not_ be flagged, as this is a common pattern for propagating exception\ntraces:\n```python\ntry:\n    foo()\nexcept BaseException:\n    logging.exception(\"Something went wrong\")\n```\n\n## Options\n\n- `lint.logger-objects`\n\n## References\n- [Python documentation: The `try` statement](https://docs.python.org/3/reference/compound_stmts.html#the-try-statement)\n- [Python documentation: Exception hierarchy](https://docs.python.org/3/library/exceptions.html#exception-hierarchy)\n- [PEP 8: Programming Recommendations on bare `except`](https://peps.python.org/pep-0008/#programming-recommendations)\n",
+    "explanation": "## What it does\nChecks for `except` clauses that catch all exceptions.  This includes\n`except BaseException` and `except Exception`.\n\n\n## Why is this bad?\nOverly broad `except` clauses can lead to unexpected behavior, such as\ncatching `KeyboardInterrupt` or `SystemExit` exceptions that prevent the\nuser from exiting the program.\n\nInstead of catching all exceptions, catch only those that are expected to\nbe raised in the `try` block.\n\n## Example\n```python\ntry:\n    foo()\nexcept BaseException:\n    ...\n```\n\nUse instead:\n```python\ntry:\n    foo()\nexcept FileNotFoundError:\n    ...\n```\n\nExceptions that are re-raised will _not_ be flagged, as they're expected to\nbe caught elsewhere:\n```python\ntry:\n    foo()\nexcept BaseException:\n    raise\n```\n\nExceptions that are logged with `exc_info` enabled will\n_not_ be flagged, as this is a common pattern for propagating exception\ntraces:\n```python\ntry:\n    foo()\nexcept BaseException:\n    logging.exception(\"Something went wrong\")\n```\n\n## Options\n\n- `lint.logger-objects`\n\n## References\n- [Python documentation: The `try` statement](https://docs.python.org/3/reference/compound_stmts.html#the-try-statement)\n- [Python documentation: Exception hierarchy](https://docs.python.org/3/library/exceptions.html#exception-hierarchy)\n- [PEP 8: Programming Recommendations on bare `except`](https://peps.python.org/pep-0008/#programming-recommendations)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -2669,7 +2669,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_blind_except/rules/blind_except.rs",
-      "line": 69
+      "line": 71
     }
   },
   {
@@ -5400,7 +5400,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_logging/rules/root_logger_call.rs",
-      "line": 30
+      "line": 31
     }
   },
   {
@@ -7240,7 +7240,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_pytest_style/rules/assertion.rs",
-      "line": 193
+      "line": 203
     }
   },
   {
@@ -7372,7 +7372,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_pytest_style/rules/assertion.rs",
-      "line": 153
+      "line": 163
     }
   },
   {
@@ -7407,7 +7407,7 @@
     ],
     "fix": "Fix is not available.",
     "fix_availability": "None",
-    "explanation": "## What it does\nChecks for `assert` statements in `except` clauses.\n\n## Why is this bad?\nWhen testing for exceptions, `pytest.raises()` should be used instead of\n`assert` statements in `except` clauses, as it's more explicit and\nidiomatic. Further, `pytest.raises()` will fail if the exception is _not_\nraised, unlike the `assert` statement.\n\n## Example\n```python\ndef test_foo():\n    try:\n        1 / 0\n    except ZeroDivisionError as e:\n        assert e.args\n```\n\nUse instead:\n```python\nimport pytest\n\n\ndef test_foo():\n    with pytest.raises(ZeroDivisionError) as exc_info:\n        1 / 0\n    assert exc_info.value.args\n```\n\n## References\n- [`pytest` documentation: `pytest.raises`](https://docs.pytest.org/en/latest/reference/reference.html#pytest-raises)\n",
+    "explanation": "## What it does\nChecks for `assert` statements in `except` clauses.\n\n## Why is this bad?\nWhen testing for exceptions, `pytest.raises()` should be used instead of\n`assert` statements in `except` clauses, as it's more explicit and\nidiomatic. Further, `pytest.raises()` will fail if the exception is _not_\nraised, unlike the `assert` statement.\n\n## Example\n```python\ndef test_foo():\n    try:\n        1 / 0\n    except ZeroDivisionError as e:\n        assert e.args\n```\n\nUse instead:\n```python\nimport pytest\n\n\ndef test_foo():\n    with pytest.raises(ZeroDivisionError) as exc_info:\n        1 / 0\n    assert exc_info.value.args\n```\n\nOr, for pytest 8.4.0 and later:\n```python\nimport pytest\n\n\ndef test_foo():\n    with pytest.raises(ZeroDivisionError, check=lambda e: e.args):\n        1 / 0\n```\n\n## References\n- [`pytest` documentation: `pytest.raises`](https://docs.pytest.org/en/latest/reference/reference.html#pytest-raises)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -7416,7 +7416,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_pytest_style/rules/assertion.rs",
-      "line": 111
+      "line": 121
     }
   },
   {
@@ -7636,7 +7636,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_pytest_style/rules/assertion.rs",
-      "line": 348
+      "line": 358
     }
   },
   {
@@ -20431,7 +20431,7 @@
     ],
     "fix": "Fix is not available.",
     "fix_availability": "None",
-    "explanation": "## What it does\nDetects class `@property` methods that does not have a `return` statement.\n\n## Why is this bad?\nProperty methods are expected to return a computed value, a missing return in a property usually indicates an implementation mistake.\n\n## Example\n```python\nclass User:\n    @property\n    def full_name(self):\n        f\"{self.first_name} {self.last_name}\"\n```\n\nUse instead:\n```python\nclass User:\n    @property\n    def full_name(self):\n        return f\"{self.first_name} {self.last_name}\"\n```\n\n## References\n- [Python documentation: The property class](https://docs.python.org/3/library/functions.html#property)\n",
+    "explanation": "## What it does\nDetects class `@property` methods that does not have a `return` statement.\n\n## Why is this bad?\nProperty methods are expected to return a computed value, a missing return in a property usually indicates an implementation mistake.\n\n## Example\n```python\nclass User:\n    @property\n    def full_name(self):\n        f\"{self.first_name} {self.last_name}\"\n```\n\nUse instead:\n```python\nclass User:\n    @property\n    def full_name(self):\n        return f\"{self.first_name} {self.last_name}\"\n```\n\n## Options\n\n- `lint.pydocstyle.property-decorators`\n\n## References\n- [Python documentation: The property class](https://docs.python.org/3/library/functions.html#property)\n",
     "preview": true,
     "status": {
       "Preview": {
@@ -20440,7 +20440,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/ruff/rules/property_without_return.rs",
-      "line": 34
+      "line": 38
     }
   },
   {
@@ -20478,7 +20478,7 @@
     ],
     "fix": "Fix is always available.",
     "fix_availability": "Always",
-    "explanation": "## What it does\nChecks for `noqa` directives that are no longer applicable.\n\n## Why is this bad?\nA `noqa` directive that no longer matches any diagnostic violations is\nlikely included by mistake, and should be removed to avoid confusion.\n\n## Example\n```python\nimport foo  # noqa: F401\n\n\ndef bar():\n    foo.bar()\n```\n\nUse instead:\n```python\nimport foo\n\n\ndef bar():\n    foo.bar()\n```\n\n## Options\n- `lint.external`\n\n## References\n- [Ruff error suppression](https://docs.astral.sh/ruff/linter/#error-suppression)\n",
+    "explanation": "## What it does\nChecks for `noqa` directives that are no longer applicable.\n\n## Why is this bad?\nA `noqa` directive that no longer matches any diagnostic violations is\nlikely included by mistake, and should be removed to avoid confusion.\n\n## Example\n```python\nimport foo  # noqa: F401\n\n\ndef bar():\n    foo.bar()\n```\n\nUse instead:\n```python\nimport foo\n\n\ndef bar():\n    foo.bar()\n```\n\n## Conflict with other linters\nWhen using `RUF100` with the `--fix` option, Ruff may remove trailing comments\nthat follow a `# noqa` directive on the same line, as it interprets the\nremainder of the line as a description for the suppression.\n\nTo prevent Ruff from removing suppressions for other tools (like `pylint`\nor `mypy`), separate them with a second `#` character:\n\n```python\n# Bad: Ruff --fix will remove the pylint comment\ndef visit_ImportFrom(self, node):  # noqa: N802, pylint: disable=invalid-name\n    pass\n\n\n# Good: Ruff will preserve the pylint comment\ndef visit_ImportFrom(self, node):  # noqa: N802 # pylint: disable=invalid-name\n    pass\n```\n\n## Options\n- `lint.external`\n\n## References\n- [Ruff error suppression](https://docs.astral.sh/ruff/linter/#error-suppression)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -20487,7 +20487,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/ruff/rules/unused_noqa.rs",
-      "line": 60
+      "line": 79
     }
   },
   {
@@ -20544,7 +20544,7 @@
     ],
     "fix": "Fix is always available.",
     "fix_availability": "Always",
-    "explanation": "## What it does\nChecks for invalid suppression comments\n\n## Why is this bad?\nInvalid suppression comments are ignored by Ruff, and should either\nbe fixed or removed to avoid confusion.\n\n## Example\n```python\nruff: disable  # missing codes\n```\n\nUse instead:\n```python\n# ruff: disable[E501]\n```\n\nOr delete the invalid suppression comment.\n\n## References\n- [Ruff error suppression](https://docs.astral.sh/ruff/linter/#error-suppression)\n",
+    "explanation": "## What it does\nChecks for invalid suppression comments\n\n## Why is this bad?\nInvalid suppression comments are ignored by Ruff, and should either\nbe fixed or removed to avoid confusion.\n\n## Example\n```python\n# ruff: disable  # missing codes\n```\n\nUse instead:\n```python\n# ruff: disable[E501]\n```\n\nOr delete the invalid suppression comment.\n\n## References\n- [Ruff error suppression](https://docs.astral.sh/ruff/linter/#error-suppression)\n",
     "preview": true,
     "status": {
       "Preview": {
