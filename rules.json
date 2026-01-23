@@ -185,7 +185,7 @@
     ],
     "fix": "Fix is always available.",
     "fix_availability": "Always",
-    "explanation": "## What it does\nChecks for FastAPI routes that use the optional `response_model` parameter\nwith the same type as the return type.\n\n## Why is this bad?\nFastAPI routes automatically infer the response model type from the return\ntype, so specifying it explicitly is redundant.\n\nThe `response_model` parameter is used to override the default response\nmodel type. For example, `response_model` can be used to specify that\na non-serializable response type should instead be serialized via an\nalternative type.\n\nFor more information, see the [FastAPI documentation](https://fastapi.tiangolo.com/tutorial/response-model/).\n\n## Example\n\n```python\nfrom fastapi import FastAPI\nfrom pydantic import BaseModel\n\napp = FastAPI()\n\n\nclass Item(BaseModel):\n    name: str\n\n\n@app.post(\"/items/\", response_model=Item)\nasync def create_item(item: Item) -> Item:\n    return item\n```\n\nUse instead:\n\n```python\nfrom fastapi import FastAPI\nfrom pydantic import BaseModel\n\napp = FastAPI()\n\n\nclass Item(BaseModel):\n    name: str\n\n\n@app.post(\"/items/\")\nasync def create_item(item: Item) -> Item:\n    return item\n```\n",
+    "explanation": "## What it does\nChecks for FastAPI routes that use the optional `response_model` parameter\nwith the same type as the return type.\n\n## Why is this bad?\nFastAPI routes automatically infer the response model type from the return\ntype, so specifying it explicitly is redundant.\n\nThe `response_model` parameter is used to override the default response\nmodel type. For example, `response_model` can be used to specify that\na non-serializable response type should instead be serialized via an\nalternative type.\n\nFor more information, see the [FastAPI documentation](https://fastapi.tiangolo.com/tutorial/response-model/).\n\n## Example\n\n```python\nfrom fastapi import FastAPI\nfrom pydantic import BaseModel\n\napp = FastAPI()\n\n\nclass Item(BaseModel):\n    name: str\n\n\n@app.post(\"/items/\", response_model=Item)\nasync def create_item(item: Item) -> Item:\n    return item\n```\n\nUse instead:\n\n```python\nfrom fastapi import FastAPI\nfrom pydantic import BaseModel\n\napp = FastAPI()\n\n\nclass Item(BaseModel):\n    name: str\n\n\n@app.post(\"/items/\")\nasync def create_item(item: Item) -> Item:\n    return item\n```\n\n## Fix safety\nThis fix is always unsafe, as removing the `response_model` argument can change\nruntime behavior and API documentation generation. Additionally, comments inside\nthe decorator might be removed when the argument is deleted.\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -194,7 +194,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/fastapi/rules/fastapi_redundant_response_model.rs",
-      "line": 61
+      "line": 66
     }
   },
   {
@@ -781,7 +781,7 @@
     ],
     "fix": "Fix is not available.",
     "fix_availability": "None",
-    "explanation": "## What it does\nChecks for the use of an async sleep function in a `while` loop.\n\n## Why is this bad?\nInstead of sleeping in a `while` loop, and waiting for a condition\nto become true, it's preferable to `await` on an `Event` object such\nas: `asyncio.Event`, `trio.Event`, or `anyio.Event`.\n\n## Example\n```python\nimport asyncio\n\nDONE = False\n\n\nasync def func():\n    while not DONE:\n        await asyncio.sleep(1)\n```\n\nUse instead:\n```python\nimport asyncio\n\nDONE = asyncio.Event()\n\n\nasync def func():\n    await DONE.wait()\n```\n\n## References\n- [`asyncio` events](https://docs.python.org/3/library/asyncio-sync.html#asyncio.Event)\n- [`anyio` events](https://anyio.readthedocs.io/en/latest/api.html#anyio.Event)\n- [`trio` events](https://trio.readthedocs.io/en/latest/reference-core.html#trio.Event)\n",
+    "explanation": "## What it does\nChecks for the use of an async sleep function in a `while` loop.\n\n## Why is this bad?\nBusy-waiting for a condition in a loop forces a tradeoff between\nefficiency and latency: shorter sleep times improve responsiveness\nbut waste more CPU cycles, while longer sleep times reduce CPU usage\nbut delay reaction to state changes.\n\nWaiting on an `Event` object like `asyncio.Event`, `trio.Event`, or\n`anyio.Event` eliminates this tradeoff, allowing immediate response\nwith minimal wasted CPU time.\n\n## Example\n```python\nimport asyncio\n\nDONE = False\n\n\nasync def func():\n    while not DONE:\n        await asyncio.sleep(1)\n```\n\nUse instead:\n```python\nimport asyncio\n\nDONE = asyncio.Event()\n\n\nasync def func():\n    await DONE.wait()\n```\n\n## References\n- [`asyncio` events](https://docs.python.org/3/library/asyncio-sync.html#asyncio.Event)\n- [`anyio` events](https://anyio.readthedocs.io/en/latest/api.html#anyio.Event)\n- [`trio` events](https://trio.readthedocs.io/en/latest/reference-core.html#trio.Event)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -790,7 +790,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_async/rules/async_busy_wait.rs",
-      "line": 44
+      "line": 49
     }
   },
   {
@@ -2905,7 +2905,7 @@
     ],
     "fix": "Fix is always available.",
     "fix_availability": "Always",
-    "explanation": "## What it does\nChecks for uses of `getattr` that take a constant attribute value as an\nargument (e.g., `getattr(obj, \"foo\")`).\n\n## Why is this bad?\n`getattr` is used to access attributes dynamically. If the attribute is\ndefined as a constant, it is no safer than a typical property access. When\npossible, prefer property access over `getattr` calls, as the former is\nmore concise and idiomatic.\n\n\n## Example\n```python\ngetattr(obj, \"foo\")\n```\n\nUse instead:\n```python\nobj.foo\n```\n\n## Fix safety\nThe fix is marked as unsafe for attribute names that are not in NFKC (Normalization Form KC)\nnormalization. Python normalizes identifiers using NFKC when using attribute access syntax\n(e.g., `obj.attr`), but does not normalize string arguments passed to `getattr`. Rewriting\n`getattr(obj, \"ſ\")` to `obj.ſ` would be interpreted as `obj.s` at runtime, changing behavior.\n\nFor example, the long s character `\"ſ\"` normalizes to `\"s\"` under NFKC, so:\n```python\n# This accesses an attribute with the exact name \"ſ\" (if it exists)\nvalue = getattr(obj, \"ſ\")\n\n# But this would normalize to \"s\" and access a different attribute\nobj.ſ  # This is interpreted as obj.s, not obj.ſ\n```\n\n## References\n- [Python documentation: `getattr`](https://docs.python.org/3/library/functions.html#getattr)\n",
+    "explanation": "## What it does\nChecks for uses of `getattr` that take a constant attribute value as an\nargument (e.g., `getattr(obj, \"foo\")`).\n\n## Why is this bad?\n`getattr` is used to access attributes dynamically. If the attribute is\ndefined as a constant, it is no safer than a typical property access. When\npossible, prefer property access over `getattr` calls, as the former is\nmore concise and idiomatic.\n\n\n## Example\n```python\ngetattr(obj, \"foo\")\n```\n\nUse instead:\n```python\nobj.foo\n```\n\n## Fix safety\nThe fix is marked as unsafe for attribute names that are not in NFKC (Normalization Form KC)\nnormalization. Python normalizes identifiers using NFKC when using attribute access syntax\n(e.g., `obj.attr`), but does not normalize string arguments passed to `getattr`. Rewriting\n`getattr(obj, \"ſ\")` to `obj.ſ` would be interpreted as `obj.s` at runtime, changing behavior.\n\nAdditionally, the fix is marked as unsafe if the expression contains comments,\nas the replacement may remove comments attached to the original `getattr` call.\n\nFor example, the long s character `\"ſ\"` normalizes to `\"s\"` under NFKC, so:\n```python\n# This accesses an attribute with the exact name \"ſ\" (if it exists)\nvalue = getattr(obj, \"ſ\")\n\n# But this would normalize to \"s\" and access a different attribute\nobj.ſ  # This is interpreted as obj.s, not obj.ſ\n```\n\n## References\n- [Python documentation: `getattr`](https://docs.python.org/3/library/functions.html#getattr)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -2914,7 +2914,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bugbear/rules/getattr_with_constant.rs",
-      "line": 50
+      "line": 53
     }
   },
   {
@@ -2927,7 +2927,7 @@
     ],
     "fix": "Fix is always available.",
     "fix_availability": "Always",
-    "explanation": "## What it does\nChecks for uses of `setattr` that take a constant attribute value as an\nargument (e.g., `setattr(obj, \"foo\", 42)`).\n\n## Why is this bad?\n`setattr` is used to set attributes dynamically. If the attribute is\ndefined as a constant, it is no safer than a typical property access. When\npossible, prefer property access over `setattr` calls, as the former is\nmore concise and idiomatic.\n\n## Example\n```python\nsetattr(obj, \"foo\", 42)\n```\n\nUse instead:\n```python\nobj.foo = 42\n```\n\n## Fix safety\nThe fix is marked as unsafe for attribute names that are not in NFKC (Normalization Form KC)\nnormalization. Python normalizes identifiers using NFKC when using attribute access syntax\n(e.g., `obj.attr = value`), but does not normalize string arguments passed to `setattr`.\nRewriting `setattr(obj, \"ſ\", 1)` to `obj.ſ = 1` would be interpreted as `obj.s = 1` at\nruntime, changing behavior.\n\nFor example, the long s character `\"ſ\"` normalizes to `\"s\"` under NFKC, so:\n```python\n# This creates an attribute with the exact name \"ſ\"\nsetattr(obj, \"ſ\", 1)\ngetattr(obj, \"ſ\")  # Returns 1\n\n# But this would normalize to \"s\" and set a different attribute\nobj.ſ = 1  # This is interpreted as obj.s = 1, not obj.ſ = 1\n```\n\n## References\n- [Python documentation: `setattr`](https://docs.python.org/3/library/functions.html#setattr)\n",
+    "explanation": "## What it does\nChecks for uses of `setattr` that take a constant attribute value as an\nargument (e.g., `setattr(obj, \"foo\", 42)`).\n\n## Why is this bad?\n`setattr` is used to set attributes dynamically. If the attribute is\ndefined as a constant, it is no safer than a typical property access. When\npossible, prefer property access over `setattr` calls, as the former is\nmore concise and idiomatic.\n\n## Example\n```python\nsetattr(obj, \"foo\", 42)\n```\n\nUse instead:\n```python\nobj.foo = 42\n```\n\n## Fix safety\nThe fix is marked as unsafe for attribute names that are not in NFKC (Normalization Form KC)\nnormalization. Python normalizes identifiers using NFKC when using attribute access syntax\n(e.g., `obj.attr = value`), but does not normalize string arguments passed to `setattr`.\nRewriting `setattr(obj, \"ſ\", 1)` to `obj.ſ = 1` would be interpreted as `obj.s = 1` at\nruntime, changing behavior.\n\nAdditionally, the fix is marked as unsafe if the expression contains comments,\nas the replacement may remove comments attached to the original `setattr` call.\n\nFor example, the long s character `\"ſ\"` normalizes to `\"s\"` under NFKC, so:\n```python\n# This creates an attribute with the exact name \"ſ\"\nsetattr(obj, \"ſ\", 1)\ngetattr(obj, \"ſ\")  # Returns 1\n\n# But this would normalize to \"s\" and set a different attribute\nobj.ſ = 1  # This is interpreted as obj.s = 1, not obj.ſ = 1\n```\n\n## References\n- [Python documentation: `setattr`](https://docs.python.org/3/library/functions.html#setattr)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -2936,7 +2936,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bugbear/rules/setattr_with_constant.rs",
-      "line": 51
+      "line": 54
     }
   },
   {
@@ -2993,7 +2993,7 @@
     ],
     "fix": "Fix is always available.",
     "fix_availability": "Always",
-    "explanation": "## What it does\nChecks for single-element tuples in exception handlers (e.g.,\n`except (ValueError,):`).\n\nNote: Single-element tuples consisting of a starred expression\nare allowed.\n\n## Why is this bad?\nA tuple with a single element can be more concisely and idiomatically\nexpressed as a single value.\n\n## Example\n```python\ntry:\n    ...\nexcept (ValueError,):\n    ...\n```\n\nUse instead:\n```python\ntry:\n    ...\nexcept ValueError:\n    ...\n```\n\n## References\n- [Python documentation: `except` clause](https://docs.python.org/3/reference/compound_stmts.html#except-clause)\n",
+    "explanation": "## What it does\nChecks for single-element tuples in exception handlers (e.g.,\n`except (ValueError,):`).\n\nNote: Single-element tuples consisting of a starred expression\nare allowed.\n\n## Why is this bad?\nA tuple with a single element can be more concisely and idiomatically\nexpressed as a single value.\n\n## Example\n```python\ntry:\n    ...\nexcept (ValueError,):\n    ...\n```\n\nUse instead:\n```python\ntry:\n    ...\nexcept ValueError:\n    ...\n```\n\n## Fix safety\nThis rule's fix is marked as safe, unless the exception handler contains comments.\n\n## References\n- [Python documentation: `except` clause](https://docs.python.org/3/reference/compound_stmts.html#except-clause)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -3002,7 +3002,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bugbear/rules/redundant_tuple_in_exception_handler.rs",
-      "line": 38
+      "line": 42
     }
   },
   {
@@ -3025,7 +3025,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bugbear/rules/duplicate_exceptions.rs",
-      "line": 90
+      "line": 93
     }
   },
   {
@@ -3261,7 +3261,7 @@
     ],
     "fix": "Fix is not available.",
     "fix_availability": "None",
-    "explanation": "## What it does\nChecks for `try-except` blocks with duplicate exception handlers.\n\n## Why is this bad?\nDuplicate exception handlers are redundant, as the first handler will catch\nthe exception, making the second handler unreachable.\n\n## Example\n```python\ntry:\n    ...\nexcept ValueError:\n    ...\nexcept ValueError:\n    ...\n```\n\nUse instead:\n```python\ntry:\n    ...\nexcept ValueError:\n    ...\n```\n\n## References\n- [Python documentation: `except` clause](https://docs.python.org/3/reference/compound_stmts.html#except-clause)\n",
+    "explanation": "## What it does\nChecks for `try-except` blocks with duplicate exception handlers.\n\n## Why is this bad?\nDuplicate exception handlers are redundant, as the first handler will catch\nthe exception, making the second handler unreachable.\n\n## Example\n```python\ntry:\n    ...\nexcept ValueError:\n    ...\nexcept ValueError:\n    ...\n```\n\nUse instead:\n```python\ntry:\n    ...\nexcept ValueError:\n    ...\n```\n\n## Fix safety\nThis rule's fix is marked as safe, unless the exception handler contains comments.\n\n## References\n- [Python documentation: `except` clause](https://docs.python.org/3/reference/compound_stmts.html#except-clause)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -3270,7 +3270,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bugbear/rules/duplicate_exceptions.rs",
-      "line": 42
+      "line": 45
     }
   },
   {
@@ -3440,7 +3440,7 @@
     ],
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
-    "explanation": "## What it does\nChecks for set literals that contain duplicate items.\n\n## Why is this bad?\nIn Python, sets are unordered collections of unique elements. Including a\nduplicate item in a set literal is redundant, as the duplicate item will be\nreplaced with a single item at runtime.\n\n## Example\n```python\n{1, 2, 3, 1}\n```\n\nUse instead:\n```python\n{1, 2, 3}\n```\n",
+    "explanation": "## What it does\nChecks for set literals that contain duplicate items.\n\n## Why is this bad?\nIn Python, sets are unordered collections of unique elements. Including a\nduplicate item in a set literal is redundant, as the duplicate item will be\nreplaced with a single item at runtime.\n\n## Example\n```python\n{1, 2, 3, 1}\n```\n\nUse instead:\n```python\n{1, 2, 3}\n```\n\n## Fix Safety\nThis rule's fix is marked as unsafe if the replacement would remove comments attached to the\noriginal expression, potentially losing important context or documentation.\n\nFor example:\n```python\n{\n    1,\n    2,\n    # Comment\n    1,\n}\n```\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -3449,7 +3449,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bugbear/rules/duplicate_value.rs",
-      "line": 31
+      "line": 45
     }
   },
   {
@@ -7262,7 +7262,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_pytest_style/rules/raises.rs",
-      "line": 154
+      "line": 165
     }
   },
   {
@@ -7275,7 +7275,7 @@
     ],
     "fix": "Fix is not available.",
     "fix_availability": "None",
-    "explanation": "## What it does\nChecks for `pytest.raises` calls without a `match` parameter.\n\n## Why is this bad?\n`pytest.raises(Error)` will catch any `Error` and may catch errors that are\nunrelated to the code under test. To avoid this, `pytest.raises` should be\ncalled with a `match` parameter. The exception names that require a `match`\nparameter can be configured via the\n[`lint.flake8-pytest-style.raises-require-match-for`] and\n[`lint.flake8-pytest-style.raises-extend-require-match-for`] settings.\n\n## Example\n```python\nimport pytest\n\n\ndef test_foo():\n    with pytest.raises(ValueError):\n        ...\n\n    # empty string is also an error\n    with pytest.raises(ValueError, match=\"\"):\n        ...\n```\n\nUse instead:\n```python\nimport pytest\n\n\ndef test_foo():\n    with pytest.raises(ValueError, match=\"expected message\"):\n        ...\n```\n\n## Options\n- `lint.flake8-pytest-style.raises-require-match-for`\n- `lint.flake8-pytest-style.raises-extend-require-match-for`\n\n## References\n- [`pytest` documentation: `pytest.raises`](https://docs.pytest.org/en/latest/reference/reference.html#pytest-raises)\n",
+    "explanation": "## What it does\nChecks for `pytest.raises` calls without a `match` or `check` parameter.\n\n## Why is this bad?\n`pytest.raises(Error)` will catch any `Error` and may catch errors that are\nunrelated to the code under test. To avoid this, `pytest.raises` should be\ncalled with a `match` parameter (to constrain the exception message) or a\n`check` parameter (to constrain the exception itself). The exception names\nthat require a `match` or `check` parameter can be configured via the\n[`lint.flake8-pytest-style.raises-require-match-for`] and\n[`lint.flake8-pytest-style.raises-extend-require-match-for`] settings.\n\n## Example\n```python\nimport pytest\n\n\ndef test_foo():\n    with pytest.raises(ValueError):\n        ...\n\n    # empty string is also an error\n    with pytest.raises(ValueError, match=\"\"):\n        ...\n```\n\nUse instead:\n```python\nimport pytest\n\n\ndef test_foo():\n    with pytest.raises(ValueError, match=\"expected message\"):\n        ...\n```\n\nOr, for pytest 8.4.0 and later:\n```python\nimport pytest\n\n\ndef test_foo():\n    with pytest.raises(OSError, check=lambda e: e.errno == 42):\n        ...\n```\n\n## Options\n- `lint.flake8-pytest-style.raises-require-match-for`\n- `lint.flake8-pytest-style.raises-extend-require-match-for`\n\n## References\n- [`pytest` documentation: `pytest.raises`](https://docs.pytest.org/en/latest/reference/reference.html#pytest-raises)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -7284,7 +7284,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_pytest_style/rules/raises.rs",
-      "line": 105
+      "line": 116
     }
   },
   {
@@ -8260,7 +8260,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_simplify/rules/ast_expr.rs",
-      "line": 43
+      "line": 44
     }
   },
   {
@@ -8693,7 +8693,7 @@
     ],
     "fix": "Fix is always available.",
     "fix_availability": "Always",
-    "explanation": "## What it does\nChecks for `dict.get()` calls that pass `None` as the default value.\n\n## Why is this bad?\n`None` is the default value for `dict.get()`, so it is redundant to pass it\nexplicitly.\n\n## Example\n```python\nages = {\"Tom\": 23, \"Maria\": 23, \"Dog\": 11}\nage = ages.get(\"Cat\", None)\n```\n\nUse instead:\n```python\nages = {\"Tom\": 23, \"Maria\": 23, \"Dog\": 11}\nage = ages.get(\"Cat\")\n```\n\n## References\n- [Python documentation: `dict.get`](https://docs.python.org/3/library/stdtypes.html#dict.get)\n",
+    "explanation": "## What it does\nChecks for `dict.get()` calls that pass `None` as the default value.\n\n## Why is this bad?\n`None` is the default value for `dict.get()`, so it is redundant to pass it\nexplicitly.\n\n## Example\n```python\nages = {\"Tom\": 23, \"Maria\": 23, \"Dog\": 11}\nage = ages.get(\"Cat\", None)\n```\n\nUse instead:\n```python\nages = {\"Tom\": 23, \"Maria\": 23, \"Dog\": 11}\nage = ages.get(\"Cat\")\n```\n\n## Fix safety\nThis rule's fix is marked as safe, unless the expression contains comments.\n\n## References\n- [Python documentation: `dict.get`](https://docs.python.org/3/library/stdtypes.html#dict.get)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -8702,7 +8702,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_simplify/rules/ast_expr.rs",
-      "line": 94
+      "line": 98
     }
   },
   {
@@ -8716,7 +8716,7 @@
     ],
     "fix": "Fix is always available.",
     "fix_availability": "Always",
-    "explanation": "## What it does\nChecks for use of `zip()` to iterate over keys and values of a dictionary at once.\n\n## Why is this bad?\nThe `dict` type provides an `.items()` method which is faster and more readable.\n\n## Example\n```python\nflag_stars = {\"USA\": 50, \"Slovenia\": 3, \"Panama\": 2, \"Australia\": 6}\n\nfor country, stars in zip(flag_stars.keys(), flag_stars.values()):\n    print(f\"{country}'s flag has {stars} stars.\")\n```\n\nUse instead:\n```python\nflag_stars = {\"USA\": 50, \"Slovenia\": 3, \"Panama\": 2, \"Australia\": 6}\n\nfor country, stars in flag_stars.items():\n    print(f\"{country}'s flag has {stars} stars.\")\n```\n\n## References\n- [Python documentation: `dict.items`](https://docs.python.org/3/library/stdtypes.html#dict.items)\n",
+    "explanation": "## What it does\nChecks for use of `zip()` to iterate over keys and values of a dictionary at once.\n\n## Why is this bad?\nThe `dict` type provides an `.items()` method which is faster and more readable.\n\n## Example\n```python\nflag_stars = {\"USA\": 50, \"Slovenia\": 3, \"Panama\": 2, \"Australia\": 6}\n\nfor country, stars in zip(flag_stars.keys(), flag_stars.values()):\n    print(f\"{country}'s flag has {stars} stars.\")\n```\n\nUse instead:\n```python\nflag_stars = {\"USA\": 50, \"Slovenia\": 3, \"Panama\": 2, \"Australia\": 6}\n\nfor country, stars in flag_stars.items():\n    print(f\"{country}'s flag has {stars} stars.\")\n```\n\n## Fix safety\nThis rule's fix is marked as safe, unless the expression contains comments.\n\n## References\n- [Python documentation: `dict.items`](https://docs.python.org/3/library/stdtypes.html#dict.items)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -8725,7 +8725,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_simplify/rules/zip_dict_keys_and_values.rs",
-      "line": 35
+      "line": 39
     }
   },
   {
@@ -10637,7 +10637,7 @@
     ],
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
-    "explanation": "## What it does\nChecks for `inplace=True` usages in `pandas` function and method\ncalls.\n\n## Why is this bad?\nUsing `inplace=True` encourages mutation rather than immutable data,\nwhich is harder to reason about and may cause bugs. It also removes the\nability to use the method chaining style for `pandas` operations.\n\nFurther, in many cases, `inplace=True` does not provide a performance\nbenefit, as `pandas` will often copy `DataFrames` in the background.\n\n## Example\n```python\ndf.sort_values(\"col1\", inplace=True)\n```\n\nUse instead:\n```python\nsorted_df = df.sort_values(\"col1\")\n```\n\n## References\n- [_Why You Should Probably Never Use pandas `inplace=True`_](https://towardsdatascience.com/why-you-should-probably-never-use-pandas-inplace-true-9f9f211849e4)\n",
+    "explanation": "## What it does\nChecks for `inplace=True` usages in `pandas` function and method\ncalls.\n\n## Why is this bad?\nUsing `inplace=True` encourages mutation rather than immutable data,\nwhich is harder to reason about and may cause bugs. It also removes the\nability to use the method chaining style for `pandas` operations.\n\nFurther, in many cases, `inplace=True` does not provide a performance\nbenefit, as `pandas` will often copy `DataFrames` in the background.\n\n## Example\n```python\nimport pandas as pd\n\nstudents = pd.read_csv(\"students.csv\")\nstudents.sort_values(\"name\", inplace=True)\n```\n\nUse instead:\n```python\nimport pandas as pd\n\nstudents = pd.read_csv(\"students.csv\").sort_values(\"name\")\n```\n\n## References\n- [_Why You Should Probably Never Use pandas `inplace=True`_](https://towardsdatascience.com/why-you-should-probably-never-use-pandas-inplace-true-9f9f211849e4)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -10646,7 +10646,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pandas_vet/rules/inplace_argument.rs",
-      "line": 37
+      "line": 42
     }
   },
   {
@@ -17411,7 +17411,7 @@
     ],
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
-    "explanation": "## What it does\nCheck for type annotations that can be rewritten based on [PEP 604] syntax.\n\n## Why is this bad?\n[PEP 604] introduced a new syntax for union type annotations based on the\n`|` operator. This syntax is more concise and readable than the previous\n`typing.Union` and `typing.Optional` syntaxes.\n\nThis rule is enabled when targeting Python 3.10 or later (see:\n[`target-version`]). By default, it's _also_ enabled for earlier Python\nversions if `from __future__ import annotations` is present, as\n`__future__` annotations are not evaluated at runtime. If your code relies\non runtime type annotations (either directly or via a library like\nPydantic), you can disable this behavior for Python versions prior to 3.10\nby setting [`lint.pyupgrade.keep-runtime-typing`] to `true`.\n\n## Example\n```python\nfrom typing import Union\n\nfoo: Union[int, str] = 1\n```\n\nUse instead:\n```python\nfoo: int | str = 1\n```\n\nNote that this rule only checks for usages of `typing.Union`,\nwhile `UP045` checks for `typing.Optional`.\n\n## Fix safety\nThis rule's fix is marked as unsafe, as it may lead to runtime errors when\nalongside libraries that rely on runtime type annotations, like Pydantic,\non Python versions prior to Python 3.10. It may also lead to runtime errors\nin unusual and likely incorrect type annotations where the type does not\nsupport the `|` operator.\n\n## Options\n- `target-version`\n- `lint.pyupgrade.keep-runtime-typing`\n\n[PEP 604]: https://peps.python.org/pep-0604/\n",
+    "explanation": "## What it does\nCheck for type annotations that can be rewritten based on [PEP 604] syntax.\n\n## Why is this bad?\n[PEP 604] introduced a new syntax for union type annotations based on the\n`|` operator. This syntax is more concise and readable than the previous\n`typing.Union` and `typing.Optional` syntaxes.\n\nThis rule is enabled when targeting Python 3.10 or later (see:\n[`target-version`]). By default, it's _also_ enabled for earlier Python\nversions if `from __future__ import annotations` is present, as\n`__future__` annotations are not evaluated at runtime. If your code relies\non runtime type annotations (either directly or via a library like\nPydantic), you can disable this behavior for Python versions prior to 3.10\nby setting [`lint.pyupgrade.keep-runtime-typing`] to `true`.\n\n## Example\n```python\nfrom typing import Union\n\nfoo: Union[int, str] = 1\n```\n\nUse instead:\n```python\nfoo: int | str = 1\n```\n\nNote that this rule only checks for usages of `typing.Union`,\nwhile `UP045` checks for `typing.Optional`.\n\n## Fix safety\nThis rule's fix is marked as unsafe, as it may lead to runtime errors when\nalongside libraries that rely on runtime type annotations, like Pydantic,\non Python versions prior to Python 3.10, or as it may remove comments if they\nare present within the type annotation being rewritten. It may also lead to\nruntime errors in unusual and likely incorrect type annotations where the type\ndoes not  support the `|` operator.\n\n## Options\n- `target-version`\n- `lint.pyupgrade.keep-runtime-typing`\n\n[PEP 604]: https://peps.python.org/pep-0604/\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -17420,7 +17420,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pyupgrade/rules/use_pep604_annotation.rs",
-      "line": 56
+      "line": 57
     }
   },
   {
@@ -17877,7 +17877,7 @@
     ],
     "fix": "Fix is always available.",
     "fix_availability": "Always",
-    "explanation": "## What it does\nChecks for unnecessary imports of builtins.\n\n## Why is this bad?\nBuiltins are always available. Importing them is unnecessary and should be\nremoved to avoid confusion.\n\n## Example\n```python\nfrom builtins import str\n\nstr(1)\n```\n\nUse instead:\n```python\nstr(1)\n```\n\n## Fix safety\nThis fix is marked as unsafe because removing the import\nmay change program behavior. For example, in the following\nsituation:\n\n```python\ndef str(x):\n    return x\n\n\nfrom builtins import str\n\nstr(1)  # `\"1\"` with the import, `1` without\n```\n\n## Options\n\nThis rule will not trigger on imports required by the `isort` configuration.\n\n- `lint.isort.required-imports`\n\n## References\n- [Python documentation: The Python Standard Library](https://docs.python.org/3/library/index.html)\n",
+    "explanation": "## What it does\nChecks for unnecessary imports of builtins.\n\n## Why is this bad?\nBuiltins are always available. Importing them is unnecessary and should be\nremoved to avoid confusion.\n\n## Example\n```python\nfrom builtins import str\n\nstr(1)\n```\n\nUse instead:\n```python\nstr(1)\n```\n\n## Fix safety\nThis fix is marked as unsafe because it will remove comments attached to the unused import.\n\n## Options\n\nThis rule will not trigger on imports required by the `isort` configuration.\n\n- `lint.isort.required-imports`\n\n## References\n- [Python documentation: The Python Standard Library](https://docs.python.org/3/library/index.html)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -17886,7 +17886,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pyupgrade/rules/unnecessary_builtin_import.rs",
-      "line": 54
+      "line": 42
     }
   },
   {
@@ -18099,7 +18099,7 @@
     ],
     "fix": "Fix is always available.",
     "fix_availability": "Always",
-    "explanation": "## What it does\nChecks for class definitions that include unnecessary parentheses after\nthe class name.\n\n## Why is this bad?\nIf a class definition doesn't have any bases, the parentheses are\nunnecessary.\n\n## Example\n```python\nclass Foo():\n    ...\n```\n\nUse instead:\n```python\nclass Foo:\n    ...\n```\n",
+    "explanation": "## What it does\nChecks for class definitions that include unnecessary parentheses after\nthe class name.\n\n## Why is this bad?\nIf a class definition doesn't have any bases, the parentheses are\nunnecessary.\n\n## Example\n```python\nclass Foo():\n    ...\n```\n\nUse instead:\n```python\nclass Foo:\n    ...\n```\n\n## Fix safety\nThis rule's fix is marked as unsafe if it would delete any comments\nwithin the parentheses range.\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -18108,7 +18108,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pyupgrade/rules/unnecessary_class_parentheses.rs",
-      "line": 27
+      "line": 32
     }
   },
   {
@@ -18143,7 +18143,7 @@
     ],
     "fix": "Fix is always available.",
     "fix_availability": "Always",
-    "explanation": "## What it does\nChecks for uses of exceptions that alias `TimeoutError`.\n\n## Why is this bad?\n`TimeoutError` is the builtin error type used for exceptions when a system\nfunction timed out at the system level.\n\nIn Python 3.10, `socket.timeout` was aliased to `TimeoutError`. In Python\n3.11, `asyncio.TimeoutError` was aliased to `TimeoutError`.\n\nThese aliases remain in place for compatibility with older versions of\nPython, but may be removed in future versions.\n\nPrefer using `TimeoutError` directly, as it is more idiomatic and future-proof.\n\n## Example\n```python\nimport asyncio\n\nraise asyncio.TimeoutError\n```\n\nUse instead:\n```python\nraise TimeoutError\n```\n\n## References\n- [Python documentation: `TimeoutError`](https://docs.python.org/3/library/exceptions.html#TimeoutError)\n",
+    "explanation": "## What it does\nChecks for uses of exceptions that alias `TimeoutError`.\n\n## Why is this bad?\n`TimeoutError` is the builtin error type used for exceptions when a system\nfunction timed out at the system level.\n\nIn Python 3.10, `socket.timeout` was aliased to `TimeoutError`. In Python\n3.11, `asyncio.TimeoutError` was aliased to `TimeoutError`.\n\nThese aliases remain in place for compatibility with older versions of\nPython, but may be removed in future versions.\n\nPrefer using `TimeoutError` directly, as it is more idiomatic and future-proof.\n\n## Example\n```python\nimport asyncio\n\nraise asyncio.TimeoutError\n```\n\nUse instead:\n```python\nraise TimeoutError\n```\n\n## Fix safety\nThis rule's fix is marked as unsafe if it would delete any comments\nwithin the exception expression range.\n\n## References\n- [Python documentation: `TimeoutError`](https://docs.python.org/3/library/exceptions.html#TimeoutError)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -18152,7 +18152,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pyupgrade/rules/timeout_error_alias.rs",
-      "line": 42
+      "line": 47
     }
   },
   {
@@ -18231,7 +18231,7 @@
     ],
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
-    "explanation": "## What it does\nCheck for `typing.Optional` annotations that can be rewritten based on [PEP 604] syntax.\n\n## Why is this bad?\n[PEP 604] introduced a new syntax for union type annotations based on the\n`|` operator. This syntax is more concise and readable than the previous\n`typing.Optional` syntax.\n\nThis rule is enabled when targeting Python 3.10 or later (see:\n[`target-version`]). By default, it's _also_ enabled for earlier Python\nversions if `from __future__ import annotations` is present, as\n`__future__` annotations are not evaluated at runtime. If your code relies\non runtime type annotations (either directly or via a library like\nPydantic), you can disable this behavior for Python versions prior to 3.10\nby setting [`lint.pyupgrade.keep-runtime-typing`] to `true`.\n\n## Example\n```python\nfrom typing import Optional\n\nfoo: Optional[int] = None\n```\n\nUse instead:\n```python\nfoo: int | None = None\n```\n\n## Fix safety\nThis rule's fix is marked as unsafe, as it may lead to runtime errors\nusing libraries that rely on runtime type annotations, like Pydantic,\non Python versions prior to Python 3.10. It may also lead to runtime errors\nin unusual and likely incorrect type annotations where the type does not\nsupport the `|` operator.\n\n## Options\n- `target-version`\n- `lint.pyupgrade.keep-runtime-typing`\n\n[PEP 604]: https://peps.python.org/pep-0604/\n",
+    "explanation": "## What it does\nCheck for `typing.Optional` annotations that can be rewritten based on [PEP 604] syntax.\n\n## Why is this bad?\n[PEP 604] introduced a new syntax for union type annotations based on the\n`|` operator. This syntax is more concise and readable than the previous\n`typing.Optional` syntax.\n\nThis rule is enabled when targeting Python 3.10 or later (see:\n[`target-version`]). By default, it's _also_ enabled for earlier Python\nversions if `from __future__ import annotations` is present, as\n`__future__` annotations are not evaluated at runtime. If your code relies\non runtime type annotations (either directly or via a library like\nPydantic), you can disable this behavior for Python versions prior to 3.10\nby setting [`lint.pyupgrade.keep-runtime-typing`] to `true`.\n\n## Example\n```python\nfrom typing import Optional\n\nfoo: Optional[int] = None\n```\n\nUse instead:\n```python\nfoo: int | None = None\n```\n\n## Fix safety\nThis rule's fix is marked as unsafe, as it may lead to runtime errors\nusing libraries that rely on runtime type annotations, like Pydantic,\non Python versions prior to Python 3.10, or as it may remove comments if they\nare present within the type annotation being rewritten. It may also lead to runtime\nerrors in unusual and likely incorrect type annotations where the type does not\nsupport the `|` operator.\n\n## Options\n- `target-version`\n- `lint.pyupgrade.keep-runtime-typing`\n\n[PEP 604]: https://peps.python.org/pep-0604/\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -18240,7 +18240,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pyupgrade/rules/use_pep604_annotation.rs",
-      "line": 113
+      "line": 115
     }
   },
   {
@@ -18342,7 +18342,7 @@
     ],
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
-    "explanation": "## What it does\nChecks for uses of `open` and `read` that can be replaced by `pathlib`\nmethods, like `Path.read_text` and `Path.read_bytes`.\n\n## Why is this bad?\nWhen reading the entire contents of a file into a variable, it's simpler\nand more concise to use `pathlib` methods like `Path.read_text` and\n`Path.read_bytes` instead of `open` and `read` calls via `with` statements.\n\n## Example\n```python\nwith open(filename) as f:\n    contents = f.read()\n```\n\nUse instead:\n```python\nfrom pathlib import Path\n\ncontents = Path(filename).read_text()\n```\n## Fix Safety\nThis rule's fix is marked as unsafe if the replacement would remove comments attached to the original expression.\n\n## References\n- [Python documentation: `Path.read_bytes`](https://docs.python.org/3/library/pathlib.html#pathlib.Path.read_bytes)\n- [Python documentation: `Path.read_text`](https://docs.python.org/3/library/pathlib.html#pathlib.Path.read_text)\n",
+    "explanation": "## What it does\nChecks for uses of `open` and `read` that can be replaced by `pathlib`\nmethods, like `Path.read_text` and `Path.read_bytes`.\n\n## Why is this bad?\nWhen reading the entire contents of a file into a variable, it's simpler\nand more concise to use `pathlib` methods like `Path.read_text` and\n`Path.read_bytes` instead of `open` and `read` calls via `with` statements.\n\n## Example\n```python\nwith open(\"file.txt\") as f:\n    contents = f.read()\n```\n\nUse instead:\n```python\nfrom pathlib import Path\n\ncontents = Path(\"file.txt\").read_text()\n```\n## Fix Safety\nThis rule's fix is marked as unsafe if the replacement would remove comments attached to the original expression.\n\n## References\n- [Python documentation: `Path.read_bytes`](https://docs.python.org/3/library/pathlib.html#pathlib.Path.read_bytes)\n- [Python documentation: `Path.read_text`](https://docs.python.org/3/library/pathlib.html#pathlib.Path.read_text)\n",
     "preview": true,
     "status": {
       "Preview": {
@@ -18365,7 +18365,7 @@
     ],
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
-    "explanation": "## What it does\nChecks for uses of `open` and `write` that can be replaced by `pathlib`\nmethods, like `Path.write_text` and `Path.write_bytes`.\n\n## Why is this bad?\nWhen writing a single string to a file, it's simpler and more concise\nto use `pathlib` methods like `Path.write_text` and `Path.write_bytes`\ninstead of `open` and `write` calls via `with` statements.\n\n## Example\n```python\nwith open(filename, \"w\") as f:\n    f.write(contents)\n```\n\nUse instead:\n```python\nfrom pathlib import Path\n\nPath(filename).write_text(contents)\n```\n\n## Fix Safety\nThis rule's fix is marked as unsafe if the replacement would remove comments attached to the original expression.\n\n## References\n- [Python documentation: `Path.write_bytes`](https://docs.python.org/3/library/pathlib.html#pathlib.Path.write_bytes)\n- [Python documentation: `Path.write_text`](https://docs.python.org/3/library/pathlib.html#pathlib.Path.write_text)\n",
+    "explanation": "## What it does\nChecks for uses of `open` and `write` that can be replaced by `pathlib`\nmethods, like `Path.write_text` and `Path.write_bytes`.\n\n## Why is this bad?\nWhen writing a single string to a file, it's simpler and more concise\nto use `pathlib` methods like `Path.write_text` and `Path.write_bytes`\ninstead of `open` and `write` calls via `with` statements.\n\n## Example\n```python\nwith open(\"file.txt\", \"w\") as f:\n    f.write(\"some text\")\n```\n\nUse instead:\n```python\nfrom pathlib import Path\n\nPath(\"file.txt\").write_text(\"some text\")\n```\n\n## Fix Safety\nThis rule's fix is marked as unsafe if the replacement would remove comments attached to the original expression.\n\n## References\n- [Python documentation: `Path.write_bytes`](https://docs.python.org/3/library/pathlib.html#pathlib.Path.write_bytes)\n- [Python documentation: `Path.write_text`](https://docs.python.org/3/library/pathlib.html#pathlib.Path.write_text)\n",
     "preview": true,
     "status": {
       "Preview": {
@@ -18389,7 +18389,7 @@
     ],
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
-    "explanation": "## What it does\nChecks for `print` calls with unnecessary empty strings as positional\narguments and unnecessary `sep` keyword arguments.\n\n## Why is this bad?\nPrefer calling `print` without any positional arguments, which is\nequivalent and more concise.\n\nSimilarly, when printing one or fewer items, the `sep` keyword argument,\n(used to define the string that separates the `print` arguments) can be\nomitted, as it's redundant when there are no items to separate.\n\n## Example\n```python\nprint(\"\")\n```\n\nUse instead:\n```python\nprint()\n```\n\n## Fix safety\nThis fix is marked as unsafe if it removes an unused `sep` keyword argument\nthat may have side effects. Removing such arguments may change the program's\nbehavior by skipping the execution of those side effects.\n\n## References\n- [Python documentation: `print`](https://docs.python.org/3/library/functions.html#print)\n",
+    "explanation": "## What it does\nChecks for `print` calls with unnecessary empty strings as positional\narguments and unnecessary `sep` keyword arguments.\n\n## Why is this bad?\nPrefer calling `print` without any positional arguments, which is\nequivalent and more concise.\n\nSimilarly, when printing one or fewer items, the `sep` keyword argument,\n(used to define the string that separates the `print` arguments) can be\nomitted, as it's redundant when there are no items to separate.\n\n## Example\n```python\nprint(\"\")\n```\n\nUse instead:\n```python\nprint()\n```\n\n## Fix safety\nThis fix is marked as unsafe if it removes comments or an unused `sep` keyword argument\nthat may have side effects. Removing such arguments may change the program's\nbehavior by skipping the execution of those side effects.\n\n## References\n- [Python documentation: `print`](https://docs.python.org/3/library/functions.html#print)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -18398,7 +18398,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/refurb/rules/print_empty_string.rs",
-      "line": 40
+      "line": 41
     }
   },
   {
@@ -18456,7 +18456,7 @@
     ],
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
-    "explanation": "## What it does\nChecks for uses of `bin(...)[2:]` (or `hex`, or `oct`) to convert\nan integer into a string.\n\n## Why is this bad?\nWhen converting an integer to a baseless binary, hexadecimal, or octal\nstring, using f-strings is more concise and readable than using the\n`bin`, `hex`, or `oct` functions followed by a slice.\n\n## Example\n```python\nprint(bin(1337)[2:])\n```\n\nUse instead:\n```python\nprint(f\"{1337:b}\")\n```\n\n## Fix safety\nThe fix is only marked as safe for integer literals, all other cases\nare display-only, as they may change the runtime behaviour of the program\nor introduce syntax errors.\n",
+    "explanation": "## What it does\nChecks for uses of `bin(...)[2:]` (or `hex`, or `oct`) to convert\nan integer into a string.\n\n## Why is this bad?\nWhen converting an integer to a baseless binary, hexadecimal, or octal\nstring, using f-strings is more concise and readable than using the\n`bin`, `hex`, or `oct` functions followed by a slice.\n\n## Example\n```python\nprint(bin(1337)[2:])\n```\n\nUse instead:\n```python\nprint(f\"{1337:b}\")\n```\n\n## Fix safety\nThe fix is only marked as safe for integer literals, all other cases\nare display-only, as they may change the runtime behavior of the program\nor introduce syntax errors. The fix for integer literals is also marked as unsafe\nif the expression contains comments that would be removed by the fix.\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -18465,7 +18465,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/refurb/rules/fstring_number_format.rs",
-      "line": 33
+      "line": 34
     }
   },
   {
@@ -18590,7 +18590,7 @@
     ],
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
-    "explanation": "## What it does\nChecks for `if` expressions that can be replaced with `min()` or `max()`\ncalls.\n\n## Why is this bad?\nAn `if` expression that selects the lesser or greater of two\nsub-expressions can be replaced with a `min()` or `max()` call\nrespectively. When possible, prefer `min()` and `max()`, as they're more\nconcise and readable than the equivalent `if` expression.\n\n## Example\n```python\nhighest_score = score1 if score1 > score2 else score2\n```\n\nUse instead:\n```python\nhighest_score = max(score2, score1)\n```\n\n## References\n- [Python documentation: `min`](https://docs.python.org/3.11/library/functions.html#min)\n- [Python documentation: `max`](https://docs.python.org/3.11/library/functions.html#max)\n",
+    "explanation": "## What it does\nChecks for `if` expressions that can be replaced with `min()` or `max()`\ncalls.\n\n## Why is this bad?\nAn `if` expression that selects the lesser or greater of two\nsub-expressions can be replaced with a `min()` or `max()` call\nrespectively. When possible, prefer `min()` and `max()`, as they're more\nconcise and readable than the equivalent `if` expression.\n\n## Example\n```python\nscore1, score2 = 4, 5\n\nhighest_score = score1 if score1 > score2 else score2\n```\n\nUse instead:\n```python\nscore1, score2 = 4, 5\n\nhighest_score = max(score2, score1)\n```\n\n## Fix safety\nThis rule's fix is marked as safe, unless the expression contains comments.\n\n## References\n- [Python documentation: `min`](https://docs.python.org/3.11/library/functions.html#min)\n- [Python documentation: `max`](https://docs.python.org/3.11/library/functions.html#max)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -18599,7 +18599,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/refurb/rules/if_expr_min_max.rs",
-      "line": 33
+      "line": 41
     }
   },
   {
@@ -18612,7 +18612,7 @@
     ],
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
-    "explanation": "## What it does\nChecks for generator expressions, list and set comprehensions that can\nbe replaced with `itertools.starmap`.\n\n## Why is this bad?\nWhen unpacking values from iterators to pass them directly to\na function, prefer `itertools.starmap`.\n\nUsing `itertools.starmap` is more concise and readable. Furthermore, it is\nmore efficient than generator expressions, and in some versions of Python,\nit is more efficient than comprehensions.\n\n## Known problems\nSince Python 3.12, `itertools.starmap` is less efficient than\ncomprehensions ([#7771]). This is due to [PEP 709], which made\ncomprehensions faster.\n\n## Example\n```python\nall(predicate(a, b) for a, b in some_iterable)\n```\n\nUse instead:\n```python\nfrom itertools import starmap\n\n\nall(starmap(predicate, some_iterable))\n```\n\n## References\n- [Python documentation: `itertools.starmap`](https://docs.python.org/3/library/itertools.html#itertools.starmap)\n\n[PEP 709]: https://peps.python.org/pep-0709/\n[#7771]: https://github.com/astral-sh/ruff/issues/7771\n",
+    "explanation": "## What it does\nChecks for generator expressions, list and set comprehensions that can\nbe replaced with `itertools.starmap`.\n\n## Why is this bad?\nWhen unpacking values from iterators to pass them directly to\na function, prefer `itertools.starmap`.\n\nUsing `itertools.starmap` is more concise and readable. Furthermore, it is\nmore efficient than generator expressions, and in some versions of Python,\nit is more efficient than comprehensions.\n\n## Known problems\nSince Python 3.12, `itertools.starmap` is less efficient than\ncomprehensions ([#7771]). This is due to [PEP 709], which made\ncomprehensions faster.\n\n## Example\n```python\nall(predicate(a, b) for a, b in some_iterable)\n```\n\nUse instead:\n```python\nfrom itertools import starmap\n\n\nall(starmap(predicate, some_iterable))\n```\n\n## Fix safety\nThis rule's fix is marked as safe, unless the expression contains comments.\n\n## References\n- [Python documentation: `itertools.starmap`](https://docs.python.org/3/library/itertools.html#itertools.starmap)\n\n[PEP 709]: https://peps.python.org/pep-0709/\n[#7771]: https://github.com/astral-sh/ruff/issues/7771\n",
     "preview": true,
     "status": {
       "Preview": {
@@ -18621,7 +18621,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/refurb/rules/reimplemented_starmap.rs",
-      "line": 48
+      "line": 52
     }
   },
   {
@@ -18656,7 +18656,7 @@
     ],
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
-    "explanation": "## What it does\nChecks for unbounded slice expressions to copy a list.\n\n## Why is this bad?\nThe `list.copy` method is more readable and consistent with copying other\ntypes.\n\n## Known problems\nThis rule is prone to false negatives due to type inference limitations,\nas it will only detect lists that are instantiated as literals or annotated\nwith a type annotation.\n\n## Example\n```python\na = [1, 2, 3]\nb = a[:]\n```\n\nUse instead:\n```python\na = [1, 2, 3]\nb = a.copy()\n```\n\n## References\n- [Python documentation: Mutable Sequence Types](https://docs.python.org/3/library/stdtypes.html#mutable-sequence-types)\n",
+    "explanation": "## What it does\nChecks for unbounded slice expressions to copy a list.\n\n## Why is this bad?\nThe `list.copy` method is more readable and consistent with copying other\ntypes.\n\n## Known problems\nThis rule is prone to false negatives due to type inference limitations,\nas it will only detect lists that are instantiated as literals or annotated\nwith a type annotation.\n\n## Example\n```python\na = [1, 2, 3]\nb = a[:]\n```\n\nUse instead:\n```python\na = [1, 2, 3]\nb = a.copy()\n```\n\n## Fix safety\nThis rule's fix is marked as safe, unless the slice expression contains comments.\n\n## References\n- [Python documentation: Mutable Sequence Types](https://docs.python.org/3/library/stdtypes.html#mutable-sequence-types)\n",
     "preview": true,
     "status": {
       "Preview": {
@@ -18665,7 +18665,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/refurb/rules/slice_copy.rs",
-      "line": 39
+      "line": 43
     }
   },
   {
@@ -18723,7 +18723,7 @@
     ],
     "fix": "Fix is always available.",
     "fix_availability": "Always",
-    "explanation": "## What it does\nChecks for consecutive `global` (or `nonlocal`) statements.\n\n## Why is this bad?\nThe `global` and `nonlocal` keywords accepts multiple comma-separated names.\nInstead of using multiple `global` (or `nonlocal`) statements for separate\nvariables, you can use a single statement to declare multiple variables at\nonce.\n\n## Example\n```python\ndef func():\n    global x\n    global y\n\n    print(x, y)\n```\n\nUse instead:\n```python\ndef func():\n    global x, y\n\n    print(x, y)\n```\n\n## References\n- [Python documentation: the `global` statement](https://docs.python.org/3/reference/simple_stmts.html#the-global-statement)\n- [Python documentation: the `nonlocal` statement](https://docs.python.org/3/reference/simple_stmts.html#the-nonlocal-statement)\n",
+    "explanation": "## What it does\nChecks for consecutive `global` (or `nonlocal`) statements.\n\n## Why is this bad?\nThe `global` and `nonlocal` keywords accepts multiple comma-separated names.\nInstead of using multiple `global` (or `nonlocal`) statements for separate\nvariables, you can use a single statement to declare multiple variables at\nonce.\n\n## Example\n```python\ndef func():\n    global x\n    global y\n\n    print(x, y)\n```\n\nUse instead:\n```python\ndef func():\n    global x, y\n\n    print(x, y)\n```\n\n## Fix safety\nThis rule's fix is marked as safe, unless the statements contain comments.\n\n## References\n- [Python documentation: the `global` statement](https://docs.python.org/3/reference/simple_stmts.html#the-global-statement)\n- [Python documentation: the `nonlocal` statement](https://docs.python.org/3/reference/simple_stmts.html#the-nonlocal-statement)\n",
     "preview": true,
     "status": {
       "Preview": {
@@ -18732,7 +18732,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/refurb/rules/repeated_global.rs",
-      "line": 39
+      "line": 42
     }
   },
   {
@@ -18767,7 +18767,7 @@
     ],
     "fix": "Fix is always available.",
     "fix_availability": "Always",
-    "explanation": "## What it does\nChecks for unnecessary string literal or float casts in `Decimal`\nconstructors.\n\n## Why is this bad?\nThe `Decimal` constructor accepts a variety of arguments, including\nintegers, floats, and strings. However, it's not necessary to cast\ninteger literals to strings when passing them to the `Decimal`.\n\nSimilarly, `Decimal` accepts `inf`, `-inf`, and `nan` as string literals,\nso there's no need to wrap those values in a `float` call when passing\nthem to the `Decimal` constructor.\n\nPrefer the more concise form of argument passing for `Decimal`\nconstructors, as it's more readable and idiomatic.\n\nNote that this rule does not flag quoted float literals such as `Decimal(\"0.1\")`, which will\nproduce a more precise `Decimal` value than the unquoted `Decimal(0.1)`.\n\n## Example\n```python\nfrom decimal import Decimal\n\nDecimal(\"0\")\nDecimal(float(\"Infinity\"))\n```\n\nUse instead:\n```python\nfrom decimal import Decimal\n\nDecimal(0)\nDecimal(\"Infinity\")\n```\n\n## References\n- [Python documentation: `decimal`](https://docs.python.org/3/library/decimal.html)\n",
+    "explanation": "## What it does\nChecks for unnecessary string literal or float casts in `Decimal`\nconstructors.\n\n## Why is this bad?\nThe `Decimal` constructor accepts a variety of arguments, including\nintegers, floats, and strings. However, it's not necessary to cast\ninteger literals to strings when passing them to the `Decimal`.\n\nSimilarly, `Decimal` accepts `inf`, `-inf`, and `nan` as string literals,\nso there's no need to wrap those values in a `float` call when passing\nthem to the `Decimal` constructor.\n\nPrefer the more concise form of argument passing for `Decimal`\nconstructors, as it's more readable and idiomatic.\n\nNote that this rule does not flag quoted float literals such as `Decimal(\"0.1\")`, which will\nproduce a more precise `Decimal` value than the unquoted `Decimal(0.1)`.\n\n## Example\n```python\nfrom decimal import Decimal\n\nDecimal(\"0\")\nDecimal(float(\"Infinity\"))\n```\n\nUse instead:\n```python\nfrom decimal import Decimal\n\nDecimal(0)\nDecimal(\"Infinity\")\n```\n\n## Fix safety\nThis rule's fix is marked as safe, unless the expression contains comments.\n\n## References\n- [Python documentation: `decimal`](https://docs.python.org/3/library/decimal.html)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -18776,7 +18776,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/refurb/rules/verbose_decimal_constructor.rs",
-      "line": 50
+      "line": 53
     }
   },
   {
@@ -18855,7 +18855,7 @@
     ],
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
-    "explanation": "## What it does\nChecks for unnecessary `from_float` and `from_decimal` usages to construct\n`Decimal` and `Fraction` instances.\n\n## Why is this bad?\nSince Python 3.2, the `Fraction` and `Decimal` classes can be constructed\nby passing float or decimal instances to the constructor directly. As such,\nthe use of `from_float` and `from_decimal` methods is unnecessary, and\nshould be avoided in favor of the more concise constructor syntax.\n\nHowever, there are important behavioral differences between the `from_*` methods\nand the constructors:\n- The `from_*` methods validate their argument types and raise `TypeError` for invalid types\n- The constructors accept broader argument types without validation\n- The `from_*` methods have different parameter names than the constructors\n\n## Example\n```python\nfrom decimal import Decimal\nfrom fractions import Fraction\n\nDecimal.from_float(4.2)\nDecimal.from_float(float(\"inf\"))\nFraction.from_float(4.2)\nFraction.from_decimal(Decimal(\"4.2\"))\n```\n\nUse instead:\n```python\nfrom decimal import Decimal\nfrom fractions import Fraction\n\nDecimal(4.2)\nDecimal(\"inf\")\nFraction(4.2)\nFraction(Decimal(\"4.2\"))\n```\n\n## Fix safety\nThis rule's fix is marked as unsafe by default because:\n- The `from_*` methods provide type validation that the constructors don't\n- Removing type validation can change program behavior\n- The parameter names are different between methods and constructors\n\nThe fix is marked as safe only when:\n- The argument type is known to be valid for the target constructor\n- No keyword arguments are used, or they match the constructor's parameters\n\n## References\n- [Python documentation: `decimal`](https://docs.python.org/3/library/decimal.html)\n- [Python documentation: `fractions`](https://docs.python.org/3/library/fractions.html)\n",
+    "explanation": "## What it does\nChecks for unnecessary `from_float` and `from_decimal` usages to construct\n`Decimal` and `Fraction` instances.\n\n## Why is this bad?\nSince Python 3.2, the `Fraction` and `Decimal` classes can be constructed\nby passing float or decimal instances to the constructor directly. As such,\nthe use of `from_float` and `from_decimal` methods is unnecessary, and\nshould be avoided in favor of the more concise constructor syntax.\n\nHowever, there are important behavioral differences between the `from_*` methods\nand the constructors:\n- The `from_*` methods validate their argument types and raise `TypeError` for invalid types\n- The constructors accept broader argument types without validation\n- The `from_*` methods have different parameter names than the constructors\n\n## Example\n```python\nfrom decimal import Decimal\nfrom fractions import Fraction\n\nDecimal.from_float(4.2)\nDecimal.from_float(float(\"inf\"))\nFraction.from_float(4.2)\nFraction.from_decimal(Decimal(\"4.2\"))\n```\n\nUse instead:\n```python\nfrom decimal import Decimal\nfrom fractions import Fraction\n\nDecimal(4.2)\nDecimal(\"inf\")\nFraction(4.2)\nFraction(Decimal(\"4.2\"))\n```\n\n## Fix safety\nThis rule's fix is marked as unsafe by default because:\n- The `from_*` methods provide type validation that the constructors don't\n- Removing type validation can change program behavior\n- The parameter names are different between methods and constructors\n- The fix may remove comments attached to the original expression\n\nThe fix is marked as safe only when:\n- The argument type is known to be valid for the target constructor\n- No keyword arguments are used, or they match the constructor's parameters\n\n## References\n- [Python documentation: `decimal`](https://docs.python.org/3/library/decimal.html)\n- [Python documentation: `fractions`](https://docs.python.org/3/library/fractions.html)\n",
     "preview": true,
     "status": {
       "Preview": {
@@ -18864,7 +18864,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/refurb/rules/unnecessary_from_float.rs",
-      "line": 62
+      "line": 63
     }
   },
   {
@@ -19031,7 +19031,7 @@
     ],
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
-    "explanation": "## What it does\nChecks for the use of `.digest().hex()` on a hashlib hash, like `sha512`.\n\n## Why is this bad?\nWhen generating a hex digest from a hash, it's preferable to use the\n`.hexdigest()` method, rather than calling `.digest()` and then `.hex()`,\nas the former is more concise and readable.\n\n## Example\n```python\nfrom hashlib import sha512\n\nhashed = sha512(b\"some data\").digest().hex()\n```\n\nUse instead:\n```python\nfrom hashlib import sha512\n\nhashed = sha512(b\"some data\").hexdigest()\n```\n\n## References\n- [Python documentation: `hashlib`](https://docs.python.org/3/library/hashlib.html)\n",
+    "explanation": "## What it does\nChecks for the use of `.digest().hex()` on a hashlib hash, like `sha512`.\n\n## Why is this bad?\nWhen generating a hex digest from a hash, it's preferable to use the\n`.hexdigest()` method, rather than calling `.digest()` and then `.hex()`,\nas the former is more concise and readable.\n\n## Example\n```python\nfrom hashlib import sha512\n\nhashed = sha512(b\"some data\").digest().hex()\n```\n\nUse instead:\n```python\nfrom hashlib import sha512\n\nhashed = sha512(b\"some data\").hexdigest()\n```\n\n## Fix safety\nThis rule's fix is marked as safe, unless the expression contains comments.\n\n## References\n- [Python documentation: `hashlib`](https://docs.python.org/3/library/hashlib.html)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -19040,7 +19040,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/refurb/rules/hashlib_digest_hex.rs",
-      "line": 33
+      "line": 37
     }
   },
   {
@@ -19076,7 +19076,7 @@
     ],
     "fix": "Fix is always available.",
     "fix_availability": "Always",
-    "explanation": "## What it does\nChecks for code that could be written more idiomatically using\n[`str.removeprefix()`](https://docs.python.org/3/library/stdtypes.html#str.removeprefix)\nor [`str.removesuffix()`](https://docs.python.org/3/library/stdtypes.html#str.removesuffix).\n\nSpecifically, the rule flags code that conditionally removes a prefix or suffix\nusing a slice operation following an `if` test that uses `str.startswith()` or `str.endswith()`.\n\nThe rule is only applied if your project targets Python 3.9 or later.\n\n## Why is this bad?\nThe methods [`str.removeprefix()`](https://docs.python.org/3/library/stdtypes.html#str.removeprefix)\nand [`str.removesuffix()`](https://docs.python.org/3/library/stdtypes.html#str.removesuffix),\nintroduced in Python 3.9, have the same behavior while being more readable and efficient.\n\n## Example\n```python\ndef example(filename: str, text: str):\n    filename = filename[:-4] if filename.endswith(\".txt\") else filename\n\n    if text.startswith(\"pre\"):\n        text = text[3:]\n```\n\nUse instead:\n```python\ndef example(filename: str, text: str):\n    filename = filename.removesuffix(\".txt\")\n    text = text.removeprefix(\"pre\")\n```\n",
+    "explanation": "## What it does\nChecks for code that could be written more idiomatically using\n[`str.removeprefix()`](https://docs.python.org/3/library/stdtypes.html#str.removeprefix)\nor [`str.removesuffix()`](https://docs.python.org/3/library/stdtypes.html#str.removesuffix).\n\nSpecifically, the rule flags code that conditionally removes a prefix or suffix\nusing a slice operation following an `if` test that uses `str.startswith()` or `str.endswith()`.\n\nThe rule is only applied if your project targets Python 3.9 or later.\n\n## Why is this bad?\nThe methods [`str.removeprefix()`](https://docs.python.org/3/library/stdtypes.html#str.removeprefix)\nand [`str.removesuffix()`](https://docs.python.org/3/library/stdtypes.html#str.removesuffix),\nintroduced in Python 3.9, have the same behavior while being more readable and efficient.\n\n## Example\n```python\ndef example(filename: str, text: str):\n    filename = filename[:-4] if filename.endswith(\".txt\") else filename\n\n    if text.startswith(\"pre\"):\n        text = text[3:]\n```\n\nUse instead:\n```python\ndef example(filename: str, text: str):\n    filename = filename.removesuffix(\".txt\")\n    text = text.removeprefix(\"pre\")\n```\n\n## Fix safety\nThis rule's fix is marked as safe, unless the expression contains comments.\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -19085,7 +19085,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/refurb/rules/slice_to_remove_prefix_or_suffix.rs",
-      "line": 40
+      "line": 44
     }
   },
   {
@@ -19498,7 +19498,7 @@
     ],
     "fix": "Fix is always available.",
     "fix_availability": "Always",
-    "explanation": "## What it does\nChecks for unnecessary key checks prior to accessing a dictionary.\n\n## Why is this bad?\nWhen working with dictionaries, the `get` can be used to access a value\nwithout having to check if the dictionary contains the relevant key,\nreturning `None` if the key is not present.\n\n## Example\n```python\nif \"key\" in dct and dct[\"key\"]:\n    ...\n```\n\nUse instead:\n```python\nif dct.get(\"key\"):\n    ...\n```\n",
+    "explanation": "## What it does\nChecks for unnecessary key checks prior to accessing a dictionary.\n\n## Why is this bad?\nWhen working with dictionaries, the `get` can be used to access a value\nwithout having to check if the dictionary contains the relevant key,\nreturning `None` if the key is not present.\n\n## Example\n```python\nif \"key\" in dct and dct[\"key\"]:\n    ...\n```\n\nUse instead:\n```python\nif dct.get(\"key\"):\n    ...\n```\n\n## Fix safety\nThis rule's fix is marked as safe, unless the expression contains comments.\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -19507,7 +19507,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/ruff/rules/unnecessary_key_check.rs",
-      "line": 31
+      "line": 35
     }
   },
   {
@@ -19521,7 +19521,7 @@
     ],
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
-    "explanation": "## What it does\nChecks for uses of `typing.NoReturn` and `typing.Never` in union types.\n\n## Why is this bad?\n`typing.NoReturn` and `typing.Never` are special types, used to indicate\nthat a function never returns, or that a type has no values.\n\nIncluding `typing.NoReturn` or `typing.Never` in a union type is redundant,\nas, e.g., `typing.Never | T` is equivalent to `T`.\n\n## Example\n\n```python\nfrom typing import Never\n\n\ndef func() -> Never | int: ...\n```\n\nUse instead:\n\n```python\ndef func() -> int: ...\n```\n\n## References\n- [Python documentation: `typing.Never`](https://docs.python.org/3/library/typing.html#typing.Never)\n- [Python documentation: `typing.NoReturn`](https://docs.python.org/3/library/typing.html#typing.NoReturn)\n",
+    "explanation": "## What it does\nChecks for uses of `typing.NoReturn` and `typing.Never` in union types.\n\n## Why is this bad?\n`typing.NoReturn` and `typing.Never` are special types, used to indicate\nthat a function never returns, or that a type has no values.\n\nIncluding `typing.NoReturn` or `typing.Never` in a union type is redundant,\nas, e.g., `typing.Never | T` is equivalent to `T`.\n\n## Example\n\n```python\nfrom typing import Never\n\n\ndef func() -> Never | int: ...\n```\n\nUse instead:\n\n```python\ndef func() -> int: ...\n```\n\n## Fix safety\nThis rule's fix is marked as safe, unless the union type contains comments.\n\n## References\n- [Python documentation: `typing.Never`](https://docs.python.org/3/library/typing.html#typing.Never)\n- [Python documentation: `typing.NoReturn`](https://docs.python.org/3/library/typing.html#typing.NoReturn)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -19530,7 +19530,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/ruff/rules/never_union.rs",
-      "line": 37
+      "line": 41
     }
   },
   {
@@ -20464,6 +20464,28 @@
     "source_location": {
       "file": "crates/ruff_linter/src/rules/ruff/rules/non_empty_init_module.rs",
       "line": 73
+    }
+  },
+  {
+    "name": "duplicate-entry-in-dunder-all",
+    "code": "RUF068",
+    "linter": "Ruff-specific rules",
+    "summary": "`__all__` contains duplicate entries",
+    "message_formats": [
+      "`__all__` contains duplicate entries"
+    ],
+    "fix": "Fix is sometimes available.",
+    "fix_availability": "Sometimes",
+    "explanation": "## What it does\nDetects duplicate elements in `__all__` definitions.\n\n## Why is this bad?\nDuplicate elements in `__all__` serve no purpose and can indicate copy-paste errors or\nincomplete refactoring.\n\n## Example\n```python\n__all__ = [\n    \"DatabaseConnection\",\n    \"Product\",\n    \"User\",\n    \"DatabaseConnection\",  # Duplicate\n]\n```\n\nUse instead:\n```python\n__all__ = [\n    \"DatabaseConnection\",\n    \"Product\",\n    \"User\",\n]\n```\n\n## Fix Safety\nThis rule's fix is marked as unsafe if the replacement would remove comments attached to the\noriginal expression, potentially losing important context or documentation.\n\nFor example:\n```python\n__all__ = [\n    \"PublicAPI\",\n    # TODO: Remove this in v2.0\n    \"PublicAPI\",  # Deprecated alias\n]\n```\n",
+    "preview": true,
+    "status": {
+      "Preview": {
+        "since": "0.14.14"
+      }
+    },
+    "source_location": {
+      "file": "crates/ruff_linter/src/rules/ruff/rules/duplicate_entry_in_dunder_all.rs",
+      "line": 50
     }
   },
   {
