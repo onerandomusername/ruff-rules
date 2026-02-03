@@ -870,10 +870,10 @@
     "fix": "Fix is not available.",
     "fix_availability": "None",
     "explanation": "## What it does\nChecks that async functions do not use blocking httpx clients.\n\n## Why is this bad?\nBlocking an async function via a blocking HTTP call will block the entire\nevent loop, preventing it from executing other tasks while waiting for the\nHTTP response, negating the benefits of asynchronous programming.\n\nInstead of using the blocking `httpx` client, use the asynchronous client.\n\n## Example\n```python\nimport httpx\n\n\nasync def fetch():\n    client = httpx.Client()\n    response = client.get(...)\n```\n\nUse instead:\n```python\nimport httpx\n\n\nasync def fetch():\n    async with httpx.AsyncClient() as client:\n        response = await client.get(...)\n```\n",
-    "preview": true,
+    "preview": false,
     "status": {
-      "Preview": {
-        "since": "0.12.11"
+      "Stable": {
+        "since": "0.15.0"
       }
     },
     "source_location": {
@@ -980,10 +980,10 @@
     "fix": "Fix is not available.",
     "fix_availability": "None",
     "explanation": "## What it does\nChecks that async functions do not call blocking `os.path` or `pathlib.Path`\nmethods.\n\n## Why is this bad?\nCalling some `os.path` or `pathlib.Path` methods in an async function will block\nthe entire event loop, preventing it from executing other tasks while waiting\nfor the operation. This negates the benefits of asynchronous programming.\n\nInstead, use the methods' async equivalents from `trio.Path` or `anyio.Path`.\n\n## Example\n```python\nimport os\n\n\nasync def func():\n    path = \"my_file.txt\"\n    file_exists = os.path.exists(path)\n```\n\nUse instead:\n```python\nimport trio\n\n\nasync def func():\n    path = trio.Path(\"my_file.txt\")\n    file_exists = await path.exists()\n```\n\nNon-blocking methods are OK to use:\n```python\nimport pathlib\n\n\nasync def func():\n    path = pathlib.Path(\"my_file.txt\")\n    file_dirname = path.dirname()\n    new_path = os.path.join(\"/tmp/src/\", path)\n```\n",
-    "preview": true,
+    "preview": false,
     "status": {
-      "Preview": {
-        "since": "0.13.2"
+      "Stable": {
+        "since": "0.15.0"
       }
     },
     "source_location": {
@@ -995,17 +995,17 @@
     "name": "blocking-input-in-async-function",
     "code": "ASYNC250",
     "linter": "flake8-async",
-    "summary": "Blocking call to input() in async context",
+    "summary": "Blocking call to `input()` in async context",
     "message_formats": [
-      "Blocking call to input() in async context"
+      "Blocking call to `input()` in async context"
     ],
     "fix": "Fix is not available.",
     "fix_availability": "None",
     "explanation": "## What it does\nChecks that async functions do not contain blocking usage of input from user.\n\n## Why is this bad?\nBlocking an async function via a blocking input call will block the entire\nevent loop, preventing it from executing other tasks while waiting for user\ninput, negating the benefits of asynchronous programming.\n\nInstead of making a blocking input call directly, wrap the input call in\nan executor to execute the blocking call on another thread.\n\n## Example\n```python\nasync def foo():\n    username = input(\"Username:\")\n```\n\nUse instead:\n```python\nimport asyncio\n\n\nasync def foo():\n    loop = asyncio.get_running_loop()\n    username = await loop.run_in_executor(None, input, \"Username:\")\n```\n",
-    "preview": true,
+    "preview": false,
     "status": {
-      "Preview": {
-        "since": "0.12.12"
+      "Stable": {
+        "since": "0.15.0"
       }
     },
     "source_location": {
@@ -3327,7 +3327,7 @@
     ],
     "fix": "Fix is always available.",
     "fix_availability": "Always",
-    "explanation": "## What it does\nChecks for `warnings.warn` calls without an explicit `stacklevel` keyword\nargument.\n\n## Why is this bad?\nThe `warnings.warn` method uses a `stacklevel` of 1 by default, which\nwill output a stack frame of the line on which the \"warn\" method\nis called. Setting it to a higher number will output a stack frame\nfrom higher up the stack.\n\nIt's recommended to use a `stacklevel` of 2 or higher, to give the caller\nmore context about the warning.\n\n## Example\n```python\nimport warnings\n\nwarnings.warn(\"This is a warning\")\n```\n\nUse instead:\n```python\nimport warnings\n\nwarnings.warn(\"This is a warning\", stacklevel=2)\n```\n\n## Fix safety\nThis rule's fix is marked as unsafe because it changes\nthe behavior of the code. Moreover, the fix will assign\na stacklevel of 2, while the user may wish to assign a\nhigher stacklevel to address the diagnostic.\n\n## References\n- [Python documentation: `warnings.warn`](https://docs.python.org/3/library/warnings.html#warnings.warn)\n",
+    "explanation": "## What it does\nChecks for `warnings.warn` calls without an explicit `stacklevel` keyword\nargument.\n\n## Why is this bad?\nThe `warnings.warn` method uses a `stacklevel` of 1 by default, which\nwill output a stack frame of the line on which the \"warn\" method\nis called. Setting it to a higher number will output a stack frame\nfrom higher up the stack.\n\nIt's recommended to use a `stacklevel` of 2 or higher, to give the caller\nmore context about the warning.\n\nIn Python 3.12 and higher, one may also use `skip_file_prefixes` to specify\nwhich file prefixes are ignored when counting the stack level. This implicitly overrides the `stacklevel` to be\nat least 2, according to the [Python documentation].\n## Example\n```python\nimport warnings\n\nwarnings.warn(\"This is a warning\")\n```\n\nUse instead:\n```python\nimport warnings\n\nwarnings.warn(\"This is a warning\", stacklevel=2)\n```\n\n## Fix safety\nThis rule's fix is marked as unsafe because it changes\nthe behavior of the code. Moreover, the fix will assign\na stacklevel of 2, while the user may wish to assign a\nhigher stacklevel to address the diagnostic.\n\n## References\n- [Python documentation: `warnings.warn`][Python documentation]\n\n[Python documentation]: https://docs.python.org/3/library/warnings.html#warnings.warn\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -3336,7 +3336,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bugbear/rules/no_explicit_stacklevel.rs",
-      "line": 43
+      "line": 48
     }
   },
   {
@@ -3663,16 +3663,16 @@
     ],
     "fix": "Fix is always available.",
     "fix_availability": "Always",
-    "explanation": "## What it does\nChecks for `map` calls without an explicit `strict` parameter when called with two or more iterables, or any starred argument.\n\nThis rule applies to Python 3.14 and later, where `map` accepts a `strict` keyword\nargument. For details, see: [What’s New in Python 3.14](https://docs.python.org/dev/whatsnew/3.14.html).\n\n## Why is this bad?\nBy default, if the iterables passed to `map` are of different lengths, the\nresulting iterator will be silently truncated to the length of the shortest\niterable. This can lead to subtle bugs.\n\nPass `strict=True` to raise a `ValueError` if the iterables are of\nnon-uniform length. Alternatively, if the iterables are deliberately of\ndifferent lengths, pass `strict=False` to make the intention explicit.\n\n## Example\n```python\nmap(f, a, b)\n```\n\nUse instead:\n```python\nmap(f, a, b, strict=True)\n```\n\n## Fix safety\nThis rule's fix is marked as unsafe. While adding `strict=False` preserves\nthe runtime behavior, it can obscure situations where the iterables are of\nunequal length. Ruff prefers to alert users so they can choose the intended\nbehavior themselves.\n\n## References\n- [Python documentation: `map`](https://docs.python.org/3/library/functions.html#map)\n- [What’s New in Python 3.14](https://docs.python.org/dev/whatsnew/3.14.html)\n",
-    "preview": true,
+    "explanation": "## What it does\nChecks for `map` calls without an explicit `strict` parameter when called with two or more\niterables, or any starred argument.\n\nThis rule applies to Python 3.14 and later, where `map` accepts a `strict` keyword\nargument. For details, see: [What’s New in Python 3.14].\n\n## Why is this bad?\nBy default, if the iterables passed to `map` are of different lengths, the\nresulting iterator will be silently truncated to the length of the shortest\niterable. This can lead to subtle bugs.\n\nPass `strict=True` to raise a `ValueError` if the iterables are of\nnon-uniform length. Alternatively, if the iterables are deliberately of\ndifferent lengths, pass `strict=False` to make the intention explicit.\n\n## Example\n```python\nmap(f, a, b)\n```\n\nUse instead:\n```python\nmap(f, a, b, strict=True)\n```\n\n## Fix safety\nThis rule's fix is marked as unsafe. While adding `strict=False` preserves\nthe runtime behavior, it can obscure situations where the iterables are of\nunequal length. Ruff prefers to alert users so they can choose the intended\nbehavior themselves.\n\n## References\n- [Python documentation: `map`](https://docs.python.org/3/library/functions.html#map)\n- [What’s New in Python 3.14]\n\n[What's New in Python 3.14]: https://docs.python.org/dev/whatsnew/3.14.html\n",
+    "preview": false,
     "status": {
-      "Preview": {
-        "since": "0.13.2"
+      "Stable": {
+        "since": "0.15.0"
       }
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bugbear/rules/map_without_explicit_strict.rs",
-      "line": 45
+      "line": 48
     }
   },
   {
@@ -3739,7 +3739,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_builtins/rules/builtin_attribute_shadowing.rs",
-      "line": 59
+      "line": 58
     }
   },
   {
@@ -6172,7 +6172,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_pyi/rules/duplicate_union_member.rs",
-      "line": 39
+      "line": 38
     }
   },
   {
@@ -8679,7 +8679,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_simplify/rules/split_static_string.rs",
-      "line": 49
+      "line": 47
     }
   },
   {
@@ -13222,7 +13222,7 @@
     ],
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
-    "explanation": "## What it does\nChecks for docstrings that use `'''triple single quotes'''` instead of\n`\"\"\"triple double quotes\"\"\"`.\n\n## Why is this bad?\n[PEP 257](https://peps.python.org/pep-0257/#what-is-a-docstring) recommends\nthe use of `\"\"\"triple double quotes\"\"\"` for docstrings, to ensure\nconsistency.\n\n## Example\n```python\ndef kos_root():\n    '''Return the pathname of the KOS root directory.'''\n```\n\nUse instead:\n```python\ndef kos_root():\n    \"\"\"Return the pathname of the KOS root directory.\"\"\"\n```\n\n## Formatter compatibility\nWe recommend against using this rule alongside the [formatter]. The\nformatter enforces consistent quotes, making the rule redundant.\n\n## Options\n\n- `lint.pydocstyle.ignore-decorators`\n\n## References\n- [PEP 257 – Docstring Conventions](https://peps.python.org/pep-0257/)\n- [NumPy Style Guide](https://numpydoc.readthedocs.io/en/latest/format.html)\n- [Google Python Style Guide - Docstrings](https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings)\n\n[formatter]: https://docs.astral.sh/ruff/formatter/\n",
+    "explanation": "## What it does\nChecks for docstrings that don't use `\"\"\"triple double quotes\"\"\"`.\n\n## Why is this bad?\n[PEP 257](https://peps.python.org/pep-0257/#what-is-a-docstring) recommends\nthe use of `\"\"\"triple double quotes\"\"\"` for docstrings, to ensure\nconsistency.\n\n## Example\n```python\ndef kos_root():\n    '''Return the pathname of the KOS root directory.'''\n\ndef kos_branch():\n    'Return the branch name.'\n```\n\nUse instead:\n```python\ndef kos_root():\n    \"\"\"Return the pathname of the KOS root directory.\"\"\"\n\ndef kos_branch():\n    \"\"\"Return the branch name.\"\"\"\n```\n\n## Formatter compatibility\nWe recommend against using this rule alongside the [formatter]. The\nformatter enforces consistent quotes, making the rule redundant.\n\n## Options\n\n- `lint.pydocstyle.ignore-decorators`\n\n## References\n- [PEP 257 – Docstring Conventions](https://peps.python.org/pep-0257/)\n- [NumPy Style Guide](https://numpydoc.readthedocs.io/en/latest/format.html)\n- [Google Python Style Guide - Docstrings](https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings)\n\n[formatter]: https://docs.astral.sh/ruff/formatter/\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -13231,7 +13231,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pydocstyle/rules/triple_quotes.rs",
-      "line": 44
+      "line": 49
     }
   },
   {
@@ -14879,22 +14879,22 @@
     "name": "missing-maxsplit-arg",
     "code": "PLC0207",
     "linter": "Pylint",
-    "summary": "Replace with `{suggested_split_type}(..., maxsplit=1)`.",
+    "summary": "String is split more times than necessary",
     "message_formats": [
-      "Replace with `{suggested_split_type}(..., maxsplit=1)`."
+      "String is split more times than necessary"
     ],
     "fix": "Fix is always available.",
     "fix_availability": "Always",
-    "explanation": "## What it does\nChecks for access to the first or last element of `str.split()` or `str.rsplit()` without\n`maxsplit=1`\n\n## Why is this bad?\nCalling `str.split()` or `str.rsplit()` without passing `maxsplit=1` splits on every delimiter in the\nstring. When accessing only the first or last element of the result, it\nwould be more efficient to only split once.\n\n## Example\n```python\nurl = \"www.example.com\"\nprefix = url.split(\".\")[0]\n```\n\nUse instead:\n```python\nurl = \"www.example.com\"\nprefix = url.split(\".\", maxsplit=1)[0]\n```\n\nTo access the last element, use `str.rsplit()` instead of `str.split()`:\n```python\nurl = \"www.example.com\"\nsuffix = url.rsplit(\".\", maxsplit=1)[-1]\n```\n\n## Fix Safety\nThis rule's fix is marked as unsafe for `split()`/`rsplit()` calls that contain `*args` or `**kwargs` arguments, as\nadding a `maxsplit` argument to such a call may lead to duplicated arguments.\n",
-    "preview": true,
+    "explanation": "## What it does\nChecks for access to the first or last element of `str.split()` or `str.rsplit()` without a\n`maxsplit=1` argument.\n\n## Why is this bad?\nCalling `str.split()` or `str.rsplit()` without passing `maxsplit=1` splits on every delimiter in the\nstring. When accessing only the first or last element of the result, it\nwould be more efficient to split only once.\n\n## Example\n```python\nurl = \"www.example.com\"\nprefix = url.split(\".\")[0]\n```\n\nUse instead:\n```python\nurl = \"www.example.com\"\nprefix = url.split(\".\", maxsplit=1)[0]\n```\n\nTo access the last element, use `str.rsplit()` instead of `str.split()`:\n```python\nurl = \"www.example.com\"\nsuffix = url.rsplit(\".\", maxsplit=1)[-1]\n```\n\n## Fix Safety\nThis rule's fix is marked as unsafe for `split()`/`rsplit()` calls that contain `*args` or\n`**kwargs` arguments, as adding a `maxsplit` argument to such a call may lead to duplicate\narguments.\n",
+    "preview": false,
     "status": {
-      "Preview": {
-        "since": "0.11.12"
+      "Stable": {
+        "since": "0.15.0"
       }
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pylint/rules/missing_maxsplit_arg.rs",
-      "line": 43
+      "line": 44
     }
   },
   {
@@ -16679,16 +16679,16 @@
     ],
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
-    "explanation": "## What it does\nChecks for `lambda` definitions that consist of a single function call\nwith the same arguments as the `lambda` itself.\n\n## Why is this bad?\nWhen a `lambda` is used to wrap a function call, and merely propagates\nthe `lambda` arguments to that function, it can typically be replaced with\nthe function itself, removing a level of indirection.\n\n## Example\n```python\ndf.apply(lambda x: str(x))\n```\n\nUse instead:\n```python\ndf.apply(str)\n```\n\n## Fix safety\nThis rule's fix is marked as unsafe for two primary reasons.\n\nFirst, the lambda body itself could contain an effect.\n\nFor example, replacing `lambda x, y: (func()(x, y))` with `func()` would\nlead to a change in behavior, as `func()` would be evaluated eagerly when\ndefining the lambda, rather than when the lambda is called.\n\nHowever, even when the lambda body itself is pure, the lambda may\nchange the argument names, which can lead to a change in behavior when\ncallers pass arguments by name.\n\nFor example, replacing `foo = lambda x, y: func(x, y)` with `foo = func`,\nwhere `func` is defined as `def func(a, b): return a + b`, would be a\nbreaking change for callers that execute the lambda by passing arguments by\nname, as in: `foo(x=1, y=2)`. Since `func` does not define the arguments\n`x` and `y`, unlike the lambda, the call would raise a `TypeError`.\n",
-    "preview": true,
+    "explanation": "## What it does\nChecks for `lambda` definitions that consist of a single function call\nwith the same arguments as the `lambda` itself.\n\n## Why is this bad?\nWhen a `lambda` is used to wrap a function call, and merely propagates\nthe `lambda` arguments to that function, it can typically be replaced with\nthe function itself, removing a level of indirection.\n\n## Example\n```python\ndf.apply(lambda x: str(x))\n```\n\nUse instead:\n```python\ndf.apply(str)\n```\n\n## Fix safety\nThis rule's fix is marked as unsafe for two primary reasons.\n\nFirst, the lambda body itself could contain an effect.\n\nFor example, replacing `lambda x, y: (func()(x, y))` with `func()` would\nlead to a change in behavior, as `func()` would be evaluated eagerly when\ndefining the lambda, rather than when the lambda is called.\n\nHowever, even when the lambda body itself is pure, the lambda may\nchange the argument names, which can lead to a change in behavior when\ncallers pass arguments by name.\n\nFor example:\n\n```python\ndef func(a, b):\n    return a + b\n\n\nfoo = lambda x, y: func(x, y)\n```\n\nReplacing the assignment to `foo` with `foo = func` would be a breaking\nchange for callers that execute the lambda by passing arguments by name, as\nin: `foo(x=1, y=2)`. Since `func` does not define the arguments `x` and `y`,\nunlike the lambda, the call would raise a `TypeError`.\n",
+    "preview": false,
     "status": {
-      "Preview": {
-        "since": "v0.1.2"
+      "Stable": {
+        "since": "0.15.0"
       }
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pylint/rules/unnecessary_lambda.rs",
-      "line": 46
+      "line": 55
     }
   },
   {
@@ -17433,7 +17433,7 @@
     ],
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
-    "explanation": "## What it does\nChecks for `super` calls that pass redundant arguments.\n\n## Why is this bad?\nIn Python 3, `super` can be invoked without any arguments when: (1) the\nfirst argument is `__class__`, and (2) the second argument is equivalent to\nthe first argument of the enclosing method.\n\nWhen possible, omit the arguments to `super` to make the code more concise\nand maintainable.\n\n## Example\n```python\nclass A:\n    def foo(self):\n        pass\n\n\nclass B(A):\n    def bar(self):\n        super(B, self).foo()\n```\n\nUse instead:\n```python\nclass A:\n    def foo(self):\n        pass\n\n\nclass B(A):\n    def bar(self):\n        super().foo()\n```\n\n## Fix safety\n\nThis rule's fix is marked as unsafe because removing the arguments from a call\nmay delete comments that are attached to the arguments.\n\nIn [preview], the fix is marked safe if no comments are present.\n\n[preview]: https://docs.astral.sh/ruff/preview/\n\n## References\n- [Python documentation: `super`](https://docs.python.org/3/library/functions.html#super)\n- [super/MRO, Python's most misunderstood feature.](https://www.youtube.com/watch?v=X1PQ7zzltz4)\n",
+    "explanation": "## What it does\nChecks for `super` calls that pass redundant arguments.\n\n## Why is this bad?\nIn Python 3, `super` can be invoked without any arguments when: (1) the\nfirst argument is `__class__`, and (2) the second argument is equivalent to\nthe first argument of the enclosing method.\n\nWhen possible, omit the arguments to `super` to make the code more concise\nand maintainable.\n\n## Example\n```python\nclass A:\n    def foo(self):\n        pass\n\n\nclass B(A):\n    def bar(self):\n        super(B, self).foo()\n```\n\nUse instead:\n```python\nclass A:\n    def foo(self):\n        pass\n\n\nclass B(A):\n    def bar(self):\n        super().foo()\n```\n\n## Fix safety\n\nThis rule's fix is marked as unsafe because removing the arguments from a call\nmay delete comments that are attached to the arguments.\n\n## References\n- [Python documentation: `super`](https://docs.python.org/3/library/functions.html#super)\n- [super/MRO, Python's most misunderstood feature.](https://www.youtube.com/watch?v=X1PQ7zzltz4)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -17442,7 +17442,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pyupgrade/rules/super_call_with_parameters.rs",
-      "line": 59
+      "line": 54
     }
   },
   {
@@ -17612,7 +17612,7 @@
     ],
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
-    "explanation": "## What it does\nChecks for uses of `datetime.timezone.utc`.\n\n## Why is this bad?\nAs of Python 3.11, `datetime.UTC` is an alias for `datetime.timezone.utc`.\nThe alias is more readable and generally preferred over the full path.\n\n## Example\n```python\nimport datetime\n\ndatetime.timezone.utc\n```\n\nUse instead:\n```python\nimport datetime\n\ndatetime.UTC\n```\n\n## Options\n- `target-version`\n\n## References\n- [Python documentation: `datetime.UTC`](https://docs.python.org/3/library/datetime.html#datetime.UTC)\n",
+    "explanation": "## What it does\nChecks for uses of `datetime.timezone.utc`.\n\n## Why is this bad?\nAs of Python 3.11, `datetime.UTC` is an alias for `datetime.timezone.utc`.\nThe alias is more readable and generally preferred over the full path.\n\n## Example\n```python\nimport datetime\n\ndatetime.timezone.utc\n```\n\nUse instead:\n```python\nimport datetime\n\ndatetime.UTC\n```\n\n## Fix safety\nThis rule's fix is marked as safe, unless the expression contains comments.\n\n## Options\n- `target-version`\n\n## References\n- [Python documentation: `datetime.UTC`](https://docs.python.org/3/library/datetime.html#datetime.UTC)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -17621,7 +17621,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pyupgrade/rules/datetime_utc_alias.rs",
-      "line": 36
+      "line": 40
     }
   },
   {
@@ -17678,7 +17678,7 @@
     ],
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
-    "explanation": "## What it does\nChecks for uses of `io.open`.\n\n## Why is this bad?\nIn Python 3, `io.open` is an alias for `open`. Prefer using `open` directly,\nas it is more idiomatic.\n\n## Example\n```python\nimport io\n\nwith io.open(\"file.txt\") as f:\n    ...\n```\n\nUse instead:\n```python\nwith open(\"file.txt\") as f:\n    ...\n```\n\n## References\n- [Python documentation: `io.open`](https://docs.python.org/3/library/io.html#io.open)\n",
+    "explanation": "## What it does\nChecks for uses of `io.open`.\n\n## Why is this bad?\nIn Python 3, `io.open` is an alias for `open`. Prefer using `open` directly,\nas it is more idiomatic.\n\n## Example\n```python\nimport io\n\nwith io.open(\"file.txt\") as f:\n    ...\n```\n\nUse instead:\n```python\nwith open(\"file.txt\") as f:\n    ...\n```\n## Fix safety\nThis rule's fix is marked as safe, unless the expression contains comments.\n\n## References\n- [Python documentation: `io.open`](https://docs.python.org/3/library/io.html#io.open)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -17687,7 +17687,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pyupgrade/rules/open_alias.rs",
-      "line": 32
+      "line": 35
     }
   },
   {
@@ -17965,7 +17965,7 @@
     ],
     "fix": "Fix is always available.",
     "fix_availability": "Always",
-    "explanation": "## What it does\nChecks for uses of `functools.lru_cache` that set `maxsize=None`.\n\n## Why is this bad?\nSince Python 3.9, `functools.cache` can be used as a drop-in replacement\nfor `functools.lru_cache(maxsize=None)`. When possible, prefer\n`functools.cache` as it is more readable and idiomatic.\n\n## Example\n\n```python\nimport functools\n\n\n@functools.lru_cache(maxsize=None)\ndef foo(): ...\n```\n\nUse instead:\n\n```python\nimport functools\n\n\n@functools.cache\ndef foo(): ...\n```\n\n## Options\n- `target-version`\n\n## References\n- [Python documentation: `@functools.cache`](https://docs.python.org/3/library/functools.html#functools.cache)\n",
+    "explanation": "## What it does\nChecks for uses of `functools.lru_cache` that set `maxsize=None`.\n\n## Why is this bad?\nSince Python 3.9, `functools.cache` can be used as a drop-in replacement\nfor `functools.lru_cache(maxsize=None)`. When possible, prefer\n`functools.cache` as it is more readable and idiomatic.\n\n## Example\n\n```python\nimport functools\n\n\n@functools.lru_cache(maxsize=None)\ndef foo(): ...\n```\n\nUse instead:\n\n```python\nimport functools\n\n\n@functools.cache\ndef foo(): ...\n```\n\n## Options\n- `target-version`\n\n## Fix safety\nThis rule's fix is marked as safe, unless the expression contains comments.\n\n## References\n- [Python documentation: `@functools.cache`](https://docs.python.org/3/library/functools.html#functools.cache)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -17974,7 +17974,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pyupgrade/rules/lru_cache_with_maxsize_none.rs",
-      "line": 43
+      "line": 47
     }
   },
   {
@@ -18166,10 +18166,10 @@
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
     "explanation": "## What it does\nChecks for classes that inherit from both `str` and `enum.Enum`.\n\n## Why is this bad?\nPython 3.11 introduced `enum.StrEnum`, which is preferred over inheriting\nfrom both `str` and `enum.Enum`.\n\n## Example\n\n```python\nimport enum\n\n\nclass Foo(str, enum.Enum): ...\n```\n\nUse instead:\n\n```python\nimport enum\n\n\nclass Foo(enum.StrEnum): ...\n```\n\n## Fix safety\n\nPython 3.11 introduced a [breaking change] for enums that inherit from both\n`str` and `enum.Enum`. Consider the following enum:\n\n```python\nfrom enum import Enum\n\n\nclass Foo(str, Enum):\n    BAR = \"bar\"\n```\n\nIn Python 3.11, the formatted representation of `Foo.BAR` changed as\nfollows:\n\n```python\n# Python 3.10\nf\"{Foo.BAR}\"  # > bar\n# Python 3.11\nf\"{Foo.BAR}\"  # > Foo.BAR\n```\n\nMigrating from `str` and `enum.Enum` to `enum.StrEnum` will restore the\nprevious behavior, such that:\n\n```python\nfrom enum import StrEnum\n\n\nclass Foo(StrEnum):\n    BAR = \"bar\"\n\n\nf\"{Foo.BAR}\"  # > bar\n```\n\nAs such, migrating to `enum.StrEnum` will introduce a behavior change for\ncode that relies on the Python 3.11 behavior.\n\n## Options\n\n- `target-version`\n\n## References\n- [enum.StrEnum](https://docs.python.org/3/library/enum.html#enum.StrEnum)\n\n[breaking change]: https://blog.pecar.me/python-enum\n",
-    "preview": true,
+    "preview": false,
     "status": {
-      "Preview": {
-        "since": "v0.3.6"
+      "Stable": {
+        "since": "0.15.0"
       }
     },
     "source_location": {
@@ -18187,7 +18187,7 @@
     ],
     "fix": "Fix is always available.",
     "fix_availability": "Always",
-    "explanation": "## What it does\nChecks for unnecessary default type arguments for `Generator` and\n`AsyncGenerator` on Python 3.13+.\nIn [preview], this rule will also apply to stub files.\n\n## Why is this bad?\nPython 3.13 introduced the ability for type parameters to specify default\nvalues. Following this change, several standard-library classes were\nupdated to add default values for some of their type parameters. For\nexample, `Generator[int]` is now equivalent to\n`Generator[int, None, None]`, as the second and third type parameters of\n`Generator` now default to `None`.\n\nOmitting type arguments that match the default values can make the code\nmore concise and easier to read.\n\n## Example\n\n```python\nfrom collections.abc import Generator, AsyncGenerator\n\n\ndef sync_gen() -> Generator[int, None, None]:\n    yield 42\n\n\nasync def async_gen() -> AsyncGenerator[int, None]:\n    yield 42\n```\n\nUse instead:\n\n```python\nfrom collections.abc import Generator, AsyncGenerator\n\n\ndef sync_gen() -> Generator[int]:\n    yield 42\n\n\nasync def async_gen() -> AsyncGenerator[int]:\n    yield 42\n```\n\n## Fix safety\nThis rule's fix is marked as safe, unless the type annotation contains comments.\n\n## Options\n- `target-version`\n\n## References\n- [PEP 696 – Type Defaults for Type Parameters](https://peps.python.org/pep-0696/)\n- [Annotating generators and coroutines](https://docs.python.org/3/library/typing.html#annotating-generators-and-coroutines)\n- [Python documentation: `typing.Generator`](https://docs.python.org/3/library/typing.html#typing.Generator)\n- [Python documentation: `typing.AsyncGenerator`](https://docs.python.org/3/library/typing.html#typing.AsyncGenerator)\n\n[preview]: https://docs.astral.sh/ruff/preview/\n",
+    "explanation": "## What it does\nChecks for unnecessary default type arguments for `Generator` and\n`AsyncGenerator` on Python 3.13+.\n\n## Why is this bad?\nPython 3.13 introduced the ability for type parameters to specify default\nvalues. Following this change, several standard-library classes were\nupdated to add default values for some of their type parameters. For\nexample, `Generator[int]` is now equivalent to\n`Generator[int, None, None]`, as the second and third type parameters of\n`Generator` now default to `None`.\n\nOmitting type arguments that match the default values can make the code\nmore concise and easier to read.\n\n## Example\n\n```python\nfrom collections.abc import Generator, AsyncGenerator\n\n\ndef sync_gen() -> Generator[int, None, None]:\n    yield 42\n\n\nasync def async_gen() -> AsyncGenerator[int, None]:\n    yield 42\n```\n\nUse instead:\n\n```python\nfrom collections.abc import Generator, AsyncGenerator\n\n\ndef sync_gen() -> Generator[int]:\n    yield 42\n\n\nasync def async_gen() -> AsyncGenerator[int]:\n    yield 42\n```\n\n## Fix safety\nThis rule's fix is marked as safe, unless the type annotation contains comments.\n\n## Options\n- `target-version`\n\n## References\n- [PEP 696 – Type Defaults for Type Parameters](https://peps.python.org/pep-0696/)\n- [Annotating generators and coroutines](https://docs.python.org/3/library/typing.html#annotating-generators-and-coroutines)\n- [Python documentation: `typing.Generator`](https://docs.python.org/3/library/typing.html#typing.Generator)\n- [Python documentation: `typing.AsyncGenerator`](https://docs.python.org/3/library/typing.html#typing.AsyncGenerator)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -18196,7 +18196,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pyupgrade/rules/unnecessary_default_type_args.rs",
-      "line": 65
+      "line": 62
     }
   },
   {
@@ -18411,16 +18411,16 @@
     ],
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
-    "explanation": "## What it does\nChecks for ternary `if` expressions that can be replaced with the `or`\noperator.\n\n## Why is this bad?\nTernary `if` expressions are more verbose than `or` expressions while\nproviding the same functionality.\n\n## Example\n```python\nz = x if x else y\n```\n\nUse instead:\n```python\nz = x or y\n```\n\n## Fix safety\nThis rule's fix is marked as unsafe in the event that the body of the\n`if` expression contains side effects.\n\nFor example, `foo` will be called twice in `foo() if foo() else bar()`\n(assuming `foo()` returns a truthy value), but only once in\n`foo() or bar()`.\n",
-    "preview": true,
+    "explanation": "## What it does\nChecks for ternary `if` expressions that can be replaced with the `or`\noperator.\n\n## Why is this bad?\nTernary `if` expressions are more verbose than `or` expressions while\nproviding the same functionality.\n\n## Example\n```python\nx, y = 1, 2\n\nz = x if x else y\n```\n\nUse instead:\n```python\nx, y = 1, 2\n\nz = x or y\n```\n\n## Fix safety\nThis rule's fix is marked as unsafe in the event that the body of the\n`if` expression contains side effects or comments.\n\nFor example, `foo` will be called twice in `foo() if foo() else bar()`\n(assuming `foo()` returns a truthy value), but only once in\n`foo() or bar()`.\n",
+    "preview": false,
     "status": {
-      "Preview": {
-        "since": "v0.3.6"
+      "Stable": {
+        "since": "0.15.0"
       }
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/refurb/rules/if_exp_instead_of_or_operator.rs",
-      "line": 40
+      "line": 44
     }
   },
   {
@@ -18899,7 +18899,7 @@
     ],
     "fix": "Fix is always available.",
     "fix_availability": "Always",
-    "explanation": "## What it does\nChecks for the use of shorthand aliases for regular expression flags\n(e.g., `re.I` instead of `re.IGNORECASE`).\n\n## Why is this bad?\nThe regular expression module provides descriptive names for each flag,\nalong with single-letter aliases. Prefer the descriptive names, as they\nare more readable and self-documenting.\n\n## Example\n```python\nimport re\n\nif re.match(\"^hello\", \"hello world\", re.I):\n    ...\n```\n\nUse instead:\n```python\nimport re\n\nif re.match(\"^hello\", \"hello world\", re.IGNORECASE):\n    ...\n```\n",
+    "explanation": "## What it does\nChecks for the use of shorthand aliases for regular expression flags\n(e.g., `re.I` instead of `re.IGNORECASE`).\n\n## Why is this bad?\nThe regular expression module provides descriptive names for each flag,\nalong with single-letter aliases. Prefer the descriptive names, as they\nare more readable and self-documenting.\n\n## Example\n```python\nimport re\n\nif re.search(\"^hello\", \"hello world\", re.I):\n    ...\n```\n\nUse instead:\n```python\nimport re\n\nif re.search(\"^hello\", \"hello world\", re.IGNORECASE):\n    ...\n```\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -18966,10 +18966,10 @@
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
     "explanation": "## What it does\nChecks for membership tests against single-item containers.\n\n## Why is this bad?\nPerforming a membership test against a container (like a `list` or `set`)\nwith a single item is less readable and less efficient than comparing\nagainst the item directly.\n\n## Example\n```python\n1 in [1]\n```\n\nUse instead:\n```python\n1 == 1\n```\n\n## Fix safety\nThe fix is always marked as unsafe.\n\nWhen the right-hand side is a string, this fix can change the behavior of your program.\nThis is because `c in \"a\"` is true both when `c` is `\"a\"` and when `c` is the empty string.\n\nAdditionally, converting `in`/`not in` against a single-item container to `==`/`!=` can\nchange runtime behavior: `in` may consider identity (e.g., `NaN`) and always\nyields a `bool`.\n\nComments within the replacement range will also be removed.\n\n## References\n- [Python documentation: Comparisons](https://docs.python.org/3/reference/expressions.html#comparisons)\n- [Python documentation: Membership test operations](https://docs.python.org/3/reference/expressions.html#membership-test-operations)\n",
-    "preview": true,
+    "preview": false,
     "status": {
-      "Preview": {
-        "since": "v0.1.0"
+      "Stable": {
+        "since": "0.15.0"
       }
     },
     "source_location": {
@@ -19009,7 +19009,7 @@
     ],
     "fix": "Fix is always available.",
     "fix_availability": "Always",
-    "explanation": "## What it does\nChecks for uses of `metaclass=abc.ABCMeta` to define abstract base classes\n(ABCs).\n\n## Why is this bad?\n\nInstead of `class C(metaclass=abc.ABCMeta): ...`, use `class C(ABC): ...`\nto define an abstract base class. Inheriting from the `ABC` wrapper class\nis semantically identical to setting `metaclass=abc.ABCMeta`, but more\nsuccinct.\n\n## Example\n```python\nimport abc\n\n\nclass C(metaclass=abc.ABCMeta):\n    pass\n```\n\nUse instead:\n```python\nimport abc\n\n\nclass C(abc.ABC):\n    pass\n```\n\n## Fix safety\nThe rule's fix is unsafe if the class has base classes. This is because the base classes might\nbe validating the class's other base classes (e.g., `typing.Protocol` does this) or otherwise\nalter runtime behavior if more base classes are added.\n\n## References\n- [Python documentation: `abc.ABC`](https://docs.python.org/3/library/abc.html#abc.ABC)\n- [Python documentation: `abc.ABCMeta`](https://docs.python.org/3/library/abc.html#abc.ABCMeta)\n",
+    "explanation": "## What it does\nChecks for uses of `metaclass=abc.ABCMeta` to define abstract base classes\n(ABCs).\n\n## Why is this bad?\n\nInstead of `class C(metaclass=abc.ABCMeta): ...`, use `class C(ABC): ...`\nto define an abstract base class. Inheriting from the `ABC` wrapper class\nis semantically identical to setting `metaclass=abc.ABCMeta`, but more\nsuccinct.\n\n## Example\n```python\nimport abc\n\n\nclass C(metaclass=abc.ABCMeta):\n    pass\n```\n\nUse instead:\n```python\nimport abc\n\n\nclass C(abc.ABC):\n    pass\n```\n\n## Fix safety\nThe rule's fix is unsafe if the class has base classes. This is because the base classes might\nbe validating the class's other base classes (e.g., `typing.Protocol` does this) or otherwise\nalter runtime behavior if more base classes are added.\nThe rule's fix will also be marked as unsafe if the class has\ncomments in its argument list that could be deleted.\n\n\n## References\n- [Python documentation: `abc.ABC`](https://docs.python.org/3/library/abc.html#abc.ABC)\n- [Python documentation: `abc.ABCMeta`](https://docs.python.org/3/library/abc.html#abc.ABCMeta)\n",
     "preview": true,
     "status": {
       "Preview": {
@@ -19018,7 +19018,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/refurb/rules/metaclass_abcmeta.rs",
-      "line": 49
+      "line": 53
     }
   },
   {
@@ -19874,11 +19874,11 @@
     ],
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
-    "explanation": "## What it does\nChecks for usages of `collections.deque` that have an empty iterable as the first argument.\n\n## Why is this bad?\nIt's unnecessary to use an empty literal as a deque's iterable, since this is already the default behavior.\n\n## Example\n\n```python\nfrom collections import deque\n\nqueue = deque(set())\nqueue = deque([], 10)\n```\n\nUse instead:\n\n```python\nfrom collections import deque\n\nqueue = deque()\nqueue = deque(maxlen=10)\n```\n\n## Fix safety\n\nThe fix is marked as unsafe whenever it would delete comments present in the `deque` call or if\nthere are unrecognized arguments other than `iterable` and `maxlen`.\n\n## Fix availability\n\nThis rule's fix is unavailable if any starred arguments are present after the initial iterable.\n\n## References\n- [Python documentation: `collections.deque`](https://docs.python.org/3/library/collections.html#collections.deque)\n",
-    "preview": true,
+    "explanation": "## What it does\nChecks for use of `collections.deque` with an empty iterable as the first argument.\n\n## Why is this bad?\nIt's unnecessary to use an empty literal as a deque's iterable, since this is already the default behavior.\n\n## Example\n\n```python\nfrom collections import deque\n\nqueue = deque(set())\nqueue = deque([], 10)\n```\n\nUse instead:\n\n```python\nfrom collections import deque\n\nqueue = deque()\nqueue = deque(maxlen=10)\n```\n\n## Fix safety\n\nThe fix is marked as unsafe whenever it would delete comments present in the `deque` call or if\nthere are unrecognized arguments other than `iterable` and `maxlen`.\n\n## Fix availability\n\nThis rule's fix is unavailable if any starred arguments are present after the initial iterable.\n\n## References\n- [Python documentation: `collections.deque`](https://docs.python.org/3/library/collections.html#collections.deque)\n",
+    "preview": false,
     "status": {
-      "Preview": {
-        "since": "0.9.0"
+      "Stable": {
+        "since": "0.15.0"
       }
     },
     "source_location": {
@@ -20316,11 +20316,11 @@
     ],
     "fix": "Fix is not available.",
     "fix_availability": "None",
-    "explanation": "## What it does\nChecks for membership tests on empty collections (such as `list`, `tuple`, `set` or `dict`).\n\n## Why is this bad?\nIf the collection is always empty, the check is unnecessary, and can be removed.\n\n## Example\n\n```python\nif 1 not in set():\n    print(\"got it!\")\n```\n\nUse instead:\n\n```python\nprint(\"got it!\")\n```\n",
-    "preview": true,
+    "explanation": "## What it does\nChecks for membership tests on empty collections (such as `list`, `tuple`, `set`, or `dict`).\n\n## Why is this bad?\nIf the collection is always empty, the check is unnecessary and can be removed.\n\n## Example\n\n```python\nif 1 not in set():\n    print(\"got it!\")\n```\n\nUse instead:\n\n```python\nprint(\"got it!\")\n```\n",
+    "preview": false,
     "status": {
-      "Preview": {
-        "since": "0.11.9"
+      "Stable": {
+        "since": "0.15.0"
       }
     },
     "source_location": {
@@ -20338,16 +20338,16 @@
     ],
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
-    "explanation": "## What it does\nChecks for non-contextmanager use of `pytest.raises`, `pytest.warns`, and `pytest.deprecated_call`.\n\n## Why is this bad?\nThe context-manager form is more readable, easier to extend, and supports additional kwargs.\n\n## Example\n```python\nimport pytest\n\n\nexcinfo = pytest.raises(ValueError, int, \"hello\")\npytest.warns(UserWarning, my_function, arg)\npytest.deprecated_call(my_deprecated_function, arg1, arg2)\n```\n\nUse instead:\n```python\nimport pytest\n\n\nwith pytest.raises(ValueError) as excinfo:\n    int(\"hello\")\nwith pytest.warns(UserWarning):\n    my_function(arg)\nwith pytest.deprecated_call():\n    my_deprecated_function(arg1, arg2)\n```\n\n## References\n- [`pytest` documentation: `pytest.raises`](https://docs.pytest.org/en/latest/reference/reference.html#pytest-raises)\n- [`pytest` documentation: `pytest.warns`](https://docs.pytest.org/en/latest/reference/reference.html#pytest-warns)\n- [`pytest` documentation: `pytest.deprecated_call`](https://docs.pytest.org/en/latest/reference/reference.html#pytest-deprecated-call)\n",
-    "preview": true,
+    "explanation": "## What it does\nChecks for non-context-manager use of `pytest.raises`, `pytest.warns`, and `pytest.deprecated_call`.\n\n## Why is this bad?\nThe context-manager form is more readable, easier to extend, and supports additional keyword\narguments.\n\n## Example\n```python\nimport pytest\n\n\nexcinfo = pytest.raises(ValueError, int, \"hello\")\npytest.warns(UserWarning, my_function, arg)\npytest.deprecated_call(my_deprecated_function, arg1, arg2)\n```\n\nUse instead:\n```python\nimport pytest\n\n\nwith pytest.raises(ValueError) as excinfo:\n    int(\"hello\")\nwith pytest.warns(UserWarning):\n    my_function(arg)\nwith pytest.deprecated_call():\n    my_deprecated_function(arg1, arg2)\n```\n\n## References\n- [`pytest` documentation: `pytest.raises`](https://docs.pytest.org/en/latest/reference/reference.html#pytest-raises)\n- [`pytest` documentation: `pytest.warns`](https://docs.pytest.org/en/latest/reference/reference.html#pytest-warns)\n- [`pytest` documentation: `pytest.deprecated_call`](https://docs.pytest.org/en/latest/reference/reference.html#pytest-deprecated-call)\n",
+    "preview": false,
     "status": {
-      "Preview": {
-        "since": "0.12.0"
+      "Stable": {
+        "since": "0.15.0"
       }
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/ruff/rules/legacy_form_pytest_raises.rs",
-      "line": 46
+      "line": 47
     }
   },
   {
@@ -20382,11 +20382,11 @@
     ],
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
-    "explanation": "## What it does\nChecks for standard library functions which take a numeric `mode` argument\nwhere a non-octal integer literal is passed.\n\n## Why is this bad?\n\nNumeric modes are made up of one to four octal digits. Converting a non-octal\ninteger to octal may not be the mode the author intended.\n\n## Example\n\n```python\nos.chmod(\"foo\", 644)\n```\n\nUse instead:\n\n```python\nos.chmod(\"foo\", 0o644)\n```\n\n## Fix safety\n\nThere are two categories of fix, the first of which is where it looks like\nthe author intended to use an octal literal but the `0o` prefix is missing:\n\n```python\nos.chmod(\"foo\", 400)\nos.chmod(\"foo\", 644)\n```\n\nThis class of fix changes runtime behaviour. In the first case, `400`\ncorresponds to `0o620` (`u=rw,g=w,o=`). As this mode is not deemed likely,\nit is changed to `0o400` (`u=r,go=`). Similarly, `644` corresponds to\n`0o1204` (`u=ws,g=,o=r`) and is changed to `0o644` (`u=rw,go=r`).\n\nThe second category is decimal literals which are recognised as likely valid\nbut in decimal form:\n\n```python\nos.chmod(\"foo\", 256)\nos.chmod(\"foo\", 493)\n```\n\n`256` corresponds to `0o400` (`u=r,go=`) and `493` corresponds to `0o755`\n(`u=rwx,go=rx`). Both of these fixes keep runtime behavior unchanged. If the\noriginal code really intended to use `0o256` (`u=w,g=rx,o=rw`) instead of\n`256`, this fix should not be accepted.\n\nAs a special case, zero is allowed to omit the `0o` prefix unless it has\nmultiple digits:\n\n```python\nos.chmod(\"foo\", 0)  # Ok\nos.chmod(\"foo\", 0o000)  # Ok\nos.chmod(\"foo\", 000)  # Lint emitted and fix suggested\n```\n\nRuff will suggest a safe fix for multi-digit zeros to add the `0o` prefix.\n\n## Fix availability\n\nA fix is only available if the integer literal matches a set of common modes.\n",
-    "preview": true,
+    "explanation": "## What it does\nChecks for standard library functions which take a numeric `mode` argument\nwhere a non-octal integer literal is passed.\n\n## Why is this bad?\n\nNumeric modes are made up of one to four octal digits. Converting a non-octal\ninteger to octal may not be the mode the author intended.\n\n## Example\n\n```python\nos.chmod(\"foo\", 644)\n```\n\nUse instead:\n\n```python\nos.chmod(\"foo\", 0o644)\n```\n\n## Fix safety\n\nThere are two categories of unsafe fixes, the first of which is where it looks like\nthe author intended to use an octal literal but the `0o` prefix is missing:\n\n```python\nos.chmod(\"foo\", 400)\nos.chmod(\"foo\", 644)\n```\n\nThis class of fix changes runtime behaviour. In the first case, `400`\ncorresponds to `0o620` (`u=rw,g=w,o=`). As this mode is not deemed likely,\nit is changed to `0o400` (`u=r,go=`). Similarly, `644` corresponds to\n`0o1204` (`u=ws,g=,o=r`) and is changed to `0o644` (`u=rw,go=r`).\n\nThe second category is decimal literals which are recognised as likely valid\nbut in decimal form:\n\n```python\nos.chmod(\"foo\", 256)\nos.chmod(\"foo\", 493)\n```\n\n`256` corresponds to `0o400` (`u=r,go=`) and `493` corresponds to `0o755`\n(`u=rwx,go=rx`). Both of these fixes keep runtime behavior unchanged. If the\noriginal code really intended to use `0o256` (`u=w,g=rx,o=rw`) instead of\n`256`, this fix should not be accepted.\n\nAs a special case, zero is allowed to omit the `0o` prefix unless it has\nmultiple digits:\n\n```python\nos.chmod(\"foo\", 0)  # Ok\nos.chmod(\"foo\", 0o000)  # Ok\nos.chmod(\"foo\", 000)  # Lint emitted and fix suggested\n```\n\nRuff will suggest a safe fix for multi-digit zeros to add the `0o` prefix.\n\n## Fix availability\n\nA fix is only available if the integer literal matches a set of common modes.\n",
+    "preview": false,
     "status": {
-      "Preview": {
-        "since": "0.12.1"
+      "Stable": {
+        "since": "0.15.0"
       }
     },
     "source_location": {
@@ -20545,10 +20545,10 @@
     "fix": "Fix is always available.",
     "fix_availability": "Always",
     "explanation": "## What it does\nChecks for `noqa` codes that are invalid.\n\n## Why is this bad?\nInvalid rule codes serve no purpose and may indicate outdated code suppressions.\n\n## Example\n```python\nimport os  # noqa: XYZ999\n```\n\nUse instead:\n```python\nimport os\n```\n\nOr if there are still valid codes needed:\n```python\nimport os  # noqa: E402\n```\n\n## Options\n- `lint.external`\n",
-    "preview": true,
+    "preview": false,
     "status": {
-      "Preview": {
-        "since": "0.11.4"
+      "Stable": {
+        "since": "0.15.0"
       }
     },
     "source_location": {
@@ -20567,10 +20567,10 @@
     "fix": "Fix is always available.",
     "fix_availability": "Always",
     "explanation": "## What it does\nChecks for invalid suppression comments\n\n## Why is this bad?\nInvalid suppression comments are ignored by Ruff, and should either\nbe fixed or removed to avoid confusion.\n\n## Example\n```python\n# ruff: disable  # missing codes\n```\n\nUse instead:\n```python\n# ruff: disable[E501]\n```\n\nOr delete the invalid suppression comment.\n\n## References\n- [Ruff error suppression](https://docs.astral.sh/ruff/linter/#error-suppression)\n",
-    "preview": true,
+    "preview": false,
     "status": {
-      "Preview": {
-        "since": "0.14.11"
+      "Stable": {
+        "since": "0.15.0"
       }
     },
     "source_location": {
@@ -20589,10 +20589,10 @@
     "fix": "Fix is not available.",
     "fix_availability": "None",
     "explanation": "## What it does\nChecks for unmatched range suppression comments\n\n## Why is this bad?\nUnmatched range suppression comments can inadvertently suppress violations\nover larger sections of code than intended, particularly at module scope.\n\n## Example\n```python\ndef foo():\n    # ruff: disable[E501]  # unmatched\n    REALLY_LONG_VALUES = [...]\n\n    print(REALLY_LONG_VALUES)\n```\n\nUse instead:\n```python\ndef foo():\n    # ruff: disable[E501]\n    REALLY_LONG_VALUES = [...]\n    # ruff: enable[E501]\n\n    print(REALLY_LONG_VALUES)\n```\n\n## References\n- [Ruff error suppression](https://docs.astral.sh/ruff/linter/#error-suppression)\n",
-    "preview": true,
+    "preview": false,
     "status": {
-      "Preview": {
-        "since": "0.14.11"
+      "Stable": {
+        "since": "0.15.0"
       }
     },
     "source_location": {
