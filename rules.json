@@ -62,7 +62,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/airflow/rules/removal_in_3.rs",
-      "line": 43
+      "line": 44
     }
   },
   {
@@ -106,7 +106,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/airflow/rules/function_signature_change_in_3.rs",
-      "line": 37
+      "line": 38
     }
   },
   {
@@ -151,6 +151,28 @@
     "source_location": {
       "file": "crates/ruff_linter/src/rules/airflow/rules/suggested_to_move_to_provider_in_3.rs",
       "line": 53
+    }
+  },
+  {
+    "name": "airflow31-moved",
+    "code": "AIR321",
+    "linter": "Airflow",
+    "summary": "`{deprecated}` is moved in Airflow 3.1",
+    "message_formats": [
+      "`{deprecated}` is moved in Airflow 3.1"
+    ],
+    "fix": "Fix is sometimes available.",
+    "fix_availability": "Sometimes",
+    "explanation": "## What it does\nChecks for uses of deprecated or moved Airflow functions and values in Airflow 3.1.\n\n## Why is this bad?\nAirflow 3.1 deprecated or moved various functions, members, and other values.\n\n## Example\n```python\nfrom airflow.utils.timezone import convert_to_utc\nfrom datetime import datetime\n\nconvert_to_utc(datetime.now())\n```\n\nUse instead:\n```python\nfrom airflow.sdk.timezone import convert_to_utc\nfrom datetime import datetime\n\nconvert_to_utc(datetime.now())\n```\n",
+    "preview": true,
+    "status": {
+      "Preview": {
+        "since": "0.15.1"
+      }
+    },
+    "source_location": {
+      "file": "crates/ruff_linter/src/rules/airflow/rules/moved_in_3_1.rs",
+      "line": 33
     }
   },
   {
@@ -5033,8 +5055,9 @@
     "name": "f-string-in-get-text-func-call",
     "code": "INT001",
     "linter": "flake8-gettext",
-    "summary": "f-string is resolved before function call; consider `_(\"string %s\") % arg`",
+    "summary": "f-string in plural argument is resolved before function call",
     "message_formats": [
+      "f-string in plural argument is resolved before function call",
       "f-string is resolved before function call; consider `_(\"string %s\") % arg`"
     ],
     "fix": "Fix is not available.",
@@ -5048,15 +5071,16 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_gettext/rules/f_string_in_gettext_func_call.rs",
-      "line": 47
+      "line": 48
     }
   },
   {
     "name": "format-in-get-text-func-call",
     "code": "INT002",
     "linter": "flake8-gettext",
-    "summary": "`format` method argument is resolved before function call; consider `_(\"string %s\") % arg`",
+    "summary": "`format` method in plural argument is resolved before function call",
     "message_formats": [
+      "`format` method in plural argument is resolved before function call",
       "`format` method argument is resolved before function call; consider `_(\"string %s\") % arg`"
     ],
     "fix": "Fix is not available.",
@@ -5070,15 +5094,16 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_gettext/rules/format_in_gettext_func_call.rs",
-      "line": 47
+      "line": 48
     }
   },
   {
     "name": "printf-in-get-text-func-call",
     "code": "INT003",
     "linter": "flake8-gettext",
-    "summary": "printf-style format is resolved before function call; consider `_(\"string %s\") % arg`",
+    "summary": "printf-style format in plural argument is resolved before function call",
     "message_formats": [
+      "printf-style format in plural argument is resolved before function call",
       "printf-style format is resolved before function call; consider `_(\"string %s\") % arg`"
     ],
     "fix": "Fix is not available.",
@@ -5092,7 +5117,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_gettext/rules/printf_in_gettext_func_call.rs",
-      "line": 46
+      "line": 47
     }
   },
   {
@@ -13709,7 +13734,7 @@
     ],
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
-    "explanation": "## What it does\nChecks for unused imports.\n\n## Why is this bad?\nUnused imports add a performance overhead at runtime, and risk creating\nimport cycles. They also increase the cognitive load of reading the code.\n\nIf an import statement is used to check for the availability or existence\nof a module, consider using `importlib.util.find_spec` instead.\n\nIf an import statement is used to re-export a symbol as part of a module's\npublic interface, consider using a \"redundant\" import alias, which\ninstructs Ruff (and other tools) to respect the re-export, and avoid\nmarking it as unused, as in:\n\n```python\nfrom module import member as member\n```\n\nAlternatively, you can use `__all__` to declare a symbol as part of the module's\ninterface, as in:\n\n```python\n# __init__.py\nimport some_module\n\n__all__ = [\"some_module\"]\n```\n\n## Preview\nWhen [preview] is enabled (and certain simplifying assumptions\nare met), we analyze all import statements for a given module\nwhen determining whether an import is used, rather than simply\nthe last of these statements. This can result in both different and\nmore import statements being marked as unused.\n\nFor example, if a module consists of\n\n```python\nimport a\nimport a.b\n```\n\nthen both statements are marked as unused under [preview], whereas\nonly the second is marked as unused under stable behavior.\n\nAs another example, if a module consists of\n\n```python\nimport a.b\nimport a\n\na.b.foo()\n```\n\nthen a diagnostic will only be emitted for the first line under [preview],\nwhereas a diagnostic would only be emitted for the second line under\nstable behavior.\n\nNote that this behavior is somewhat subjective and is designed\nto conform to the developer's intuition rather than Python's actual\nexecution. To wit, the statement `import a.b` automatically executes\n`import a`, so in some sense `import a` is _always_ redundant\nin the presence of `import a.b`.\n\n\n## Fix safety\n\nFixes to remove unused imports are safe, except in `__init__.py` files.\n\nApplying fixes to `__init__.py` files is currently in preview. The fix offered depends on the\ntype of the unused import. Ruff will suggest a safe fix to export first-party imports with\neither a redundant alias or, if already present in the file, an `__all__` entry. If multiple\n`__all__` declarations are present, Ruff will not offer a fix. Ruff will suggest an unsafe fix\nto remove third-party and standard library imports -- the fix is unsafe because the module's\ninterface changes.\n\nSee [this FAQ section](https://docs.astral.sh/ruff/faq/#how-does-ruff-determine-which-of-my-imports-are-first-party-third-party-etc)\nfor more details on how Ruff\ndetermines whether an import is first or third-party.\n\n## Example\n\n```python\nimport numpy as np  # unused import\n\n\ndef area(radius):\n    return 3.14 * radius**2\n```\n\nUse instead:\n\n```python\ndef area(radius):\n    return 3.14 * radius**2\n```\n\nTo check the availability of a module, use `importlib.util.find_spec`:\n\n```python\nfrom importlib.util import find_spec\n\nif find_spec(\"numpy\") is not None:\n    print(\"numpy is installed\")\nelse:\n    print(\"numpy is not installed\")\n```\n\n## Options\n- `lint.ignore-init-module-imports`\n- `lint.pyflakes.allowed-unused-imports`\n\n## References\n- [Python documentation: `import`](https://docs.python.org/3/reference/simple_stmts.html#the-import-statement)\n- [Python documentation: `importlib.util.find_spec`](https://docs.python.org/3/library/importlib.html#importlib.util.find_spec)\n- [Typing documentation: interface conventions](https://typing.python.org/en/latest/spec/distributing.html#library-interface-public-and-private-symbols)\n\n[preview]: https://docs.astral.sh/ruff/preview/\n",
+    "explanation": "## What it does\nChecks for unused imports.\n\n## Why is this bad?\nUnused imports add a performance overhead at runtime, and risk creating\nimport cycles. They also increase the cognitive load of reading the code.\n\nIf an import statement is used to check for the availability or existence\nof a module, consider using `importlib.util.find_spec` instead.\n\nIf an import statement is used to re-export a symbol as part of a module's\npublic interface, consider using a \"redundant\" import alias, which\ninstructs Ruff (and other tools) to respect the re-export, and avoid\nmarking it as unused, as in:\n\n```python\nfrom module import member as member\n```\n\nAlternatively, you can use `__all__` to declare a symbol as part of the module's\ninterface, as in:\n\n```python\n# __init__.py\nimport some_module\n\n__all__ = [\"some_module\"]\n```\n\n## Preview\nWhen [preview] is enabled (and certain simplifying assumptions\nare met), we analyze all import statements for a given module\nwhen determining whether an import is used, rather than simply\nthe last of these statements. This can result in both different and\nmore import statements being marked as unused.\n\nFor example, if a module consists of\n\n```python\nimport a\nimport a.b\n```\n\nthen both statements are marked as unused under [preview], whereas\nonly the second is marked as unused under stable behavior.\n\nAs another example, if a module consists of\n\n```python\nimport a.b\nimport a\n\na.b.foo()\n```\n\nthen a diagnostic will be emitted for the second line under [preview],\nwhereas no diagnostic is emitted under stable behavior.\n\nNote that this behavior is somewhat subjective and is designed\nto conform to the developer's intuition rather than Python's actual\nexecution. To wit, the statement `import a.b` automatically executes\n`import a`, so in some sense `import a` is _always_ redundant\nin the presence of `import a.b`.\n\n\n## Fix safety\n\nFixes to remove unused imports are safe, except in `__init__.py` files.\n\nApplying fixes to `__init__.py` files is currently in preview. The fix offered depends on the\ntype of the unused import. Ruff will suggest a safe fix to export first-party imports with\neither a redundant alias or, if already present in the file, an `__all__` entry. If multiple\n`__all__` declarations are present, Ruff will not offer a fix. Ruff will suggest an unsafe fix\nto remove third-party and standard library imports -- the fix is unsafe because the module's\ninterface changes.\n\nSee [this FAQ section](https://docs.astral.sh/ruff/faq/#how-does-ruff-determine-which-of-my-imports-are-first-party-third-party-etc)\nfor more details on how Ruff\ndetermines whether an import is first or third-party.\n\n## Example\n\n```python\nimport numpy as np  # unused import\n\n\ndef area(radius):\n    return 3.14 * radius**2\n```\n\nUse instead:\n\n```python\ndef area(radius):\n    return 3.14 * radius**2\n```\n\nTo check the availability of a module, use `importlib.util.find_spec`:\n\n```python\nfrom importlib.util import find_spec\n\nif find_spec(\"numpy\") is not None:\n    print(\"numpy is installed\")\nelse:\n    print(\"numpy is not installed\")\n```\n\n## Options\n- `lint.ignore-init-module-imports`\n- `lint.pyflakes.allowed-unused-imports`\n\n## References\n- [Python documentation: `import`](https://docs.python.org/3/reference/simple_stmts.html#the-import-statement)\n- [Python documentation: `importlib.util.find_spec`](https://docs.python.org/3/library/importlib.html#importlib.util.find_spec)\n- [Typing documentation: interface conventions](https://typing.python.org/en/latest/spec/distributing.html#library-interface-public-and-private-symbols)\n\n[preview]: https://docs.astral.sh/ruff/preview/\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -13718,7 +13743,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pyflakes/rules/unused_import.rs",
-      "line": 145
+      "line": 144
     }
   },
   {
@@ -15074,7 +15099,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pylint/rules/import_private_name.rs",
-      "line": 52
+      "line": 53
     }
   },
   {
@@ -17420,7 +17445,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pyupgrade/rules/use_pep604_annotation.rs",
-      "line": 57
+      "line": 58
     }
   },
   {
@@ -17775,7 +17800,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pyupgrade/rules/os_error_alias.rs",
-      "line": 37
+      "line": 38
     }
   },
   {
@@ -18240,7 +18265,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pyupgrade/rules/use_pep604_annotation.rs",
-      "line": 115
+      "line": 116
     }
   },
   {
@@ -18284,7 +18309,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pyupgrade/rules/pep695/non_pep695_generic_function.rs",
-      "line": 84
+      "line": 86
     }
   },
   {
@@ -19276,7 +19301,7 @@
     ],
     "fix": "Fix is not available.",
     "fix_availability": "None",
-    "explanation": "## What it does\nChecks for mutable default values in dataclass attributes.\n\n## Why is this bad?\nMutable default values share state across all instances of the dataclass.\nThis can lead to bugs when the attributes are changed in one instance, as\nthose changes will unexpectedly affect all other instances.\n\nInstead of sharing mutable defaults, use the `field(default_factory=...)`\npattern.\n\nIf the default value is intended to be mutable, it must be annotated with\n`typing.ClassVar`; otherwise, a `ValueError` will be raised.\n\n## Example\n```python\nfrom dataclasses import dataclass\n\n\n@dataclass\nclass A:\n    # A list without a `default_factory` or `ClassVar` annotation\n    # will raise a `ValueError`.\n    mutable_default: list[int] = []\n```\n\nUse instead:\n```python\nfrom dataclasses import dataclass, field\n\n\n@dataclass\nclass A:\n    mutable_default: list[int] = field(default_factory=list)\n```\n\nOr:\n```python\nfrom dataclasses import dataclass\nfrom typing import ClassVar\n\n\n@dataclass\nclass A:\n    mutable_default: ClassVar[list[int]] = []\n```\n",
+    "explanation": "## What it does\nChecks for mutable default values in dataclass attributes.\n\n## Why is this bad?\nMutable default values share state across all instances of the dataclass.\nThis can lead to bugs when the attributes are changed in one instance, as\nthose changes will unexpectedly affect all other instances.\n\nInstead of sharing mutable defaults, use the `field(default_factory=...)`\npattern.\n\nIf the default value is intended to be mutable, it must be annotated with\n`typing.ClassVar`; otherwise, a `ValueError` will be raised.\n\nIn [preview](https://docs.astral.sh/ruff/preview/) this rule also detects mutable defaults passed via the `default` keyword\nargument in `field()` (for stdlib dataclasses), `attrs.field()`, `attr.ib()`,\nand `attr.attrib()` calls.\n\n## Example\n```python\nfrom dataclasses import dataclass\n\n\n@dataclass\nclass A:\n    # A list without a `default_factory` or `ClassVar` annotation\n    # will raise a `ValueError`.\n    mutable_default: list[int] = []\n```\n\nUse instead:\n```python\nfrom dataclasses import dataclass, field\n\n\n@dataclass\nclass A:\n    mutable_default: list[int] = field(default_factory=list)\n```\n\nOr:\n```python\nfrom dataclasses import dataclass\nfrom typing import ClassVar\n\n\n@dataclass\nclass A:\n    mutable_default: ClassVar[list[int]] = []\n```\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -19285,7 +19310,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/ruff/rules/mutable_dataclass_default.rs",
-      "line": 57
+      "line": 62
     }
   },
   {
@@ -19359,9 +19384,9 @@
     "name": "mutable-class-default",
     "code": "RUF012",
     "linter": "Ruff-specific rules",
-    "summary": "Mutable class attributes should be annotated with `typing.ClassVar`",
+    "summary": "Mutable default value for class attribute",
     "message_formats": [
-      "Mutable class attributes should be annotated with `typing.ClassVar`"
+      "Mutable default value for class attribute"
     ],
     "fix": "Fix is not available.",
     "fix_availability": "None",
@@ -19530,7 +19555,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/ruff/rules/never_union.rs",
-      "line": 41
+      "line": 42
     }
   },
   {
@@ -19795,7 +19820,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/ruff/rules/post_init_default.rs",
-      "line": 76
+      "line": 77
     }
   },
   {
@@ -20486,6 +20511,28 @@
     "source_location": {
       "file": "crates/ruff_linter/src/rules/ruff/rules/duplicate_entry_in_dunder_all.rs",
       "line": 50
+    }
+  },
+  {
+    "name": "float-equality-comparison",
+    "code": "RUF069",
+    "linter": "Ruff-specific rules",
+    "summary": "Unreliable floating point equality comparison `{left} {operator} {right}`",
+    "message_formats": [
+      "Unreliable floating point equality comparison `{left} {operator} {right}`"
+    ],
+    "fix": "Fix is not available.",
+    "fix_availability": "None",
+    "explanation": "## What it does\nChecks for comparisons between floating-point values using `==` or `!=`.\n\n## Why is this bad?\nDirectly comparing floating-point numbers for exact equality or inequality\ncan lead to incorrect and non-deterministic outcomes. This is because\nfloating-point values are finite binary approximations of real numbers.\nMany decimal values, such as `0.1`, cannot be represented exactly in binary,\nleading to small rounding errors. Furthermore, the results of arithmetic\noperations are subject to rounding at each step, and the order of operations\ncan influence the final result. Consequently, two mathematically equivalent\ncomputations may yield binary floating-point values that differ by a tiny\nmargin. Relying on exact comparison treats these semantically equal values\nas different, breaking logical correctness.\n\n## How to fix\nFor general Python code, use tolerance-based comparison functions from the\nstandard library:\n\n- Use `math.isclose()` for scalar comparisons\n- Use `cmath.isclose()` for complex numbers comparisons\n- Use `unittest.assertAlmostEqual()` in tests with `unittest`\n\nNote that `math.isclose()` and `cmath.isclose()` have a default absolute tolerance of zero, so\nwhen comparing values near zero, you must explicitly specify an `abs_tol`\nparameter.\n\nMany frameworks and libraries provide their own specialized functions for\nfloating-point comparison, often with different default tolerances optimized\nfor their specific use cases:\n\n- For `NumPy` arrays: use `numpy.isclose()` or `numpy.allclose()`\n- For `PyTorch` tensors: use `torch.isclose()`\n- Check your framework's / library's documentation for equivalent functions\n\nFor scenarios requiring exact decimal arithmetic, consider using the\n`Decimal` class from the `decimal` module instead of floating-point numbers.\n\n## Example\n\n```python\nassert 0.1 + 0.2 == 0.3  # AssertionError\n\nassert complex(0.3, 0.1) == complex(0.1 + 0.2, 0.1)  # AssertionError\n```\n\nUse instead:\n\n```python\nimport cmath\nimport math\n\n# Scalar comparison\nassert math.isclose(0.1 + 0.2, 0.3, abs_tol=1e-9)\n# Complex numbers comparison\nassert cmath.isclose(complex(0.3, 0.1), complex(0.1 + 0.2, 0.1), abs_tol=1e-9)\n```\n\n## Ecosystem-specific alternatives\n\n```python\nimport numpy as np\n\narr1 = np.sum(np.array([0.1, 0.2]))\n\nassert np.all(arr1 == 0.3)  # AssertionError\n```\n\nUse instead:\n\n```python\nimport numpy as np\n\narr1 = np.sum(np.array([0.1, 0.2]))\n\nassert np.all(np.isclose(arr1, 0.3, rtol=1e-9, atol=1e-9))\n# or\nassert np.allclose(arr1, 0.3, rtol=1e-9, atol=1e-9)\n```\n\n## References\n- [Python documentation: Floating Point Arithmetic: Issues and Limitations](https://docs.python.org/3/tutorial/floatingpoint.html#floating-point-arithmetic-issues-and-limitations)\n- [Decimal fixed point and floating point arithmetic](https://docs.python.org/3/library/decimal.html#module-decimal)\n- [Python documentation: `math.isclose`](https://docs.python.org/3/library/math.html#math.isclose)\n- [Python documentation: `cmath.isclose`](https://docs.python.org/3/library/cmath.html#cmath.isclose)\n- [Python documentation: `unittest.assertAlmostEqual`](https://docs.python.org/3/library/unittest.html#unittest.TestCase.assertAlmostEqual)\n- [NumPy documentation: `numpy.isclose`](https://numpy.org/doc/stable/reference/generated/numpy.isclose.html#numpy-isclose)\n- [NumPy documentation: `numpy.allclose`](https://numpy.org/doc/stable/reference/generated/numpy.allclose.html#numpy-allclose)\n- [PyTorch documentation: `torch.isclose`](https://docs.pytorch.org/docs/stable/generated/torch.isclose.html#torch-isclose)\n",
+    "preview": true,
+    "status": {
+      "Preview": {
+        "since": "0.15.1"
+      }
+    },
+    "source_location": {
+      "file": "crates/ruff_linter/src/rules/ruff/rules/float_equality_comparison.rs",
+      "line": 103
     }
   },
   {

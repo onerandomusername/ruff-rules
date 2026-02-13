@@ -732,7 +732,7 @@
     "deprecated": null
   },
   "lint.flake8-type-checking.runtime-evaluated-decorators": {
-    "doc": "Exempt classes and functions decorated with any of the enumerated\ndecorators from being moved into type-checking blocks.\n\nCommon examples include Pydantic's `@pydantic.validate_call` decorator\n(for functions) and attrs' `@attrs.define` decorator (for classes).\n\nThis also supports framework decorators like FastAPI's `fastapi.FastAPI.get`\nwhich will work across assignments in the same module.\n\nFor example:\n```python\nimport fastapi\n\napp = FastAPI(\"app\")\n\n@app.get(\"/home\")\ndef home() -> str: ...\n```\n\nHere `app.get` will correctly be identified as `fastapi.FastAPI.get`.",
+    "doc": "Exempt classes and functions decorated with any of the enumerated\ndecorators from being moved into type-checking blocks.\n\nCommon examples include Pydantic's `@pydantic.validate_call` decorator\n(for functions) and attrs' `@attrs.define` decorator (for classes).\n\nThis also supports framework decorators like FastAPI's `fastapi.FastAPI.get`\nwhich will work across assignments in the same module.\n\nFor example:\n```python\nfrom fastapi import FastAPI\n\napp = FastAPI(\"app\")\n\n@app.get(\"/home\")\ndef home() -> str: ...\n```\n\nHere `app.get` will correctly be identified as `fastapi.FastAPI.get`.",
     "default": "[]",
     "value_type": "list[str]",
     "scope": null,
@@ -884,6 +884,14 @@
     "value_type": "bool",
     "scope": null,
     "example": "from-first = true",
+    "deprecated": null
+  },
+  "lint.isort.import-heading": {
+    "doc": "A mapping from import section names to their heading comments.\n\nWhen set, a comment with the specified text will be added above imports\nin the corresponding section. If a heading comment already exists, it\nwill be replaced.\n\nCompatible with isort's `import_heading_{section_name}` settings.",
+    "default": "{}",
+    "value_type": "dict[\"future\" | \"standard-library\" | \"third-party\" | \"first-party\" | \"local-folder\" | str, str]",
+    "scope": null,
+    "example": "future = \"Future imports\"\nstandard-library = \"Standard library imports\"\nthird-party = \"Third party imports\"\nfirst-party = \"First party imports\"\nlocal-folder = \"Local folder imports\"",
     "deprecated": null
   },
   "lint.isort.known-first-party": {
