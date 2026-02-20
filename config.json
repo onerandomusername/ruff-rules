@@ -103,6 +103,14 @@
     "example": "# In addition to the standard set of inclusions, include `.pyw` files.\nextend-include = [\"*.pyw\"]",
     "deprecated": null
   },
+  "extension": {
+    "doc": "A mapping of custom file extensions to known file types (overridden\nby the `--extension` command-line flag).\n\nSupported file types include `python`, `pyi`, `ipynb`, and `markdown`.",
+    "default": "{}",
+    "value_type": "dict[str, Language]",
+    "scope": null,
+    "example": "# Add a custom file extension mapped to Python\nextension = {rpy=\"python\"}",
+    "deprecated": null
+  },
   "fix": {
     "doc": "Enable fix behavior by-default when running `ruff` (overridden\nby the `--fix` and `--no-fix` command-line flags).\nOnly includes automatic fixes unless `--unsafe-fixes` is provided.",
     "default": "false",

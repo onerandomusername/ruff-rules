@@ -4872,7 +4872,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_executable/rules/shebang_missing_python.rs",
-      "line": 34
+      "line": 53
     }
   },
   {
@@ -6557,7 +6557,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_pyi/rules/redundant_numeric_union.rs",
-      "line": 55
+      "line": 56
     }
   },
   {
@@ -20547,7 +20547,7 @@
     ],
     "fix": "Fix is always available.",
     "fix_availability": "Always",
-    "explanation": "## What it does\nChecks for `noqa` directives that are no longer applicable.\n\n## Why is this bad?\nA `noqa` directive that no longer matches any diagnostic violations is\nlikely included by mistake, and should be removed to avoid confusion.\n\n## Example\n```python\nimport foo  # noqa: F401\n\n\ndef bar():\n    foo.bar()\n```\n\nUse instead:\n```python\nimport foo\n\n\ndef bar():\n    foo.bar()\n```\n\n## Conflict with other linters\nWhen using `RUF100` with the `--fix` option, Ruff may remove trailing comments\nthat follow a `# noqa` directive on the same line, as it interprets the\nremainder of the line as a description for the suppression.\n\nTo prevent Ruff from removing suppressions for other tools (like `pylint`\nor `mypy`), separate them with a second `#` character:\n\n```python\n# Bad: Ruff --fix will remove the pylint comment\ndef visit_ImportFrom(self, node):  # noqa: N802, pylint: disable=invalid-name\n    pass\n\n\n# Good: Ruff will preserve the pylint comment\ndef visit_ImportFrom(self, node):  # noqa: N802 # pylint: disable=invalid-name\n    pass\n```\n\n## Options\n- `lint.external`\n\n## References\n- [Ruff error suppression](https://docs.astral.sh/ruff/linter/#error-suppression)\n",
+    "explanation": "## What it does\nChecks for `noqa` directives that are no longer applicable.\n\n## Why is this bad?\nA `noqa` directive that no longer matches any diagnostic violations is\nlikely included by mistake, and should be removed to avoid confusion.\n\n## Example\n```python\nimport foo  # noqa: F401\n\n\ndef bar():\n    foo.bar()\n```\n\nUse instead:\n```python\nimport foo\n\n\ndef bar():\n    foo.bar()\n```\n\n## Conflict with other linters\nWhen using `RUF100` with the `--fix` option, Ruff may remove trailing comments\nthat follow a `# noqa` directive on the same line, as it interprets the\nremainder of the line as a description for the suppression.\n\nTo prevent Ruff from removing suppressions for other tools (like `pylint`\nor `mypy`), separate them with a second `#` character:\n\n```python\n# Bad: Ruff --fix will remove the pylint comment\ndef visit_ImportFrom(self, node):  # noqa: N802, pylint: disable=invalid-name\n    pass\n\n\n# Good: Ruff will preserve the pylint comment\ndef visit_ImportFrom(self, node):  # noqa: N802 # pylint: disable=invalid-name\n    pass\n```\n\n## Options\n\nThis rule will flag rule codes that are unknown to Ruff, even if they are\nvalid for other tools. You can tell Ruff to ignore such codes by configuring\nthe list of known \"external\" rule codes with the following option:\n\n- `lint.external`\n\n## References\n- [Ruff error suppression](https://docs.astral.sh/ruff/linter/#error-suppression)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -20556,7 +20556,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/ruff/rules/unused_noqa.rs",
-      "line": 79
+      "line": 84
     }
   },
   {
@@ -20591,7 +20591,7 @@
     ],
     "fix": "Fix is always available.",
     "fix_availability": "Always",
-    "explanation": "## What it does\nChecks for `noqa` codes that are invalid.\n\n## Why is this bad?\nInvalid rule codes serve no purpose and may indicate outdated code suppressions.\n\n## Example\n```python\nimport os  # noqa: XYZ999\n```\n\nUse instead:\n```python\nimport os\n```\n\nOr if there are still valid codes needed:\n```python\nimport os  # noqa: E402\n```\n\n## Options\n- `lint.external`\n",
+    "explanation": "## What it does\nChecks for `noqa` codes that are invalid.\n\n## Why is this bad?\nInvalid rule codes serve no purpose and may indicate outdated code suppressions.\n\n## Example\n```python\nimport os  # noqa: XYZ999\n```\n\nUse instead:\n```python\nimport os\n```\n\nOr if there are still valid codes needed:\n```python\nimport os  # noqa: E402\n```\n\n## Options\n\nThis rule will flag rule codes that are unknown to Ruff, even if they are\nvalid for other tools. You can tell Ruff to ignore such codes by configuring\nthe list of known \"external\" rule codes with the following option:\n\n- `lint.external`\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -20600,7 +20600,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/ruff/rules/invalid_rule_code.rs",
-      "line": 50
+      "line": 56
     }
   },
   {
