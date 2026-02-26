@@ -898,7 +898,7 @@
     "doc": "A mapping from import section names to their heading comments.\n\nWhen set, a comment with the specified text will be added above imports\nin the corresponding section. If a heading comment already exists, it\nwill be replaced.\n\nCompatible with isort's `import_heading_{section_name}` settings.",
     "default": "{}",
     "value_type": "dict[\"future\" | \"standard-library\" | \"third-party\" | \"first-party\" | \"local-folder\" | str, str]",
-    "scope": null,
+    "scope": "import-heading",
     "example": "future = \"Future imports\"\nstandard-library = \"Standard library imports\"\nthird-party = \"Third party imports\"\nfirst-party = \"First party imports\"\nlocal-folder = \"Local folder imports\"",
     "deprecated": null
   },
