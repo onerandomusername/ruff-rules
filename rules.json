@@ -2267,7 +2267,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/unsafe_yaml_load.rs",
-      "line": 37
+      "line": 38
     }
   },
   {
@@ -3560,7 +3560,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bugbear/rules/return_in_generator.rs",
-      "line": 80
+      "line": 81
     }
   },
   {
@@ -13379,7 +13379,7 @@
     ],
     "fix": "Fix is not available.",
     "fix_availability": "None",
-    "explanation": "## What it does\nChecks for docstrings that start with `This`.\n\n## Why is this bad?\n[PEP 257] recommends that the first line of a docstring be written in the\nimperative mood, for consistency.\n\nHint: to rewrite the docstring in the imperative, phrase the first line as\nif it were a command.\n\nThis rule may not apply to all projects; its applicability is a matter of\nconvention. By default, this rule is enabled when using the `numpy`\nconvention,, and disabled when using the `google` and `pep257` conventions.\n\n## Example\n```python\ndef average(values: list[float]) -> float:\n    \"\"\"This function returns the mean of the given values.\"\"\"\n```\n\nUse instead:\n```python\ndef average(values: list[float]) -> float:\n    \"\"\"Return the mean of the given values.\"\"\"\n```\n\n## Options\n- `lint.pydocstyle.convention`\n\n## References\n- [PEP 257 – Docstring Conventions](https://peps.python.org/pep-0257/)\n\n[PEP 257]: https://peps.python.org/pep-0257/\n",
+    "explanation": "## What it does\nChecks for docstrings that start with `This`.\n\n## Why is this bad?\n[PEP 257] recommends that the first line of a docstring be written in the\nimperative mood, for consistency.\n\nHint: to rewrite the docstring in the imperative, phrase the first line as\nif it were a command.\n\nThis rule may not apply to all projects; its applicability is a matter of\nconvention. By default, this rule is enabled when using the `numpy`\nconvention, and disabled when using the `google` and `pep257` conventions.\n\n## Example\n```python\ndef average(values: list[float]) -> float:\n    \"\"\"This function returns the mean of the given values.\"\"\"\n```\n\nUse instead:\n```python\ndef average(values: list[float]) -> float:\n    \"\"\"Return the mean of the given values.\"\"\"\n```\n\n## Options\n- `lint.pydocstyle.convention`\n\n## References\n- [PEP 257 – Docstring Conventions](https://peps.python.org/pep-0257/)\n\n[PEP 257]: https://peps.python.org/pep-0257/\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -13720,6 +13720,28 @@
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pydocstyle/rules/not_empty.rs",
       "line": 35
+    }
+  },
+  {
+    "name": "incorrect-section-order",
+    "code": "D420",
+    "linter": "pydocstyle",
+    "summary": "Section \"{current}\" appears after section \"{previous}\" but should be before it",
+    "message_formats": [
+      "Section \"{current}\" appears after section \"{previous}\" but should be before it"
+    ],
+    "fix": "Fix is not available.",
+    "fix_availability": "None",
+    "explanation": "## What it does\nChecks for docstring sections that appear out of order.\n\n## Why is this bad?\nDocstring sections should follow the canonical ordering specified by the\ndocstring convention (NumPy or Google). Consistent ordering makes\ndocstrings easier to read and navigate.\n\nFor the NumPy convention, all sections have a prescribed order per the\nnumpydoc style guide. For the Google convention, only the relative ordering\nof `Args`, `Returns`/`Yields`, and `Raises` is enforced; all other sections\nare unordered.\n\n## Example\n\nGiven `lint.pydocstyle.convention = \"numpy\"`:\n\n```python\ndef func() -> int:\n    \"\"\"Summary.\n\n    Notes\n    -----\n    Some notes.\n\n    Returns\n    -------\n    int\n    \"\"\"\n```\n\nUse instead:\n```python\ndef func() -> int:\n    \"\"\"Summary.\n\n    Returns\n    -------\n    int\n\n    Notes\n    -----\n    Some notes.\n    \"\"\"\n```\n\nGiven `lint.pydocstyle.convention = \"google\"`:\n\n```python\ndef func(x: int) -> int:\n    \"\"\"Summary.\n\n    Returns:\n        int\n\n    Args:\n        x: Description.\n    \"\"\"\n```\n\nUse instead:\n```python\ndef func(x: int) -> int:\n    \"\"\"Summary.\n\n    Args:\n        x: Description.\n\n    Returns:\n        int\n    \"\"\"\n```\n\n## Options\n- `lint.pydocstyle.convention`\n\n## References\n- [NumPy docstring standard](https://numpydoc.readthedocs.io/en/latest/format.html)\n- [Google Python Style Guide](https://google.github.io/styleguide/pyguide.html#383-functions-and-methods)\n",
+    "preview": true,
+    "status": {
+      "Preview": {
+        "since": "0.15.3"
+      }
+    },
+    "source_location": {
+      "file": "crates/ruff_linter/src/rules/pydocstyle/rules/sections.rs",
+      "line": 1430
     }
   },
   {
@@ -16424,6 +16446,28 @@
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pylint/rules/useless_return.rs",
       "line": 31
+    }
+  },
+  {
+    "name": "swap-with-temporary-variable",
+    "code": "PLR1712",
+    "linter": "Pylint",
+    "summary": "Unnecessary temporary variable",
+    "message_formats": [
+      "Unnecessary temporary variable"
+    ],
+    "fix": "Fix is sometimes available.",
+    "fix_availability": "Sometimes",
+    "explanation": "## What it does\nChecks for code that swaps two variables using a temporary variable.\n\n## Why is this bad?\nVariables can be swapped by using tuple unpacking instead of using a\ntemporary variable. That also makes the intention of the swapping logic\nmore clear.\n\n## Example\n```python\ndef function(x, y):\n    if x > y:\n        temp = x\n        x = y\n        y = temp\n    assert x <= y\n```\n\nUse instead:\n```python\ndef function(x, y):\n    if x > y:\n        x, y = y, x\n    assert x <= y\n```\n\n## Fix safety\nThe rule's fix is marked as safe, unless the replacement range contains comments\nthat would be removed.\n",
+    "preview": true,
+    "status": {
+      "Preview": {
+        "since": "0.15.3"
+      }
+    },
+    "source_location": {
+      "file": "crates/ruff_linter/src/rules/pylint/rules/swap_with_temporary_variable.rs",
+      "line": 41
     }
   },
   {
@@ -20536,6 +20580,29 @@
     }
   },
   {
+    "name": "unnecessary-assign-before-yield",
+    "code": "RUF070",
+    "linter": "Ruff-specific rules",
+    "summary": "Unnecessary assignment to `{name}` before `yield from` statement",
+    "message_formats": [
+      "Unnecessary assignment to `{name}` before `yield from` statement",
+      "Unnecessary assignment to `{name}` before `yield` statement"
+    ],
+    "fix": "Fix is always available.",
+    "fix_availability": "Always",
+    "explanation": "## What it does\nChecks for variable assignments that immediately precede a `yield` (or\n`yield from`) of the assigned variable, where the variable is not\nreferenced anywhere else.\n\n## Why is this bad?\nThe variable assignment is not necessary, as the value can be yielded\ndirectly.\n\n## Example\n```python\ndef gen():\n    x = 1\n    yield x\n```\n\nUse instead:\n```python\ndef gen():\n    yield 1\n```\n\n## Fix safety\nThis fix is always marked as unsafe because removing the intermediate\nvariable assignment changes the local variable bindings visible to\n`locals()` and debuggers when the generator is suspended at the `yield`.\n",
+    "preview": true,
+    "status": {
+      "Preview": {
+        "since": "0.15.3"
+      }
+    },
+    "source_location": {
+      "file": "crates/ruff_linter/src/rules/ruff/rules/unnecessary_assign_before_yield.rs",
+      "line": 42
+    }
+  },
+  {
     "name": "unused-noqa",
     "code": "RUF100",
     "linter": "Ruff-specific rules",
@@ -20547,7 +20614,7 @@
     ],
     "fix": "Fix is always available.",
     "fix_availability": "Always",
-    "explanation": "## What it does\nChecks for `noqa` directives that are no longer applicable.\n\n## Why is this bad?\nA `noqa` directive that no longer matches any diagnostic violations is\nlikely included by mistake, and should be removed to avoid confusion.\n\n## Example\n```python\nimport foo  # noqa: F401\n\n\ndef bar():\n    foo.bar()\n```\n\nUse instead:\n```python\nimport foo\n\n\ndef bar():\n    foo.bar()\n```\n\n## Conflict with other linters\nWhen using `RUF100` with the `--fix` option, Ruff may remove trailing comments\nthat follow a `# noqa` directive on the same line, as it interprets the\nremainder of the line as a description for the suppression.\n\nTo prevent Ruff from removing suppressions for other tools (like `pylint`\nor `mypy`), separate them with a second `#` character:\n\n```python\n# Bad: Ruff --fix will remove the pylint comment\ndef visit_ImportFrom(self, node):  # noqa: N802, pylint: disable=invalid-name\n    pass\n\n\n# Good: Ruff will preserve the pylint comment\ndef visit_ImportFrom(self, node):  # noqa: N802 # pylint: disable=invalid-name\n    pass\n```\n\n## Options\n\nThis rule will flag rule codes that are unknown to Ruff, even if they are\nvalid for other tools. You can tell Ruff to ignore such codes by configuring\nthe list of known \"external\" rule codes with the following option:\n\n- `lint.external`\n\n## References\n- [Ruff error suppression](https://docs.astral.sh/ruff/linter/#error-suppression)\n",
+    "explanation": "## What it does\nChecks for `noqa` directives that are no longer applicable.\n\n## Why is this bad?\nA `noqa` directive that no longer matches any diagnostic violations is\nlikely included by mistake, and should be removed to avoid confusion.\n\n## Example\n```python\nimport foo  # noqa: F401\n\n\ndef bar():\n    foo.bar()\n```\n\nUse instead:\n```python\nimport foo\n\n\ndef bar():\n    foo.bar()\n```\n\n## Conflict with other linters\nWhen using `RUF100` with the `--fix` option, Ruff may remove trailing comments\nthat follow a `# noqa` directive on the same line, as it interprets the\nremainder of the line as a description for the suppression.\n\nTo prevent Ruff from removing suppressions for other tools (like `pylint`\nor `mypy`), separate them with a second `#` character:\n\n```python\n# Bad: Ruff --fix will remove the pylint comment\ndef visit_ImportFrom(self, node):  # noqa: N802, pylint: disable=invalid-name\n    pass\n\n\n# Good: Ruff will preserve the pylint comment\ndef visit_ImportFrom(self, node):  # noqa: N802 # pylint: disable=invalid-name\n    pass\n```\n\n## See also\n\nThis rule ignores any codes that are unknown to Ruff, as it can't determine\nif the codes are valid or used by other tools. Enable [`invalid-rule-code`][RUF102]\nto flag any unknown rule codes.\n\n## References\n- [Ruff error suppression](https://docs.astral.sh/ruff/linter/#error-suppression)\n\n[RUF102]: https://docs.astral.sh/ruff/rules/invalid-rule-code/\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -20556,7 +20623,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/ruff/rules/unused_noqa.rs",
-      "line": 84
+      "line": 83
     }
   },
   {
@@ -20600,7 +20667,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/ruff/rules/invalid_rule_code.rs",
-      "line": 56
+      "line": 57
     }
   },
   {

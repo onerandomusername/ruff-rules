@@ -104,7 +104,7 @@
     "deprecated": null
   },
   "extension": {
-    "doc": "A mapping of custom file extensions to known file types (overridden\nby the `--extension` command-line flag).\n\nSupported file types include `python`, `pyi`, `ipynb`, and `markdown`.",
+    "doc": "A mapping of custom file extensions to known file types (overridden\nby the `--extension` command-line flag).\n\nSupported file types include `python`, `pyi`, `ipynb`, and `markdown`.\n\nAny file extensions listed here will be automatically added to the\ndefault `include` list as a `*.{ext}` glob, so that they are linted\nand formatted without needing any additional configuration settings.",
     "default": "{}",
     "value_type": "dict[str, Language]",
     "scope": null,
