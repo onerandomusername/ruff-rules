@@ -201,7 +201,7 @@
   },
   "include": {
     "doc": "A list of file patterns to include when linting.\n\nInclusion are based on globs, and should be single-path patterns, like\n`*.pyw`, to include any file with the `.pyw` extension. `pyproject.toml` is\nincluded here not for configuration but because we lint whether e.g. the\n`[project]` matches the schema.\n\nNotebook files (`.ipynb` extension) are included by default on Ruff 0.6.0+.\n\nFor more information on the glob syntax, refer to the [`globset` documentation](https://docs.rs/globset/latest/globset/#syntax).",
-    "default": "[\"*.py\", \"*.pyi\", \"*.pyw\", \"*.ipynb\", \"**/pyproject.toml\"]",
+    "default": "[\"*.py\", \"*.pyi\", \"*.pyw\", \"*.ipynb\", \"*.md\", \"**/pyproject.toml\"]",
     "value_type": "list[str]",
     "scope": null,
     "example": "include = [\"*.py\"]",
