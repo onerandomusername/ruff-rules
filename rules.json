@@ -9,7 +9,7 @@
     ],
     "fix": "Fix is not available.",
     "fix_availability": "None",
-    "explanation": "## What it does\nChecks that the task variable name matches the `task_id` value for\nAirflow Operators.\n\n## Why is this bad?\nWhen initializing an Airflow Operator, for consistency, the variable\nname should match the `task_id` value. This makes it easier to\nfollow the flow of the DAG.\n\n## Example\n```python\nfrom airflow.operators import PythonOperator\n\n\nincorrect_name = PythonOperator(task_id=\"my_task\")\n```\n\nUse instead:\n```python\nfrom airflow.operators import PythonOperator\n\n\nmy_task = PythonOperator(task_id=\"my_task\")\n```\n",
+    "explanation": "## What it does\nChecks that the task variable name matches the `task_id` value for\nAirflow Operators.\n\n## Why is this bad?\nWhen initializing an Airflow Operator, for consistency, the variable\nname should match the `task_id` value. This makes it easier to\nfollow the flow of the Dag.\n\n## Example\n```python\nfrom airflow.operators import PythonOperator\n\n\nincorrect_name = PythonOperator(task_id=\"my_task\")\n```\n\nUse instead:\n```python\nfrom airflow.operators import PythonOperator\n\n\nmy_task = PythonOperator(task_id=\"my_task\")\n```\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -31,7 +31,7 @@
     ],
     "fix": "Fix is not available.",
     "fix_availability": "None",
-    "explanation": "## What it does\nChecks for a `DAG()` class or `@dag()` decorator without an explicit\n`schedule` (or `schedule_interval` for Airflow 1) parameter.\n\n## Why is this bad?\nThe default value of the `schedule` parameter on Airflow 2 and\n`schedule_interval` on Airflow 1 is `timedelta(days=1)`, which is almost\nnever what a user is looking for. Airflow 3 changed the default value to `None`,\nand would break existing dags using the implicit default.\n\nIf your dag does not have an explicit `schedule` / `schedule_interval` argument,\nAirflow 2 schedules a run for it every day (at the time determined by `start_date`).\nSuch a dag will no longer be scheduled on Airflow 3 at all, without any\nexceptions or other messages visible to the user.\n\n## Example\n```python\nfrom airflow import DAG\n\n\n# Using the implicit default schedule.\ndag = DAG(dag_id=\"my_dag\")\n```\n\nUse instead:\n```python\nfrom datetime import timedelta\n\nfrom airflow import DAG\n\n\ndag = DAG(dag_id=\"my_dag\", schedule=timedelta(days=1))\n```\n",
+    "explanation": "## What it does\nChecks for a `DAG()` class or `@dag()` decorator without an explicit\n`schedule` (or `schedule_interval` for Airflow 1) parameter.\n\n## Why is this bad?\nThe default value of the `schedule` parameter on Airflow 2 and\n`schedule_interval` on Airflow 1 is `timedelta(days=1)`, which is almost\nnever what a user is looking for. Airflow 3 changed the default value to `None`,\nand would break existing Dags using the implicit default.\n\nIf your Dag does not have an explicit `schedule` / `schedule_interval` argument,\nAirflow 2 schedules a run for it every day (at the time determined by `start_date`).\nSuch a Dag will no longer be scheduled on Airflow 3 at all, without any\nexceptions or other messages visible to the user.\n\n## Example\n```python\nfrom airflow import DAG\n\n\n# Using the implicit default schedule.\ndag = DAG(dag_id=\"my_dag\")\n```\n\nUse instead:\n```python\nfrom datetime import timedelta\n\nfrom airflow import DAG\n\n\ndag = DAG(dag_id=\"my_dag\", schedule=timedelta(days=1))\n```\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -41,6 +41,28 @@
     "source_location": {
       "file": "crates/ruff_linter/src/rules/airflow/rules/dag_schedule_argument.rs",
       "line": 43
+    }
+  },
+  {
+    "name": "airflow-variable-get-outside-task",
+    "code": "AIR003",
+    "linter": "Airflow",
+    "summary": "`Variable.get()` outside of a task",
+    "message_formats": [
+      "`Variable.get()` outside of a task"
+    ],
+    "fix": "Fix is not available.",
+    "fix_availability": "None",
+    "explanation": "## What it does\nChecks for `Variable.get()` calls outside of Airflow task execution\ncontext (i.e., outside `@task`-decorated functions and operator\n`execute()` methods).\n\n## Why is this bad?\nCalling `Variable.get()` at module level or in operator constructor\narguments causes a database query every time the Dag file is parsed\nby the scheduler. This can degrade Dag parsing performance and, in\nsome cases, cause the Dag file to time out before it is fully parsed.\n\nInstead, pass Airflow Variables to operators via Jinja templates\n(`{{ var.value.my_var }}` or `{{ var.json.my_var }}`), which defer\nthe lookup until task execution.\n\n`Variable.get()` inside `@task`-decorated functions and operator\n`execute()` methods is fine because those only run during task\nexecution, not during Dag parsing.\n\nNote that this rule may produce false positives for helper functions\nthat are only invoked at task execution time (e.g., passed as\n`python_callable` to `PythonOperator`). In such cases, suppress the\ndiagnostic with `# noqa: AIR003`.\n\n## Example\n```python\nfrom airflow.sdk import Variable\nfrom airflow.operators.bash import BashOperator\n\n\nfoo = Variable.get(\"foo\")\nBashOperator(task_id=\"bad\", bash_command=\"echo $FOO\", env={\"FOO\": foo})\n```\n\nUse instead:\n```python\nfrom airflow.operators.bash import BashOperator\n\n\nBashOperator(\n    task_id=\"good\",\n    bash_command=\"echo $FOO\",\n    env={\"FOO\": \"{{ var.value.foo }}\"},\n)\n```\n",
+    "preview": true,
+    "status": {
+      "Preview": {
+        "since": "0.15.6"
+      }
+    },
+    "source_location": {
+      "file": "crates/ruff_linter/src/rules/airflow/rules/variable_get_outside_task.rs",
+      "line": 56
     }
   },
   {
@@ -107,6 +129,28 @@
     "source_location": {
       "file": "crates/ruff_linter/src/rules/airflow/rules/function_signature_change_in_3.rs",
       "line": 38
+    }
+  },
+  {
+    "name": "airflow3-dag-dynamic-value",
+    "code": "AIR304",
+    "linter": "Airflow",
+    "summary": "`{function_name}()` produces a value that changes at runtime; using it in a Dag or task argument causes infinite Dag version creation",
+    "message_formats": [
+      "`{function_name}()` produces a value that changes at runtime; using it in a Dag or task argument causes infinite Dag version creation"
+    ],
+    "fix": "Fix is not available.",
+    "fix_availability": "None",
+    "explanation": "## What it does\nChecks for calls to runtime-varying functions (such as `datetime.now()`)\nused as arguments in Airflow Dag or task constructors.\n\n## Why is this bad?\nUsing runtime-varying values as arguments to Dag or task constructors\ncauses the serialized Dag hash to change on every parse, creating\ninfinite Dag versions in the `dag_version` and `serialized_dag` tables.\nThis leads to unbounded database growth and can eventually cause\nout-of-memory conditions.\n\n## Example\n```python\nfrom datetime import datetime\n\nfrom airflow import DAG\n\ndag = DAG(dag_id=\"my_dag\", start_date=datetime.now())\n```\n\nUse instead:\n```python\nfrom datetime import datetime\n\nfrom airflow import DAG\n\ndag = DAG(dag_id=\"my_dag\", start_date=datetime(2024, 1, 1))\n```\n",
+    "preview": true,
+    "status": {
+      "Preview": {
+        "since": "0.15.6"
+      }
+    },
+    "source_location": {
+      "file": "crates/ruff_linter/src/rules/airflow/rules/runtime_value_in_dag_or_task.rs",
+      "line": 39
     }
   },
   {
@@ -3542,6 +3586,28 @@
     }
   },
   {
+    "name": "del-attr-with-constant",
+    "code": "B043",
+    "linter": "flake8-bugbear",
+    "summary": "Do not call `delattr` with a constant attribute value. It is not any safer than normal property deletion.",
+    "message_formats": [
+      "Do not call `delattr` with a constant attribute value. It is not any safer than normal property deletion."
+    ],
+    "fix": "Fix is always available.",
+    "fix_availability": "Always",
+    "explanation": "## What it does\nChecks for uses of `delattr` that take a constant attribute value as an\nargument (e.g., `delattr(obj, \"foo\")`).\n\n## Why is this bad?\n`delattr` is used to delete attributes dynamically. If the attribute is\ndefined as a constant, it is no safer than a typical property deletion.\nWhen possible, prefer `del` statements over `delattr` calls, as the\nformer is more concise and idiomatic.\n\n## Example\n```python\ndelattr(obj, \"foo\")\n```\n\nUse instead:\n```python\ndel obj.foo\n```\n\n## Fix safety\nThe fix is marked as unsafe for attribute names that are not in NFKC\n(Normalization Form KC) normalization. Python normalizes identifiers using\nNFKC when using attribute access syntax (e.g., `del obj.attr`), but does\nnot normalize string arguments passed to `delattr`. Rewriting\n`delattr(obj, \"ſ\")` to `del obj.ſ` would be interpreted as `del obj.s`\nat runtime, changing behavior.\n\nAdditionally, the fix is marked as unsafe if the expression contains\ncomments, as the replacement may remove comments attached to the original\n`delattr` call.\n\n## References\n- [Python documentation: `delattr`](https://docs.python.org/3/library/functions.html#delattr)\n",
+    "preview": true,
+    "status": {
+      "Preview": {
+        "since": "0.15.6"
+      }
+    },
+    "source_location": {
+      "file": "crates/ruff_linter/src/rules/flake8_bugbear/rules/delattr_with_constant.rs",
+      "line": 46
+    }
+  },
+  {
     "name": "return-in-generator",
     "code": "B901",
     "linter": "flake8-bugbear",
@@ -3596,7 +3662,7 @@
     ],
     "fix": "Fix is not available.",
     "fix_availability": "None",
-    "explanation": "## What it does\nChecks for `raise` statements in exception handlers that lack a `from`\nclause.\n\n## Why is this bad?\nIn Python, `raise` can be used with or without an exception from which the\ncurrent exception is derived. This is known as exception chaining. When\nprinting the stack trace, chained exceptions are displayed in such a way\nso as make it easier to trace the exception back to its root cause.\n\nWhen raising an exception from within an `except` clause, always include a\n`from` clause to facilitate exception chaining. If the exception is not\nchained, it will be difficult to trace the exception back to its root cause.\n\n## Example\n```python\ntry:\n    ...\nexcept FileNotFoundError:\n    if ...:\n        raise RuntimeError(\"...\")\n    else:\n        raise UserWarning(\"...\")\n```\n\nUse instead:\n```python\ntry:\n    ...\nexcept FileNotFoundError as exc:\n    if ...:\n        raise RuntimeError(\"...\") from None\n    else:\n        raise UserWarning(\"...\") from exc\n```\n\n## References\n- [Python documentation: `raise` statement](https://docs.python.org/3/reference/simple_stmts.html#the-raise-statement)\n",
+    "explanation": "## What it does\nChecks for `raise` statements in exception handlers that lack a `from`\nclause.\n\n## Why is this bad?\nIn Python, `raise` can be used with or without an exception from which the\ncurrent exception is derived. This is known as exception chaining. When\nprinting the stack trace, chained exceptions are displayed in such a way\nso as make it easier to trace the exception back to its root cause.\n\nWhen raising a new exception from within an `except` clause, it's recommended to\ninclude a `from` clause to explicitly set the exception's cause. Without it,\nPython will implicitly chain from the current exception (setting `__context__`),\nbut the `__cause__` attribute won't be set, which may make debugging slightly\nmore difficult.\n\n## Example\n```python\ntry:\n    ...\nexcept FileNotFoundError:\n    if ...:\n        raise RuntimeError(\"...\")\n    else:\n        raise UserWarning(\"...\")\n```\n\nUse instead:\n```python\ntry:\n    ...\nexcept FileNotFoundError as exc:\n    if ...:\n        raise RuntimeError(\"...\") from None\n    else:\n        raise UserWarning(\"...\") from exc\n```\n\n## References\n- [Python documentation: `raise` statement](https://docs.python.org/3/reference/simple_stmts.html#the-raise-statement)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -3605,7 +3671,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bugbear/rules/raise_without_from_inside_except.rs",
-      "line": 49
+      "line": 51
     }
   },
   {
@@ -5823,7 +5889,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_print/rules/print_call.rs",
-      "line": 54
+      "line": 55
     }
   },
   {
@@ -5845,7 +5911,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_print/rules/print_call.rs",
-      "line": 104
+      "line": 105
     }
   },
   {
@@ -8887,6 +8953,31 @@
     }
   },
   {
+    "name": "lazy-import-mismatch",
+    "code": "TID254",
+    "linter": "flake8-tidy-imports",
+    "summary": "`{name}` should be imported lazily",
+    "message_formats": [
+      "`{name}` should be imported lazily",
+      "Use a `lazy` import instead of an eager import",
+      "`{name}` should be imported eagerly",
+      "Use an eager import instead of a `lazy` import"
+    ],
+    "fix": "Fix is always available.",
+    "fix_availability": "Always",
+    "explanation": "## What it does\nEnforces the configured lazy-import policy in contexts where `lazy import`\nis legal.\n\n## Why is this bad?\nPython 3.15 adds support for `lazy import` and `lazy from ... import ...`,\nwhich defer the actual import work until the imported name is first used.\n\nDepending on the policy, some modules should be imported lazily to defer\nimport work until the name is first used, while others should remain eager\nto preserve import-time side effects.\n\nThis rule ignores contexts in which `lazy import` is invalid, such as\nfunctions, classes, `try`/`except` blocks, `__future__` imports, and\n`from ... import *` statements.\n\n## Example\n```python\nimport typing\n```\n\nUse instead:\n```python\nlazy import typing\n```\n\n## Options\n- `lint.flake8-tidy-imports.require-lazy`\n- `lint.flake8-tidy-imports.ban-lazy`\n",
+    "preview": true,
+    "status": {
+      "Preview": {
+        "since": "0.15.6"
+      }
+    },
+    "source_location": {
+      "file": "crates/ruff_linter/src/rules/flake8_tidy_imports/rules/lazy_import_mismatch.rs",
+      "line": 38
+    }
+  },
+  {
     "name": "invalid-todo-tag",
     "code": "TD001",
     "linter": "flake8-todos",
@@ -10429,7 +10520,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pep8_naming/rules/non_lowercase_variable_in_function.rs",
-      "line": 41
+      "line": 39
     }
   },
   {
@@ -10583,7 +10674,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pep8_naming/rules/mixed_case_variable_in_global_scope.rs",
-      "line": 54
+      "line": 52
     }
   },
   {
@@ -17458,7 +17549,7 @@
     ],
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
-    "explanation": "## What it does\nChecks for the use of generics that can be replaced with standard library\nvariants based on [PEP 585].\n\n## Why is this bad?\n[PEP 585] enabled collections in the Python standard library (like `list`)\nto be used as generics directly, instead of importing analogous members\nfrom the `typing` module (like `typing.List`).\n\nWhen available, the [PEP 585] syntax should be used instead of importing\nmembers from the `typing` module, as it's more concise and readable.\nImporting those members from `typing` is considered deprecated as of [PEP\n585].\n\nThis rule is enabled when targeting Python 3.9 or later (see:\n[`target-version`]). By default, it's _also_ enabled for earlier Python\nversions if `from __future__ import annotations` is present, as\n`__future__` annotations are not evaluated at runtime. If your code relies\non runtime type annotations (either directly or via a library like\nPydantic), you can disable this behavior for Python versions prior to 3.9\nby setting [`lint.pyupgrade.keep-runtime-typing`] to `true`.\n\n## Example\n```python\nfrom typing import List\n\nfoo: List[int] = [1, 2, 3]\n```\n\nUse instead:\n```python\nfoo: list[int] = [1, 2, 3]\n```\n\n## Fix safety\nThis rule's fix is marked as unsafe, as it may lead to runtime errors when\nalongside libraries that rely on runtime type annotations, like Pydantic,\non Python versions prior to Python 3.9.\n\n## Options\n- `target-version`\n- `lint.pyupgrade.keep-runtime-typing`\n\n[PEP 585]: https://peps.python.org/pep-0585/\n",
+    "explanation": "## What it does\nChecks for the use of generics that can be replaced with standard library\nvariants based on [PEP 585].\n\n## Why is this bad?\n[PEP 585] enabled collections in the Python standard library (like `list`)\nto be used as generics directly, instead of importing analogous members\nfrom the `typing` module (like `typing.List`).\n\nWhen available, the [PEP 585] syntax should be used instead of importing\nmembers from the `typing` module, as it's more concise and readable.\nImporting those members from `typing` is considered deprecated as of [PEP\n585].\n\nThis rule is enabled when targeting Python 3.9 or later (see:\n[`target-version`]). By default, it's _also_ enabled for earlier Python\nversions if `from __future__ import annotations` is present, as\n`__future__` annotations are not evaluated at runtime. If your code relies\non runtime type annotations (either directly or via a library like\nPydantic), you can disable this behavior for Python versions prior to 3.9\nby setting [`lint.pyupgrade.keep-runtime-typing`] to `true`.\n\n## Example\n```python\nfrom typing import List\n\nfoo: List[int] = [1, 2, 3]\n```\n\nUse instead:\n```python\nfoo: list[int] = [1, 2, 3]\n```\n\n## Fix safety\nThis rule's fix is marked as unsafe, as it may lead to runtime errors when\nalongside libraries that rely on runtime type annotations, like Pydantic,\non Python versions prior to Python 3.9.\n\nIn [preview], this rule can also add its own `__future__` import on Python\n3.9 and earlier, if the [`lint.future-annotations`] setting is enabled. This\nalso makes the fix unsafe.\n\n## Options\n- `target-version`\n- `lint.pyupgrade.keep-runtime-typing`\n- `lint.future-annotations`\n\n[PEP 585]: https://peps.python.org/pep-0585/\n[preview]: https://docs.astral.sh/ruff/preview/\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -17467,7 +17558,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pyupgrade/rules/use_pep585_annotation.rs",
-      "line": 57
+      "line": 64
     }
   },
   {
@@ -19523,7 +19614,7 @@
     ],
     "fix": "Fix is always available.",
     "fix_availability": "Always",
-    "explanation": "## What it does\nChecks for the use of `sum()` to flatten lists of lists, which has\nquadratic complexity.\n\n## Why is this bad?\nThe use of `sum()` to flatten lists of lists is quadratic in the number of\nlists, as `sum()` creates a new list for each element in the summation.\n\nInstead, consider using another method of flattening lists to avoid\nquadratic complexity. The following methods are all linear in the number of\nlists:\n\n- `functools.reduce(operator.iadd, lists, [])`\n- `list(itertools.chain.from_iterable(lists))`\n- `[item for sublist in lists for item in sublist]`\n\nWhen fixing relevant violations, Ruff defaults to the `functools.reduce`\nform, which outperforms the other methods in [microbenchmarks].\n\n## Example\n```python\nlists = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]\njoined = sum(lists, [])\n```\n\nUse instead:\n```python\nimport functools\nimport operator\n\n\nlists = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]\nfunctools.reduce(operator.iadd, lists, [])\n```\n\n## Fix safety\n\nThis fix is always marked as unsafe because `sum` uses the `__add__` magic method while\n`operator.iadd` uses the `__iadd__` magic method, and these behave differently on lists.\nThe former requires the right summand to be a list, whereas the latter allows for any iterable.\nTherefore, the fix could inadvertently cause code that previously raised an error to silently\nsucceed. Moreover, the fix could remove comments from the original code.\n\n## References\n- [_How Not to Flatten a List of Lists in Python_](https://mathieularose.com/how-not-to-flatten-a-list-of-lists-in-python)\n- [_How do I make a flat list out of a list of lists?_](https://stackoverflow.com/questions/952914/how-do-i-make-a-flat-list-out-of-a-list-of-lists/953097#953097)\n\n[microbenchmarks]: https://github.com/astral-sh/ruff/issues/5073#issuecomment-1591836349\n",
+    "explanation": "## What it does\nChecks for the use of `sum()` to flatten lists of lists, which has\nquadratic complexity.\n\n## Why is this bad?\nThe use of `sum()` to flatten lists of lists is quadratic in the number of\nlists, as `sum()` creates a new list for each element in the summation.\n\nInstead, consider using another method of flattening lists to avoid\nquadratic complexity. The following methods are all linear in the number of\nlists:\n\n- `[*sublist for sublist in lists]` (Python 3.15+)\n- `functools.reduce(operator.iadd, lists, [])`\n- `list(itertools.chain.from_iterable(lists))`\n- `[item for sublist in lists for item in sublist]`\n\nWhen fixing relevant violations, Ruff uses the starred-list-comprehension\nform on Python 3.15 and later. On older Python versions, Ruff falls back to\nthe `functools.reduce` form, which outperforms the other pre-3.15\nalternatives in [microbenchmarks].\n\n## Example\n```python\nlists = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]\njoined = sum(lists, [])\n```\n\nUse instead:\n```python\nlists = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]\njoined = [*sublist for sublist in lists]\n```\n\n## Fix safety\n\nThis fix is always marked as unsafe because the replacement may accept any\niterable where `sum` previously required lists. On Python 3.15 and later,\nRuff uses iterable unpacking within a list comprehension; on older Python\nversions, Ruff uses `operator.iadd`. In both cases, code that previously\nraised an error may silently succeed. Moreover, the fix could remove\ncomments from the original code.\n\n## References\n- [_How Not to Flatten a List of Lists in Python_](https://mathieularose.com/how-not-to-flatten-a-list-of-lists-in-python)\n- [_How do I make a flat list out of a list of lists?_](https://stackoverflow.com/questions/952914/how-do-i-make-a-flat-list-out-of-a-list-of-lists/953097#953097)\n\n[microbenchmarks]: https://github.com/astral-sh/ruff/issues/5073#issuecomment-1591836349\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -19930,7 +20021,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/ruff/rules/none_not_at_end_of_union.rs",
-      "line": 34
+      "line": 35
     }
   },
   {
@@ -20600,6 +20691,28 @@
     "source_location": {
       "file": "crates/ruff_linter/src/rules/ruff/rules/unnecessary_assign_before_yield.rs",
       "line": 42
+    }
+  },
+  {
+    "name": "os-path-commonprefix",
+    "code": "RUF071",
+    "linter": "Ruff-specific rules",
+    "summary": "`os.path.commonprefix()` compares strings character-by-character",
+    "message_formats": [
+      "`os.path.commonprefix()` compares strings character-by-character"
+    ],
+    "fix": "Fix is sometimes available.",
+    "fix_availability": "Sometimes",
+    "explanation": "## What it does\nChecks for uses of `os.path.commonprefix`.\n\n## Why is this bad?\n`os.path.commonprefix` performs a character-by-character string\ncomparison rather than comparing path components. This leads to\nincorrect results when paths share a common string prefix that\nis not a valid path component.\n\n`os.path.commonpath` correctly compares path components.\n\n`os.path.commonprefix` is deprecated as of Python 3.15.\n\n## Example\n```python\nimport os\n\n# Returns \"/usr/l\" — not a valid directory!\nos.path.commonprefix([\"/usr/lib\", \"/usr/local/lib\"])\n```\n\nUse instead:\n```python\nimport os\n\n# Returns \"/usr\" — correct common path\nos.path.commonpath([\"/usr/lib\", \"/usr/local/lib\"])\n```\n\n## References\n- [Python documentation: `os.path.commonprefix`](https://docs.python.org/3/library/os.path.html#os.path.commonprefix)\n- [Python documentation: `os.path.commonpath`](https://docs.python.org/3/library/os.path.html#os.path.commonpath)\n- [Why `os.path.commonprefix` is deprecated](https://sethmlarson.dev/deprecate-confusing-apis-like-os-path-commonprefix)\n- [CPython deprecation issue](https://github.com/python/cpython/issues/144347)\n",
+    "preview": true,
+    "status": {
+      "Preview": {
+        "since": "0.15.6"
+      }
+    },
+    "source_location": {
+      "file": "crates/ruff_linter/src/rules/ruff/rules/os_path_commonprefix.rs",
+      "line": 43
     }
   },
   {

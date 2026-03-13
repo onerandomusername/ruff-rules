@@ -691,6 +691,14 @@
     "example": "ignore-names = [\"_new\"]",
     "deprecated": null
   },
+  "lint.flake8-tidy-imports.ban-lazy": {
+    "doc": "Specific modules that may not be imported lazily, or `\"all\"` to forbid lazy imports except\nfor any modules excluded from the selector. This rule is only enforced when targeting\nPython 3.15 or newer.",
+    "default": "[]",
+    "value_type": "\"all\" | list[str] | { include = \"all\" | list[str], exclude = list[str] }",
+    "scope": null,
+    "example": "# Forbid lazy imports for specific modules.\nban-lazy = [\"sitecustomize\"]\n\n# Forbid lazy imports by default, while allowing specific exceptions.\nban-lazy = { include = \"all\", exclude = [\"typing\"] }",
+    "deprecated": null
+  },
   "lint.flake8-tidy-imports.ban-relative-imports": {
     "doc": "Whether to ban all relative imports (`\"all\"`), or only those imports\nthat extend into the parent module or beyond (`\"parents\"`).",
     "default": "\"parents\"",
@@ -713,6 +721,14 @@
     "value_type": "list[str]",
     "scope": null,
     "example": "# Ban certain modules from being imported at module level, instead requiring\n# that they're imported lazily (e.g., within a function definition).\nbanned-module-level-imports = [\"torch\", \"tensorflow\"]",
+    "deprecated": null
+  },
+  "lint.flake8-tidy-imports.require-lazy": {
+    "doc": "Specific modules that must be imported lazily in contexts where `lazy import` is legal, or\n`\"all\"` to require every lazily-convertible import to use the `lazy` keyword. Ruff ignores\ncontexts where `lazy import` is invalid, such as functions, classes, `try`/`except`\nblocks, `__future__` imports, and `from ... import *` statements. This rule is only\nenforced when targeting Python 3.15 or newer.",
+    "default": "[]",
+    "value_type": "\"all\" | list[str] | { include = \"all\" | list[str], exclude = list[str] }",
+    "scope": null,
+    "example": "# Require lazy imports for specific modules.\nrequire-lazy = [\"typing\", \"foo\"]\n\n# Require lazy imports by default, except for modules with import-time side effects.\nrequire-lazy = { include = \"all\", exclude = [\"sitecustomize\"] }",
     "deprecated": null
   },
   "lint.flake8-type-checking.exempt-modules": {
