@@ -15045,7 +15045,7 @@
     ],
     "fix": "Fix is always available.",
     "fix_availability": "Always",
-    "explanation": "## What it does\nChecks for iteration over a `set` literal where each element in the set is\nitself a literal value.\n\n## Why is this bad?\nIterating over a `set` is less efficient than iterating over a sequence\ntype, like `list` or `tuple`.\n\n## Example\n```python\nfor number in {1, 2, 3}:\n    ...\n```\n\nUse instead:\n```python\nfor number in (1, 2, 3):\n    ...\n```\n\n## References\n- [Python documentation: `set`](https://docs.python.org/3/library/stdtypes.html#set)\n",
+    "explanation": "## What it does\nChecks for iteration over a `set` literal in which each element is a literal.\n\n## Why is this bad?\nIterating over a `set` is less efficient than iterating over a sequence\ntype, such as `list` or `tuple`.\n\n## Example\n```python\nfor number in {1, 2, 3}:\n    ...\n```\n\nUse instead:\n```python\nfor number in (1, 2, 3):\n    ...\n```\n\n## References\n- [Python documentation: `set`](https://docs.python.org/3/library/stdtypes.html#set)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -15054,7 +15054,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pylint/rules/iteration_over_set.rs",
-      "line": 33
+      "line": 32
     }
   },
   {
