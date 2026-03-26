@@ -869,7 +869,7 @@
     ],
     "fix": "Fix is always available.",
     "fix_availability": "Always",
-    "explanation": "## What it does\nChecks for uses of `trio.sleep(0)` or `anyio.sleep(0)`.\n\n## Why is this bad?\n`trio.sleep(0)` is equivalent to calling `trio.lowlevel.checkpoint()`.\nHowever, the latter better conveys the intent of the code.\n\n## Example\n```python\nimport trio\n\n\nasync def func():\n    await trio.sleep(0)\n```\n\nUse instead:\n```python\nimport trio\n\n\nasync def func():\n    await trio.lowlevel.checkpoint()\n```\n## Fix safety\nThis rule's fix is marked as unsafe if there's comments in the\n`trio.sleep(0)` expression, as comments may be removed.\n\nFor example, the fix would be marked as unsafe in the following case:\n```python\nimport trio\n\n\nasync def func():\n    await trio.sleep(  # comment\n        # comment\n        0\n    )\n```\n",
+    "explanation": "## What it does\nChecks for uses of `trio.sleep(0)` or `anyio.sleep(0)`.\n\n## Why is this bad?\n`trio.sleep(0)` is equivalent to calling `trio.lowlevel.checkpoint()`.\nHowever, the latter better conveys the intent of the code.\n\n## Example\n```python\nimport trio\n\n\nasync def func():\n    await trio.sleep(0)\n```\n\nUse instead:\n```python\nimport trio.lowlevel\n\n\nasync def func():\n    await trio.lowlevel.checkpoint()\n```\n## Fix safety\nThis rule's fix is marked as unsafe if there's comments in the\n`trio.sleep(0)` expression, as comments may be removed.\n\nFor example, the fix would be marked as unsafe in the following case:\n```python\nimport trio\n\n\nasync def func():\n    await trio.sleep(  # comment\n        # comment\n        0\n    )\n```\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -14010,7 +14010,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pyflakes/rules/strings.rs",
-      "line": 41
+      "line": 42
     }
   },
   {
@@ -14032,7 +14032,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pyflakes/rules/strings.rs",
-      "line": 81
+      "line": 82
     }
   },
   {
@@ -14054,7 +14054,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pyflakes/rules/strings.rs",
-      "line": 118
+      "line": 119
     }
   },
   {
@@ -14076,7 +14076,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pyflakes/rules/strings.rs",
-      "line": 158
+      "line": 159
     }
   },
   {
@@ -14098,7 +14098,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pyflakes/rules/strings.rs",
-      "line": 199
+      "line": 200
     }
   },
   {
@@ -14120,7 +14120,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pyflakes/rules/strings.rs",
-      "line": 240
+      "line": 241
     }
   },
   {
@@ -14142,7 +14142,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pyflakes/rules/strings.rs",
-      "line": 271
+      "line": 272
     }
   },
   {
@@ -14164,7 +14164,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pyflakes/rules/strings.rs",
-      "line": 310
+      "line": 311
     }
   },
   {
@@ -14186,7 +14186,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pyflakes/rules/strings.rs",
-      "line": 341
+      "line": 342
     }
   },
   {
@@ -14208,7 +14208,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pyflakes/rules/strings.rs",
-      "line": 373
+      "line": 374
     }
   },
   {
@@ -14230,7 +14230,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pyflakes/rules/strings.rs",
-      "line": 416
+      "line": 417
     }
   },
   {
@@ -14252,7 +14252,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pyflakes/rules/strings.rs",
-      "line": 468
+      "line": 469
     }
   },
   {
@@ -14274,7 +14274,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pyflakes/rules/strings.rs",
-      "line": 512
+      "line": 513
     }
   },
   {
@@ -14296,7 +14296,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pyflakes/rules/strings.rs",
-      "line": 551
+      "line": 552
     }
   },
   {
@@ -20269,6 +20269,28 @@
     }
   },
   {
+    "name": "unnecessary-if",
+    "code": "RUF050",
+    "linter": "Ruff-specific rules",
+    "summary": "Empty `if` statement",
+    "message_formats": [
+      "Empty `if` statement"
+    ],
+    "fix": "Fix is always available.",
+    "fix_availability": "Always",
+    "explanation": "## What it does\nChecks for `if` statements (without `elif` or `else` branches) where the\nbody contains only `pass` or `...`\n\n## Why is this bad?\nAn `if` statement with an empty body either does nothing (when the\ncondition is side-effect-free) or could be replaced with just the\ncondition expression (when it has side effects). This pattern commonly\narises when auto-fixers remove unused imports from conditional blocks\n(e.g., version-dependent imports), leaving behind an empty skeleton.\n\n## Example\n```python\nimport sys\n\nif sys.version_info >= (3, 11):\n    pass\n```\n\nUse instead:\n```python\nimport sys\n```\n\n## Fix safety\nWhen the condition is side-effect-free, the fix removes the entire `if`\nstatement.\n\nWhen the condition has side effects (e.g., a function call), the fix\nreplaces the `if` statement with just the condition as an expression\nstatement, preserving the side effects.\n\nNote: conditions consisting solely of a name expression (like\n`if x: pass`) are treated as side-effect-free, even though `if x`\nimplicitly calls `x.__bool__()` (or `x.__len__()`), which could have\nside effects if overridden. In practice this is very rare, but if you\nrely on this behavior, suppress the diagnostic with `# noqa: RUF050`.\n\n## Related rules\n- [`needless-else (RUF047)`]: Detects empty `else` clauses. For `if`/`else`\n  statements where all branches are empty, `RUF047` first removes the empty\n  `else`, and then this rule catches the remaining empty `if`.\n- [`empty-type-checking-block (TC005)`]: Detects empty `if TYPE_CHECKING`\n  blocks specifically.\n",
+    "preview": true,
+    "status": {
+      "Preview": {
+        "since": "0.15.8"
+      }
+    },
+    "source_location": {
+      "file": "crates/ruff_linter/src/rules/ruff/rules/unnecessary_if.rs",
+      "line": 61
+    }
+  },
+  {
     "name": "if-key-in-dict-del",
     "code": "RUF051",
     "linter": "Ruff-specific rules",
@@ -20713,6 +20735,50 @@
     "source_location": {
       "file": "crates/ruff_linter/src/rules/ruff/rules/os_path_commonprefix.rs",
       "line": 43
+    }
+  },
+  {
+    "name": "useless-finally",
+    "code": "RUF072",
+    "linter": "Ruff-specific rules",
+    "summary": "Empty `finally` clause",
+    "message_formats": [
+      "Empty `finally` clause"
+    ],
+    "fix": "Fix is sometimes available.",
+    "fix_availability": "Sometimes",
+    "explanation": "## What it does\nChecks for `finally` clauses that only contain `pass` or `...` statements\n\n## Why is this bad?\nAn empty `finally` clause is a no-op and adds unnecessary noise.\nIf the `try` statement has `except` or `else` clauses, the `finally`\nclause can simply be removed. If it's a bare `try/finally`, the entire\n`try` statement can be replaced with its body\n\n## Example\n```python\ntry:\n    foo()\nexcept Exception:\n    bar()\nfinally:\n    pass\n```\n\nUse instead:\n```python\ntry:\n    foo()\nexcept Exception:\n    bar()\n```\n\n## Example\n```python\ntry:\n    foo()\nfinally:\n    pass\n```\n\nUse instead:\n```python\nfoo()\n```\n\n## See also\n- [`needless-else`][RUF047]: Removes empty `else` clauses on `try` (and\n  other statements). Both rules can fire on the same `try` statement\n- [`suppressible-exception`][SIM105]: Rewrites `try/except: pass` to\n  `contextlib.suppress()`. Won't apply while a `finally` clause is present,\n  so RUF072 must remove it first\n- [`useless-try-except`][TRY203]: Flags `try/except` that only re-raises\n",
+    "preview": true,
+    "status": {
+      "Preview": {
+        "since": "0.15.8"
+      }
+    },
+    "source_location": {
+      "file": "crates/ruff_linter/src/rules/ruff/rules/useless_finally.rs",
+      "line": 61
+    }
+  },
+  {
+    "name": "f-string-percent-format",
+    "code": "RUF073",
+    "linter": "Ruff-specific rules",
+    "summary": "`%` operator used on an f-string",
+    "message_formats": [
+      "`%` operator used on an f-string"
+    ],
+    "fix": "Fix is not available.",
+    "fix_availability": "None",
+    "explanation": "## What it does\nChecks for uses of the `%` operator on f-strings.\n\n## Why is this bad?\nF-strings already support interpolation via `{...}` expressions.\nUsing the `%` operator on an f-string is almost certainly a mistake,\nsince the f-string's interpolation and `%`-formatting serve the same\npurpose. This typically indicates that the developer intended to use\neither an f-string or `%`-formatting, but not both.\n\n## Example\n```python\nf\"{name}\" % name\nf\"hello %s %s\" % (first, second)\n```\n\nUse instead:\n```python\nf\"{name}\"\nf\"hello {first} {second}\"\n```\n",
+    "preview": true,
+    "status": {
+      "Preview": {
+        "since": "0.15.8"
+      }
+    },
+    "source_location": {
+      "file": "crates/ruff_linter/src/rules/ruff/rules/fstring_percent_format.rs",
+      "line": 29
     }
   },
   {

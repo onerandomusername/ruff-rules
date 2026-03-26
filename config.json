@@ -264,7 +264,7 @@
     "deprecated": null
   },
   "lint.extend-ignore": {
-    "doc": "A list of rule codes or prefixes to ignore, in addition to those\nspecified by `ignore`.",
+    "doc": "A list of rule codes or prefixes to ignore, in addition to those\nspecified by `ignore`.\n\nThis option is deprecated because it is now interchangeable with\n[`ignore`](#lint_ignore). In earlier versions of Ruff, `ignore` would\n_replace_ the set of ignored rules when using configuration inheritance\n(via the top-level [`extend`](https://docs.astral.sh/ruff/settings/#extend)\nsetting), while `extend-ignore` would _add_ to the inherited set. Ruff\nnow merges both `ignore` and `extend-ignore` into a single set, so the\ndistinction no longer applies. Use [`ignore`](#lint_ignore) instead.",
     "default": "[]",
     "value_type": "list[RuleSelector]",
     "scope": null,
@@ -291,7 +291,7 @@
     "deprecated": null
   },
   "lint.extend-select": {
-    "doc": "A list of rule codes or prefixes to enable, in addition to those\nspecified by [`select`](#lint_select).",
+    "doc": "A list of rule codes or prefixes to enable, in addition to those\nspecified by [`select`](#lint_select).\n\nUnlike [`select`](#lint_select), which _replaces_ the default rule set\nwhen specified, `extend-select` _adds_ to whatever rules are already\nactive. This makes `extend-select` the preferred option when you want\nto enable additional rules on top of the defaults without having to\nenumerate them.\n\nFor example, to enable the defaults plus flake8-bugbear:\n\n```toml\n[tool.ruff.lint]\n# Adds flake8-bugbear on top of the default rules (E4, E7, E9, F).\nextend-select = [\"B\"]\n```\n\nUsing `select = [\"B\"]` instead would _replace_ the defaults, enabling\nonly flake8-bugbear.",
     "default": "[]",
     "value_type": "list[RuleSelector]",
     "scope": null,
