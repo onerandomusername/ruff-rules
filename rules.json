@@ -4828,7 +4828,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_errmsg/rules/string_in_exception.rs",
-      "line": 54
+      "line": 56
     }
   },
   {
@@ -4850,7 +4850,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_errmsg/rules/string_in_exception.rs",
-      "line": 110
+      "line": 112
     }
   },
   {
@@ -4872,7 +4872,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_errmsg/rules/string_in_exception.rs",
-      "line": 167
+      "line": 169
     }
   },
   {
@@ -9141,7 +9141,7 @@
     ],
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
-    "explanation": "## What it does\nChecks for first-party imports that are only used for type annotations, but\naren't defined in a type-checking block.\n\n## Why is this bad?\nUnused imports add a performance overhead at runtime, and risk creating\nimport cycles. If an import is _only_ used in typing-only contexts, it can\ninstead be imported conditionally under an `if TYPE_CHECKING:` block to\nminimize runtime overhead.\n\nIf [`lint.flake8-type-checking.quote-annotations`] is set to `true`,\nannotations will be wrapped in quotes if doing so would enable the\ncorresponding import to be moved into an `if TYPE_CHECKING:` block.\n\nIf a class _requires_ that type annotations be available at runtime (as is\nthe case for Pydantic, SQLAlchemy, and other libraries), consider using\nthe [`lint.flake8-type-checking.runtime-evaluated-base-classes`] and\n[`lint.flake8-type-checking.runtime-evaluated-decorators`] settings to mark them\nas such.\n\nIf [`lint.future-annotations`] is set to `true`, `from __future__ import\nannotations` will be added if doing so would enable an import to be\nmoved into an `if TYPE_CHECKING:` block. This takes precedence over the\n[`lint.flake8-type-checking.quote-annotations`] setting described above if\nboth settings are enabled.\n\n\n## Example\n```python\nfrom __future__ import annotations\n\nfrom . import local_module\n\n\ndef func(sized: local_module.Container) -> int:\n    return len(sized)\n```\n\nUse instead:\n```python\nfrom __future__ import annotations\n\nfrom typing import TYPE_CHECKING\n\nif TYPE_CHECKING:\n    from . import local_module\n\n\ndef func(sized: local_module.Container) -> int:\n    return len(sized)\n```\n\n## Options\n- `lint.flake8-type-checking.quote-annotations`\n- `lint.flake8-type-checking.runtime-evaluated-base-classes`\n- `lint.flake8-type-checking.runtime-evaluated-decorators`\n- `lint.flake8-type-checking.strict`\n- `lint.typing-modules`\n- `lint.future-annotations`\n\n## References\n- [PEP 563: Runtime annotation resolution and `TYPE_CHECKING`](https://peps.python.org/pep-0563/#runtime-annotation-resolution-and-type-checking)\n",
+    "explanation": "## What it does\nChecks for first-party imports that are only used for type annotations, but\naren't defined in a type-checking block.\n\n## Why is this bad?\nImports that are only used for type annotations add a performance overhead\nat runtime. For first-party imports, they can also contribute to import\ncycles. If an import is _only_ used in typing-only contexts, it can instead\nbe imported conditionally under an `if TYPE_CHECKING:` block to minimize\nruntime overhead.\n\nIf [`lint.flake8-type-checking.quote-annotations`] is set to `true`,\nannotations will be wrapped in quotes if doing so would enable the\ncorresponding import to be moved into an `if TYPE_CHECKING:` block.\n\nIf a class _requires_ that type annotations be available at runtime (as is\nthe case for Pydantic, SQLAlchemy, and other libraries), consider using\nthe [`lint.flake8-type-checking.runtime-evaluated-base-classes`] and\n[`lint.flake8-type-checking.runtime-evaluated-decorators`] settings to mark them\nas such.\n\nIf [`lint.future-annotations`] is set to `true`, `from __future__ import\nannotations` will be added if doing so would enable an import to be\nmoved into an `if TYPE_CHECKING:` block. This takes precedence over the\n[`lint.flake8-type-checking.quote-annotations`] setting described above if\nboth settings are enabled.\n\n\n## Example\n```python\nfrom __future__ import annotations\n\nfrom . import local_module\n\n\ndef func(sized: local_module.Container) -> int:\n    return len(sized)\n```\n\nUse instead:\n```python\nfrom __future__ import annotations\n\nfrom typing import TYPE_CHECKING\n\nif TYPE_CHECKING:\n    from . import local_module\n\n\ndef func(sized: local_module.Container) -> int:\n    return len(sized)\n```\n\n## Options\n- `lint.flake8-type-checking.quote-annotations`\n- `lint.flake8-type-checking.runtime-evaluated-base-classes`\n- `lint.flake8-type-checking.runtime-evaluated-decorators`\n- `lint.flake8-type-checking.strict`\n- `lint.typing-modules`\n- `lint.future-annotations`\n\n## References\n- [PEP 563: Runtime annotation resolution and `TYPE_CHECKING`](https://peps.python.org/pep-0563/#runtime-annotation-resolution-and-type-checking)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -9150,7 +9150,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_type_checking/rules/typing_only_runtime_import.rs",
-      "line": 83
+      "line": 84
     }
   },
   {
@@ -9163,7 +9163,7 @@
     ],
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
-    "explanation": "## What it does\nChecks for third-party imports that are only used for type annotations, but\naren't defined in a type-checking block.\n\n## Why is this bad?\nUnused imports add a performance overhead at runtime, and risk creating\nimport cycles. If an import is _only_ used in typing-only contexts, it can\ninstead be imported conditionally under an `if TYPE_CHECKING:` block to\nminimize runtime overhead.\n\nIf [`lint.flake8-type-checking.quote-annotations`] is set to `true`,\nannotations will be wrapped in quotes if doing so would enable the\ncorresponding import to be moved into an `if TYPE_CHECKING:` block.\n\nIf a class _requires_ that type annotations be available at runtime (as is\nthe case for Pydantic, SQLAlchemy, and other libraries), consider using\nthe [`lint.flake8-type-checking.runtime-evaluated-base-classes`] and\n[`lint.flake8-type-checking.runtime-evaluated-decorators`] settings to mark them\nas such.\n\nIf [`lint.future-annotations`] is set to `true`, `from __future__ import\nannotations` will be added if doing so would enable an import to be\nmoved into an `if TYPE_CHECKING:` block. This takes precedence over the\n[`lint.flake8-type-checking.quote-annotations`] setting described above if\nboth settings are enabled.\n\n## Example\n```python\nfrom __future__ import annotations\n\nimport pandas as pd\n\n\ndef func(df: pd.DataFrame) -> int:\n    return len(df)\n```\n\nUse instead:\n```python\nfrom __future__ import annotations\n\nfrom typing import TYPE_CHECKING\n\nif TYPE_CHECKING:\n    import pandas as pd\n\n\ndef func(df: pd.DataFrame) -> int:\n    return len(df)\n```\n\n## Options\n- `lint.flake8-type-checking.quote-annotations`\n- `lint.flake8-type-checking.runtime-evaluated-base-classes`\n- `lint.flake8-type-checking.runtime-evaluated-decorators`\n- `lint.flake8-type-checking.strict`\n- `lint.typing-modules`\n- `lint.future-annotations`\n\n## References\n- [PEP 563: Runtime annotation resolution and `TYPE_CHECKING`](https://peps.python.org/pep-0563/#runtime-annotation-resolution-and-type-checking)\n",
+    "explanation": "## What it does\nChecks for third-party imports that are only used for type annotations, but\naren't defined in a type-checking block.\n\n## Why is this bad?\nImports that are only used for type annotations add a performance overhead\nat runtime. If an import is _only_ used in typing-only contexts, it can\ninstead be imported conditionally under an `if TYPE_CHECKING:` block to\nminimize runtime overhead.\n\nIf [`lint.flake8-type-checking.quote-annotations`] is set to `true`,\nannotations will be wrapped in quotes if doing so would enable the\ncorresponding import to be moved into an `if TYPE_CHECKING:` block.\n\nIf a class _requires_ that type annotations be available at runtime (as is\nthe case for Pydantic, SQLAlchemy, and other libraries), consider using\nthe [`lint.flake8-type-checking.runtime-evaluated-base-classes`] and\n[`lint.flake8-type-checking.runtime-evaluated-decorators`] settings to mark them\nas such.\n\nIf [`lint.future-annotations`] is set to `true`, `from __future__ import\nannotations` will be added if doing so would enable an import to be\nmoved into an `if TYPE_CHECKING:` block. This takes precedence over the\n[`lint.flake8-type-checking.quote-annotations`] setting described above if\nboth settings are enabled.\n\n## Example\n```python\nfrom __future__ import annotations\n\nimport pandas as pd\n\n\ndef func(df: pd.DataFrame) -> int:\n    return len(df)\n```\n\nUse instead:\n```python\nfrom __future__ import annotations\n\nfrom typing import TYPE_CHECKING\n\nif TYPE_CHECKING:\n    import pandas as pd\n\n\ndef func(df: pd.DataFrame) -> int:\n    return len(df)\n```\n\n## Options\n- `lint.flake8-type-checking.quote-annotations`\n- `lint.flake8-type-checking.runtime-evaluated-base-classes`\n- `lint.flake8-type-checking.runtime-evaluated-decorators`\n- `lint.flake8-type-checking.strict`\n- `lint.typing-modules`\n- `lint.future-annotations`\n\n## References\n- [PEP 563: Runtime annotation resolution and `TYPE_CHECKING`](https://peps.python.org/pep-0563/#runtime-annotation-resolution-and-type-checking)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -9172,7 +9172,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_type_checking/rules/typing_only_runtime_import.rs",
-      "line": 166
+      "line": 167
     }
   },
   {
@@ -9185,7 +9185,7 @@
     ],
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
-    "explanation": "## What it does\nChecks for standard library imports that are only used for type\nannotations, but aren't defined in a type-checking block.\n\n## Why is this bad?\nUnused imports add a performance overhead at runtime, and risk creating\nimport cycles. If an import is _only_ used in typing-only contexts, it can\ninstead be imported conditionally under an `if TYPE_CHECKING:` block to\nminimize runtime overhead.\n\nIf [`lint.flake8-type-checking.quote-annotations`] is set to `true`,\nannotations will be wrapped in quotes if doing so would enable the\ncorresponding import to be moved into an `if TYPE_CHECKING:` block.\n\nIf a class _requires_ that type annotations be available at runtime (as is\nthe case for Pydantic, SQLAlchemy, and other libraries), consider using\nthe [`lint.flake8-type-checking.runtime-evaluated-base-classes`] and\n[`lint.flake8-type-checking.runtime-evaluated-decorators`] settings to mark them\nas such.\n\nIf [`lint.future-annotations`] is set to `true`, `from __future__ import\nannotations` will be added if doing so would enable an import to be\nmoved into an `if TYPE_CHECKING:` block. This takes precedence over the\n[`lint.flake8-type-checking.quote-annotations`] setting described above if\nboth settings are enabled.\n\n## Example\n```python\nfrom __future__ import annotations\n\nfrom pathlib import Path\n\n\ndef func(path: Path) -> str:\n    return str(path)\n```\n\nUse instead:\n```python\nfrom __future__ import annotations\n\nfrom typing import TYPE_CHECKING\n\nif TYPE_CHECKING:\n    from pathlib import Path\n\n\ndef func(path: Path) -> str:\n    return str(path)\n```\n\n## Options\n- `lint.flake8-type-checking.quote-annotations`\n- `lint.flake8-type-checking.runtime-evaluated-base-classes`\n- `lint.flake8-type-checking.runtime-evaluated-decorators`\n- `lint.flake8-type-checking.strict`\n- `lint.typing-modules`\n- `lint.future-annotations`\n\n## References\n- [PEP 563: Runtime annotation resolution and `TYPE_CHECKING`](https://peps.python.org/pep-0563/#runtime-annotation-resolution-and-type-checking)\n",
+    "explanation": "## What it does\nChecks for standard library imports that are only used for type\nannotations, but aren't defined in a type-checking block.\n\n## Why is this bad?\nImports that are only used for type annotations add a performance overhead\nat runtime. If an import is _only_ used in typing-only contexts, it can\ninstead be imported conditionally under an `if TYPE_CHECKING:` block to\nminimize runtime overhead.\n\nIf [`lint.flake8-type-checking.quote-annotations`] is set to `true`,\nannotations will be wrapped in quotes if doing so would enable the\ncorresponding import to be moved into an `if TYPE_CHECKING:` block.\n\nIf a class _requires_ that type annotations be available at runtime (as is\nthe case for Pydantic, SQLAlchemy, and other libraries), consider using\nthe [`lint.flake8-type-checking.runtime-evaluated-base-classes`] and\n[`lint.flake8-type-checking.runtime-evaluated-decorators`] settings to mark them\nas such.\n\nIf [`lint.future-annotations`] is set to `true`, `from __future__ import\nannotations` will be added if doing so would enable an import to be\nmoved into an `if TYPE_CHECKING:` block. This takes precedence over the\n[`lint.flake8-type-checking.quote-annotations`] setting described above if\nboth settings are enabled.\n\n## Example\n```python\nfrom __future__ import annotations\n\nfrom pathlib import Path\n\n\ndef func(path: Path) -> str:\n    return str(path)\n```\n\nUse instead:\n```python\nfrom __future__ import annotations\n\nfrom typing import TYPE_CHECKING\n\nif TYPE_CHECKING:\n    from pathlib import Path\n\n\ndef func(path: Path) -> str:\n    return str(path)\n```\n\n## Options\n- `lint.flake8-type-checking.quote-annotations`\n- `lint.flake8-type-checking.runtime-evaluated-base-classes`\n- `lint.flake8-type-checking.runtime-evaluated-decorators`\n- `lint.flake8-type-checking.strict`\n- `lint.typing-modules`\n- `lint.future-annotations`\n\n## References\n- [PEP 563: Runtime annotation resolution and `TYPE_CHECKING`](https://peps.python.org/pep-0563/#runtime-annotation-resolution-and-type-checking)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -9194,7 +9194,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_type_checking/rules/typing_only_runtime_import.rs",
-      "line": 249
+      "line": 250
     }
   },
   {
@@ -12596,7 +12596,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pycodestyle/rules/too_many_newlines_at_end_of_file.rs",
-      "line": 31
+      "line": 30
     }
   },
   {
@@ -14644,7 +14644,7 @@
     ],
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
-    "explanation": "## What it does\nChecks for variable definitions that redefine (or \"shadow\") unused\nvariables.\n\n## Why is this bad?\nRedefinitions of unused names are unnecessary and often indicative of a\nmistake.\n\n## Example\n```python\nimport foo\nimport bar\nimport foo  # Redefinition of unused `foo` from line 1\n```\n\nUse instead:\n```python\nimport foo\nimport bar\n```\n\n## Options\n\nThis rule ignores dummy variables, as determined by:\n\n- `lint.dummy-variable-rgx`\n",
+    "explanation": "## What it does\nChecks for variable definitions that redefine (or \"shadow\") unused\nvariables.\n\n## Why is this bad?\nRedefinitions of unused names are unnecessary and often indicative of a\nmistake.\n\n## Example\n```python\nimport foo\nimport bar\nimport foo  # Redefinition of unused `foo` from line 1\n```\n\nUse instead:\n```python\nimport foo\nimport bar\n```\n\n## Preview\nWhen [preview] is enabled, this rule also flags annotated variable\nredeclarations. For example, `bar: int = 1` followed by `bar: int = 2`\nwill be flagged as a redefinition of an unused variable, whereas plain\nreassignments like `bar = 1` followed by `bar = 2` remain unflagged.\n\n[preview]: https://docs.astral.sh/ruff/preview/\n\n## Options\n\nThis rule ignores dummy variables, as determined by:\n\n- `lint.dummy-variable-rgx`\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -14653,7 +14653,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pyflakes/rules/redefined_while_unused.rs",
-      "line": 39
+      "line": 49
     }
   },
   {
@@ -17692,7 +17692,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pyupgrade/rules/unnecessary_encode_utf8.rs",
-      "line": 32
+      "line": 33
     }
   },
   {
@@ -17794,7 +17794,7 @@
     ],
     "fix": "Fix is always available.",
     "fix_availability": "Always",
-    "explanation": "## What it does\nChecks for unnecessary calls to `str`, `bytes`, `int`, `float`, and `bool`.\n\n## Why is this bad?\nThe mentioned constructors can be replaced with their respective literal\nforms, which are more readable and idiomatic.\n\n## Example\n```python\nstr(\"foo\")\n```\n\nUse instead:\n```python\n\"foo\"\n```\n\n## Fix safety\nThe fix is marked as unsafe if it might remove comments.\n\n## References\n- [Python documentation: `str`](https://docs.python.org/3/library/stdtypes.html#str)\n- [Python documentation: `bytes`](https://docs.python.org/3/library/stdtypes.html#bytes)\n- [Python documentation: `int`](https://docs.python.org/3/library/functions.html#int)\n- [Python documentation: `float`](https://docs.python.org/3/library/functions.html#float)\n- [Python documentation: `bool`](https://docs.python.org/3/library/functions.html#bool)\n",
+    "explanation": "## What it does\nChecks for unnecessary calls to `str`, `bytes`, `int`, `float`, `bool`, and `complex`.\n\n## Why is this bad?\nThe mentioned constructors can be replaced with their respective literal\nforms, which are more readable and idiomatic.\n\n## Example\n```python\nstr(\"foo\")\n```\n\nUse instead:\n```python\n\"foo\"\n```\n\n## Fix safety\nThe fix is marked as unsafe if it might remove comments.\n\n## References\n- [Python documentation: `str`](https://docs.python.org/3/library/stdtypes.html#str)\n- [Python documentation: `bytes`](https://docs.python.org/3/library/stdtypes.html#bytes)\n- [Python documentation: `int`](https://docs.python.org/3/library/functions.html#int)\n- [Python documentation: `float`](https://docs.python.org/3/library/functions.html#float)\n- [Python documentation: `bool`](https://docs.python.org/3/library/functions.html#bool)\n- [Python documentation: `complex`](https://docs.python.org/3/library/functions.html#complex)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -17803,7 +17803,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pyupgrade/rules/native_literals.rs",
-      "line": 130
+      "line": 143
     }
   },
   {
@@ -19481,7 +19481,7 @@
     ],
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
-    "explanation": "## What it does\nChecks for uses of `str()`, `repr()`, and `ascii()` as explicit type\nconversions within f-strings.\n\n## Why is this bad?\nf-strings support dedicated conversion flags for these types, which are\nmore succinct and idiomatic.\n\nNote that, in many cases, calling `str()` within an f-string is\nunnecessary and can be removed entirely, as the value will be converted\nto a string automatically, the notable exception being for classes that\nimplement a custom `__format__` method.\n\n## Example\n```python\na = \"some string\"\nf\"{repr(a)}\"\n```\n\nUse instead:\n```python\na = \"some string\"\nf\"{a!r}\"\n```\n",
+    "explanation": "## What it does\nChecks for uses of `str()`, `repr()`, and `ascii()` as explicit type\nconversions within f-strings.\n\n## Why is this bad?\nf-strings support dedicated conversion flags for these types, which are\nmore succinct and idiomatic.\n\nNote that, in many cases, calling `str()` within an f-string is\nunnecessary and can be removed entirely, as the value will be converted\nto a string automatically, the notable exception being for classes that\nimplement a custom `__format__` method.\n\n## Example\n```python\na = \"some string\"\nf\"{repr(a)}\"\n```\n\nUse instead:\n```python\na = \"some string\"\nf\"{a!r}\"\n```\n\n## Fix safety\n\nThis rule's fix is marked as unsafe if the call expression contains\ncomments that would be deleted by applying the fix.\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -19490,7 +19490,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/ruff/rules/explicit_f_string_type_conversion.rs",
-      "line": 42
+      "line": 47
     }
   },
   {
@@ -20636,7 +20636,7 @@
     ],
     "fix": "Fix is not available.",
     "fix_availability": "None",
-    "explanation": "## What it does\n\nDetects the presence of code in `__init__.py` files.\n\n## Why is this bad?\n\n`__init__.py` files are often empty or only contain simple code to modify a module's API. As\nsuch, it's easy to overlook them and their possible side effects when debugging.\n\n## Example\n\nInstead of defining `MyClass` directly in `__init__.py`:\n\n```python\n\"\"\"My module docstring.\"\"\"\n\n\nclass MyClass:\n    def my_method(self): ...\n```\n\nmove the definition to another file, import it, and include it in `__all__`:\n\n```python\n\"\"\"My module docstring.\"\"\"\n\nfrom submodule import MyClass\n\n__all__ = [\"MyClass\"]\n```\n\nCode in `__init__.py` files is also run at import time and can cause surprising slowdowns. To\ndisallow any code in `__init__.py` files, you can enable the\n[`lint.ruff.strictly-empty-init-modules`] setting. In this case:\n\n```python\nfrom submodule import MyClass\n\n__all__ = [\"MyClass\"]\n```\n\nthe only fix is entirely emptying the file:\n\n```python\n```\n\n## Details\n\nIn non-strict mode, this rule allows several common patterns in `__init__.py` files:\n\n- Imports\n- Assignments to `__all__`, `__path__`, `__version__`, and `__author__`\n- Module-level and attribute docstrings\n- `if TYPE_CHECKING` blocks\n- [PEP-562] module-level `__getattr__` and `__dir__` functions\n\n## Options\n\n- [`lint.ruff.strictly-empty-init-modules`]\n\n## References\n\n- [`flake8-empty-init-modules`](https://github.com/samueljsb/flake8-empty-init-modules/)\n\n[PEP-562]: https://peps.python.org/pep-0562/\n",
+    "explanation": "## What it does\n\nDetects the presence of code in `__init__.py` files.\n\n## Why is this bad?\n\n`__init__.py` files are often empty or only contain simple code to modify a module's API. As\nsuch, it's easy to overlook them and their possible side effects when debugging.\n\n## Example\n\nInstead of defining `MyClass` directly in `__init__.py`:\n\n```python\n\"\"\"My module docstring.\"\"\"\n\n\nclass MyClass:\n    def my_method(self): ...\n```\n\nmove the definition to another file, import it, and include it in `__all__`:\n\n```python\n\"\"\"My module docstring.\"\"\"\n\nfrom submodule import MyClass\n\n__all__ = [\"MyClass\"]\n```\n\nCode in `__init__.py` files is also run at import time and can cause surprising slowdowns. To\ndisallow any code in `__init__.py` files, you can enable the\n[`lint.ruff.strictly-empty-init-modules`] setting. In this case:\n\n```python\nfrom submodule import MyClass\n\n__all__ = [\"MyClass\"]\n```\n\nthe only fix is entirely emptying the file:\n\n```python\n```\n\n## Details\n\nIn non-strict mode, this rule allows several common patterns in `__init__.py` files:\n\n- Imports\n- Assignments to dunder names (identifiers starting and ending with `__`, such as `__all__` or\n  `__submodules__`)\n- Module-level and attribute docstrings\n- `if TYPE_CHECKING` blocks\n- [PEP-562] module-level `__getattr__` and `__dir__` functions\n\n## Options\n\n- [`lint.ruff.strictly-empty-init-modules`]\n\n## References\n\n- [`flake8-empty-init-modules`](https://github.com/samueljsb/flake8-empty-init-modules/)\n\n[PEP-562]: https://peps.python.org/pep-0562/\n",
     "preview": true,
     "status": {
       "Preview": {
@@ -20645,7 +20645,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/ruff/rules/non_empty_init_module.rs",
-      "line": 73
+      "line": 75
     }
   },
   {
@@ -20725,7 +20725,7 @@
     ],
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
-    "explanation": "## What it does\nChecks for uses of `os.path.commonprefix`.\n\n## Why is this bad?\n`os.path.commonprefix` performs a character-by-character string\ncomparison rather than comparing path components. This leads to\nincorrect results when paths share a common string prefix that\nis not a valid path component.\n\n`os.path.commonpath` correctly compares path components.\n\n`os.path.commonprefix` is deprecated as of Python 3.15.\n\n## Example\n```python\nimport os\n\n# Returns \"/usr/l\" — not a valid directory!\nos.path.commonprefix([\"/usr/lib\", \"/usr/local/lib\"])\n```\n\nUse instead:\n```python\nimport os\n\n# Returns \"/usr\" — correct common path\nos.path.commonpath([\"/usr/lib\", \"/usr/local/lib\"])\n```\n\n## References\n- [Python documentation: `os.path.commonprefix`](https://docs.python.org/3/library/os.path.html#os.path.commonprefix)\n- [Python documentation: `os.path.commonpath`](https://docs.python.org/3/library/os.path.html#os.path.commonpath)\n- [Why `os.path.commonprefix` is deprecated](https://sethmlarson.dev/deprecate-confusing-apis-like-os-path-commonprefix)\n- [CPython deprecation issue](https://github.com/python/cpython/issues/144347)\n",
+    "explanation": "## What it does\nChecks for uses of `os.path.commonprefix`.\n\n## Why is this bad?\n`os.path.commonprefix` performs a character-by-character string\ncomparison rather than comparing path components. This leads to\nincorrect results when paths share a common string prefix that\nis not a valid path component.\n\n`os.path.commonpath` correctly compares path components.\n\n`os.path.commonprefix` is deprecated as of Python 3.15.\n\n## Example\n```python\nimport os\n\n# Returns \"/usr/l\" — not a valid directory!\nos.path.commonprefix([\"/usr/lib\", \"/usr/local/lib\"])\n```\n\nUse instead:\n```python\nimport os\n\n# Returns \"/usr\" — correct common path\nos.path.commonpath([\"/usr/lib\", \"/usr/local/lib\"])\n```\n\n## Fix safety\n\nThis fix is marked as unsafe because `os.path.commonprefix` and\n`os.path.commonpath` have different semantics:\n\n- `commonprefix` performs a character-by-character string comparison\n  and returns the longest common string prefix.\n- `commonpath` compares path components and returns the longest common\n  path prefix.\n\nIf you are intentionally using `commonprefix` for non-path string\ncomparisons (e.g., finding a common prefix among arbitrary strings\nlike version numbers or identifiers), see the\n[error suppression](https://docs.astral.sh/ruff/linter/#error-suppression)\ndocumentation for ways to disable this rule.\n\nFor example:\n\n```python\nimport os\n\n# commonprefix works on non-path strings\nos.path.commonprefix([\"12345\", \"12378\"])  # \"123\"\nos.path.commonpath([\"12345\", \"12378\"])  # \"\"\n```\n\n## References\n- [Python documentation: `os.path.commonprefix`](https://docs.python.org/3/library/os.path.html#os.path.commonprefix)\n- [Python documentation: `os.path.commonpath`](https://docs.python.org/3/library/os.path.html#os.path.commonpath)\n- [Why `os.path.commonprefix` is deprecated](https://sethmlarson.dev/deprecate-confusing-apis-like-os-path-commonprefix)\n- [CPython deprecation issue](https://github.com/python/cpython/issues/144347)\n",
     "preview": true,
     "status": {
       "Preview": {
@@ -20734,7 +20734,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/ruff/rules/os_path_commonprefix.rs",
-      "line": 43
+      "line": 69
     }
   },
   {
