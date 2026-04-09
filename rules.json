@@ -5394,7 +5394,7 @@
     ],
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
-    "explanation": "## What it does\nChecks for `.exception()` logging calls outside of exception handlers.\n\n## Why is this bad?\n[The documentation] states:\n> This function should only be called from an exception handler.\n\nCalling `.exception()` outside of an exception handler\nattaches `None` as exception information, leading to confusing messages:\n\n```pycon\n>>> logging.exception(\"example\")\nERROR:root:example\nNoneType: None\n```\n\n## Example\n\n```python\nimport logging\n\nlogging.exception(\"Foobar\")\n```\n\nUse instead:\n\n```python\nimport logging\n\nlogging.error(\"Foobar\")\n```\n\n## Fix safety\nThe fix, if available, will always be marked as unsafe, as it changes runtime behavior.\n\n## Options\n\n- `lint.logger-objects`\n\n[The documentation]: https://docs.python.org/3/library/logging.html#logging.exception\n",
+    "explanation": "## What it does\nChecks for `.exception()` logging calls outside of exception handlers.\n\n## Why is this bad?\n[The documentation] states:\n> This function should only be called from an exception handler.\n\nCalling `.exception()` outside of an exception handler\nattaches `None` as exception information, leading to confusing messages:\n\n```pycon\n>>> logging.exception(\"example\")\nERROR:root:example\nNoneType: None\n```\n\n## Example\n\n```python\nimport logging\n\nlogging.exception(\"Foobar\")\n```\n\nUse instead:\n\n```python\nimport logging\n\nlogging.error(\"Foobar\")\n```\n\n## Known limitations\nThis rule checks whether a call is _defined_ inside an exception handler, not\nwhether it _executes_ inside one. A function defined in an `except` block but\ncalled outside of it will not be flagged, despite the fact that the call may\nnot have access to an active exception at runtime:\n\n```python\nimport logging\n\n\ntry:\n    raise ValueError()\nexcept Exception:\n\n    def handler():\n        logging.exception(\"Foobar\")  # LOG004 not raised (false negative)\n\n\nhandler()\n```\n\n## Fix safety\nThe fix, if available, will always be marked as unsafe, as it changes runtime behavior.\n\n## Options\n\n- `lint.logger-objects`\n\n[The documentation]: https://docs.python.org/3/library/logging.html#logging.exception\n",
     "preview": true,
     "status": {
       "Preview": {
@@ -5403,7 +5403,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_logging/rules/log_exception_outside_except_handler.rs",
-      "line": 50
+      "line": 71
     }
   },
   {
@@ -5460,7 +5460,7 @@
     ],
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
-    "explanation": "## What it does\nChecks for logging calls with `exc_info=` outside exception handlers.\n\n## Why is this bad?\nUsing `exc_info=True` outside of an exception handler\nattaches `None` as the exception information, leading to confusing messages:\n\n```pycon\n>>> logging.warning(\"Uh oh\", exc_info=True)\nWARNING:root:Uh oh\nNoneType: None\n```\n\n## Example\n\n```python\nimport logging\n\n\nlogging.warning(\"Foobar\", exc_info=True)\n```\n\nUse instead:\n\n```python\nimport logging\n\n\nlogging.warning(\"Foobar\")\n```\n\n## Fix safety\nThe fix is always marked as unsafe, as it changes runtime behavior.\n\n## Options\n\n- `lint.logger-objects`\n",
+    "explanation": "## What it does\nChecks for logging calls with `exc_info=` outside exception handlers.\n\n## Why is this bad?\nUsing `exc_info=True` outside of an exception handler\nattaches `None` as the exception information, leading to confusing messages:\n\n```pycon\n>>> logging.warning(\"Uh oh\", exc_info=True)\nWARNING:root:Uh oh\nNoneType: None\n```\n\n## Example\n\n```python\nimport logging\n\n\nlogging.warning(\"Foobar\", exc_info=True)\n```\n\nUse instead:\n\n```python\nimport logging\n\n\nlogging.warning(\"Foobar\")\n```\n\n## Known limitations\nThis rule checks whether a call is _defined_ inside an exception handler, not\nwhether it _executes_ inside one. A function defined in an `except` block but\ncalled outside of it will not be flagged, despite the fact that the call may\nnot have access to an active exception at runtime:\n\n```python\nimport logging\n\n\ntry:\n    raise ValueError()\nexcept Exception:\n\n    def handler():\n        logging.error(\"Foobar\", exc_info=True)  # LOG014 not raised (false negative)\n\n\nhandler()\n```\n\n## Fix safety\nThe fix is always marked as unsafe, as it changes runtime behavior.\n\n## Options\n\n- `lint.logger-objects`\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -5469,7 +5469,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_logging/rules/exc_info_outside_except_handler.rs",
-      "line": 50
+      "line": 71
     }
   },
   {
@@ -8148,7 +8148,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_self/rules/private_member_access.rs",
-      "line": 57
+      "line": 58
     }
   },
   {
@@ -8184,7 +8184,7 @@
     ],
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
-    "explanation": "## What it does\nChecks for nested `if` statements that can be collapsed into a single `if`\nstatement.\n\n## Why is this bad?\nNesting `if` statements leads to deeper indentation and makes code harder to\nread. Instead, combine the conditions into a single `if` statement with an\n`and` operator.\n\n## Example\n```python\nif foo:\n    if bar:\n        ...\n```\n\nUse instead:\n```python\nif foo and bar:\n    ...\n```\n\n## Options\n\nThe rule will consult these two settings when deciding if a fix can be provided:\n\n- `lint.pycodestyle.max-line-length`\n- `indent-width`\n\nLines that would exceed the configured line length will not be fixed automatically.\n\n## References\n- [Python documentation: The `if` statement](https://docs.python.org/3/reference/compound_stmts.html#the-if-statement)\n- [Python documentation: Boolean operations](https://docs.python.org/3/reference/expressions.html#boolean-operations)\n",
+    "explanation": "## What it does\nChecks for nested `if` statements that can be collapsed into a single `if`\nstatement.\n\n## Why is this bad?\nNesting `if` statements leads to deeper indentation and makes code harder to\nread. Instead, combine the conditions into a single `if` statement with an\n`and` operator.\n\n## Example\n```python\nif foo:\n    if bar:\n        ...\n```\n\nUse instead:\n```python\nif foo and bar:\n    ...\n```\n## Preview and Fix Safety\nWhen [preview] is enabled, the fix for this rule is considered\nas safe. When [preview] is not enabled, the fix is always\nconsidered unsafe.\n\n[preview]: https://docs.astral.sh/ruff/preview/\n\n## Options\n\nThe rule will consult these two settings when deciding if a fix can be provided:\n\n- `lint.pycodestyle.max-line-length`\n- `indent-width`\n\nLines that would exceed the configured line length will not be fixed automatically.\n\n## References\n- [Python documentation: The `if` statement](https://docs.python.org/3/reference/compound_stmts.html#the-if-statement)\n- [Python documentation: Boolean operations](https://docs.python.org/3/reference/expressions.html#boolean-operations)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -8193,7 +8193,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_simplify/rules/collapsible_if.rs",
-      "line": 57
+      "line": 65
     }
   },
   {
@@ -19658,7 +19658,7 @@
     ],
     "fix": "Fix is always available.",
     "fix_availability": "Always",
-    "explanation": "## What it does\nChecks for unnecessary key checks prior to accessing a dictionary.\n\n## Why is this bad?\nWhen working with dictionaries, the `get` can be used to access a value\nwithout having to check if the dictionary contains the relevant key,\nreturning `None` if the key is not present.\n\n## Example\n```python\nif \"key\" in dct and dct[\"key\"]:\n    ...\n```\n\nUse instead:\n```python\nif dct.get(\"key\"):\n    ...\n```\n\n## Fix safety\nThis rule's fix is marked as safe, unless the expression contains comments.\n",
+    "explanation": "## What it does\nChecks for unnecessary key checks prior to accessing a dictionary.\n\n## Why is this bad?\nWhen working with dictionaries, the `get` can be used to access a value\nwithout having to check if the dictionary contains the relevant key,\nreturning `None` if the key is not present.\n\n## Example\n```python\nif \"key\" in dct and dct[\"key\"]:\n    ...\n```\n\nUse instead:\n```python\nif dct.get(\"key\"):\n    ...\n```\n\n## Fix safety\nThis rule's fix is marked as safe, unless the expression contains comments\nor may have side effects.\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -19667,7 +19667,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/ruff/rules/unnecessary_key_check.rs",
-      "line": 35
+      "line": 36
     }
   },
   {
