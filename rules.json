@@ -66,6 +66,28 @@
     }
   },
   {
+    "name": "airflow-xcom-pull-in-template-string",
+    "code": "AIR201",
+    "linter": "Airflow",
+    "summary": "Use the `.output` attribute on the task object for \"{task_id}\" instead of `xcom_pull` in a template string",
+    "message_formats": [
+      "Use the `.output` attribute on the task object for \"{task_id}\" instead of `xcom_pull` in a template string"
+    ],
+    "fix": "Fix is sometimes available.",
+    "fix_availability": "Sometimes",
+    "explanation": "## What it does\nChecks for Airflow operator keyword arguments that use a Jinja template\nstring containing a single `xcom_pull` call to retrieve another task's\noutput.\n\n## Why is this bad?\nUsing `{{ ti.xcom_pull(task_ids='some_task') }}` as a string template to\naccess the output of an upstream task is less readable and more\nerror-prone than using the `.output` attribute on the task object\ndirectly. The `.output` attribute provides better IDE support and makes\ntask dependencies more explicit.\n\n## Example\n```python\nfrom airflow.operators.python import PythonOperator\n\n\ntask_1 = PythonOperator(task_id=\"task_1\", python_callable=my_func)\ntask_2 = PythonOperator(\n    task_id=\"task_2\",\n    op_args=\"{{ ti.xcom_pull(task_ids='task_1') }}\",\n)\n```\n\nUse instead:\n```python\nfrom airflow.operators.python import PythonOperator\n\n\ntask_1 = PythonOperator(task_id=\"task_1\", python_callable=my_func)\ntask_2 = PythonOperator(\n    task_id=\"task_2\",\n    op_args=task_1.output,\n)\n```\n\n## Fix safety\nThe fix is always unsafe because the variable in scope that matches the\ntask ID may not be the Airflow task object that produced the `XCom` value.\n",
+    "preview": true,
+    "status": {
+      "Preview": {
+        "since": "0.15.11"
+      }
+    },
+    "source_location": {
+      "file": "crates/ruff_linter/src/rules/airflow/rules/xcom_pull_in_template_string.rs",
+      "line": 51
+    }
+  },
+  {
     "name": "airflow3-removal",
     "code": "AIR301",
     "linter": "Airflow",
@@ -825,7 +847,7 @@
     ],
     "fix": "Fix is not available.",
     "fix_availability": "None",
-    "explanation": "## What it does\nChecks for `async` function definitions with `timeout` parameters.\n\n## Why is this bad?\nRather than implementing asynchronous timeout behavior manually, prefer\nbuilt-in timeout functionality, such as `asyncio.timeout`, `trio.fail_after`,\nor `anyio.move_on_after`, among others.\n\nThis rule is highly opinionated to enforce a design pattern\ncalled [\"structured concurrency\"] that allows for\n`async` functions to be oblivious to timeouts,\ninstead letting callers to handle the logic with a context manager.\n\n## Details\n\nThis rule attempts to detect which async framework your code is using\nby analysing the imports in the file it's checking. If it sees an\n`anyio` import in your code, it will assume `anyio` is your framework\nof choice; if it sees a `trio` import, it will assume `trio`; if it\nsees neither, it will assume `asyncio`. `asyncio.timeout` was added\nin Python 3.11, so if `asyncio` is detected as the framework being used,\nthis rule will be ignored when your configured [`target-version`] is set\nto less than Python 3.11.\n\nFor functions that wrap `asyncio.timeout`, `trio.fail_after` or\n`anyio.move_on_after`, false positives from this rule can be avoided\nby using a different parameter name.\n\n## Example\n\n```python\nasync def long_running_task(timeout): ...\n\n\nasync def main():\n    await long_running_task(timeout=2)\n```\n\nUse instead:\n\n```python\nasync def long_running_task(): ...\n\n\nasync def main():\n    async with asyncio.timeout(2):\n        await long_running_task()\n```\n\n## References\n- [`asyncio` timeouts](https://docs.python.org/3/library/asyncio-task.html#timeouts)\n- [`anyio` timeouts](https://anyio.readthedocs.io/en/stable/cancellation.html)\n- [`trio` timeouts](https://trio.readthedocs.io/en/stable/reference-core.html#cancellation-and-timeouts)\n\n[\"structured concurrency\"]: https://vorpus.org/blog/some-thoughts-on-asynchronous-api-design-in-a-post-asyncawait-world/#timeouts-and-cancellation\n",
+    "explanation": "## What it does\nChecks for `async` function definitions with `timeout` parameters.\n\n## Why is this bad?\nRather than implementing asynchronous timeout behavior manually, prefer\nbuilt-in timeout functionality, such as `asyncio.timeout`, `trio.fail_after`,\nor `anyio.move_on_after`, among others.\n\nThis rule is highly opinionated to enforce a design pattern\ncalled [\"structured concurrency\"] that allows for\n`async` functions to be oblivious to timeouts,\ninstead letting callers to handle the logic with a context manager.\n\n## Details\n\nThis rule attempts to detect which async framework your code is using\nby analysing the imports in the file it's checking. If it sees an\n`anyio` import in your code, it will assume `anyio` is your framework\nof choice; if it sees a `trio` import, it will assume `trio`; if it\nsees neither, it will assume `asyncio`. `asyncio.timeout` was added\nin Python 3.11, so if `asyncio` is detected as the framework being used,\nthis rule will be ignored when your configured [`target-version`] is set\nto less than Python 3.11.\n\nFor functions that wrap `asyncio.timeout`, `trio.fail_after` or\n`anyio.move_on_after`, false positives from this rule can be avoided\nby using a different parameter name.\n\nThis rule exempts methods decorated with [`@typing.override`][override].\nRemoving a parameter from a subclass method may cause type checkers to\ncomplain about a violation of the Liskov Substitution Principle if it\nmeans that the method now incompatibly overrides a method defined on a\nsuperclass. Explicitly decorating an overriding method with `@override`\nsignals to Ruff that the method is intended to override a superclass\nmethod and that a type checker will enforce that it does so; Ruff\ntherefore knows that it should not enforce this rule on such methods.\n\n## Example\n\n```python\nasync def long_running_task(timeout): ...\n\n\nasync def main():\n    await long_running_task(timeout=2)\n```\n\nUse instead:\n\n```python\nasync def long_running_task(): ...\n\n\nasync def main():\n    async with asyncio.timeout(2):\n        await long_running_task()\n```\n\n## References\n- [`asyncio` timeouts](https://docs.python.org/3/library/asyncio-task.html#timeouts)\n- [`anyio` timeouts](https://anyio.readthedocs.io/en/stable/cancellation.html)\n- [`trio` timeouts](https://trio.readthedocs.io/en/stable/reference-core.html#cancellation-and-timeouts)\n\n[\"structured concurrency\"]: https://vorpus.org/blog/some-thoughts-on-asynchronous-api-design-in-a-post-asyncawait-world/#timeouts-and-cancellation\n[override]: https://docs.python.org/3/library/typing.html#typing.override\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -834,7 +856,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_async/rules/async_function_with_timeout.rs",
-      "line": 67
+      "line": 78
     }
   },
   {
@@ -1156,7 +1178,7 @@
     ],
     "fix": "Fix is not available.",
     "fix_availability": "None",
-    "explanation": "## What it does\nChecks for files with overly permissive permissions.\n\n## Why is this bad?\nOverly permissive file permissions may allow unintended access and\narbitrary code execution.\n\n## Example\n```python\nimport os\n\nos.chmod(\"/etc/secrets.txt\", 0o666)  # rw-rw-rw-\n```\n\nUse instead:\n```python\nimport os\n\nos.chmod(\"/etc/secrets.txt\", 0o600)  # rw-------\n```\n\n## References\n- [Python documentation: `os.chmod`](https://docs.python.org/3/library/os.html#os.chmod)\n- [Python documentation: `stat`](https://docs.python.org/3/library/stat.html)\n- [Common Weakness Enumeration: CWE-732](https://cwe.mitre.org/data/definitions/732.html)\n",
+    "explanation": "## What it does\nChecks for files with overly permissive permissions.\n\n## Why is this bad?\nOverly permissive file permissions may allow unintended access and\narbitrary code execution.\n\n## Example\n```python\nimport os\n\nos.chmod(\"/etc/secrets.txt\", 0o666)  # rw-rw-rw-\n```\n\nUse instead:\n```python\nimport os\n\nos.chmod(\"/etc/secrets.txt\", 0o600)  # rw-------\n```\n\n## Preview\nWhen [preview] is enabled, the set of bits treated as dangerous matches\nupstream Bandit (`0o33`): `S_IWOTH`, `S_IXOTH`, `S_IWGRP`, and `S_IXGRP`.\nOutside preview, only `S_IWOTH` and `S_IXGRP` are flagged.\n\n[preview]: https://docs.astral.sh/ruff/preview/\n\n## References\n- [Python documentation: `os.chmod`](https://docs.python.org/3/library/os.html#os.chmod)\n- [Python documentation: `stat`](https://docs.python.org/3/library/stat.html)\n- [Common Weakness Enumeration: CWE-732](https://cwe.mitre.org/data/definitions/732.html)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -1165,7 +1187,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/bad_file_permissions.rs",
-      "line": 37
+      "line": 44
     }
   },
   {
@@ -19866,7 +19888,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/ruff/rules/unused_async.rs",
-      "line": 33
+      "line": 34
     }
   },
   {
