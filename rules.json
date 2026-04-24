@@ -66,6 +66,29 @@
     }
   },
   {
+    "name": "airflow-task-branch-as-short-circuit",
+    "code": "AIR004",
+    "linter": "Airflow",
+    "summary": "`@task.branch` can be replaced with `@task.short_circuit`",
+    "message_formats": [
+      "`@task.branch` can be replaced with `@task.short_circuit`",
+      "`BranchPythonOperator` can be replaced with `ShortCircuitOperator`"
+    ],
+    "fix": "Fix is not available.",
+    "fix_availability": "None",
+    "explanation": "## What it does\nChecks for branching logic that could be replaced with a short-circuit\npattern, either via `@task.branch` decorated functions or\n`BranchPythonOperator` callables.\n\n## Why is this bad?\nWhen a branch function has at least two `return` statements and exactly\none of them returns a non-empty list, the function is effectively acting\nas a short-circuit operator. Using `@task.short_circuit` or\n`ShortCircuitOperator` is simpler and more readable in such cases.\n\n## Example\n\nUsing the `TaskFlow` API:\n```python\nfrom airflow.decorators import task\n\n\n@task.branch\ndef my_task():\n    if condition:\n        return [\"my_downstream_task\"]\n    return []\n```\n\nUse instead:\n```python\nfrom airflow.decorators import task\n\n\n@task.short_circuit\ndef my_task():\n    return condition\n```\n\nUsing the standard operator API:\n```python\nfrom airflow.operators.python import BranchPythonOperator\n\n\ndef my_callable():\n    if condition:\n        return [\"my_downstream_task\"]\n    return []\n\n\ntask = BranchPythonOperator(task_id=\"my_task\", python_callable=my_callable)\n```\n\nUse instead:\n```python\nfrom airflow.operators.python import ShortCircuitOperator\n\n\ndef my_callable():\n    return condition\n\n\ntask = ShortCircuitOperator(task_id=\"my_task\", python_callable=my_callable)\n```\n",
+    "preview": true,
+    "status": {
+      "Preview": {
+        "since": "0.15.12"
+      }
+    },
+    "source_location": {
+      "file": "crates/ruff_linter/src/rules/airflow/rules/task_branch_as_short_circuit.rs",
+      "line": 72
+    }
+  },
+  {
     "name": "airflow-xcom-pull-in-template-string",
     "code": "AIR201",
     "linter": "Airflow",
@@ -3738,7 +3761,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bugbear/rules/loop_iterator_mutation.rs",
-      "line": 38
+      "line": 39
     }
   },
   {
@@ -10923,9 +10946,9 @@
     "name": "pandas-use-of-dot-values",
     "code": "PD011",
     "linter": "pandas-vet",
-    "summary": "Use `.to_numpy()` instead of `.values`",
+    "summary": "Use `.to_numpy()` or `.array` instead of `.values`",
     "message_formats": [
-      "Use `.to_numpy()` instead of `.values`"
+      "Use `.to_numpy()` or `.array` instead of `.values`"
     ],
     "fix": "Fix is not available.",
     "fix_availability": "None",
@@ -16130,7 +16153,7 @@
     ],
     "fix": "Fix is not available.",
     "fix_availability": "None",
-    "explanation": "## What it does\nChecks for operations that compare a name to itself.\n\n## Why is this bad?\nComparing a name to itself always results in the same value, and is likely\na mistake.\n\n## Example\n```python\nfoo == foo\n```\n\nIn some cases, self-comparisons are used to determine whether a float is\nNaN. Instead, prefer `math.isnan`:\n```python\nimport math\n\nmath.isnan(foo)\n```\n\n## References\n- [Python documentation: Comparisons](https://docs.python.org/3/reference/expressions.html#comparisons)\n",
+    "explanation": "## What it does\nChecks for operations that compare a name to itself.\n\n## Why is this bad?\nComparing a name to itself typically results in a truthy value, and is\nlikely a mistake.\n\n## Example\n```python\nfoo == foo\n```\n\nIn some cases, self-comparisons are used to determine whether a float is\nNaN. Instead, prefer `math.isnan`:\n```python\nimport math\n\nmath.isnan(foo)\n```\n\n## References\n- [Python documentation: Comparisons](https://docs.python.org/3/reference/expressions.html#comparisons)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -18435,7 +18458,7 @@
     ],
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
-    "explanation": "## What it does\n\nChecks for use of standalone type variables and parameter specifications in generic classes.\n\n## Why is this bad?\n\nSpecial type parameter syntax was introduced in Python 3.12 by [PEP 695] for defining generic\nclasses. This syntax is easier to read and provides cleaner support for generics.\n\n## Known problems\n\nThe rule currently skips generic classes nested inside of other functions or classes. It also\nskips type parameters with the `default` argument introduced in [PEP 696] and implemented in\nPython 3.13.\n\nThis rule can only offer a fix if all of the generic types in the class definition are defined\nin the current module. For external type parameters, a diagnostic is emitted without a suggested\nfix.\n\nNot all type checkers fully support PEP 695 yet, so even valid fixes suggested by this rule may\ncause type checking to [fail].\n\n## Fix safety\n\nThis fix is marked as unsafe, as [PEP 695] uses inferred variance for type parameters, instead\nof the `covariant` and `contravariant` keywords used by `TypeVar` variables. As such, replacing\na `TypeVar` variable with an inline type parameter may change its variance.\n\n## Example\n\n```python\nfrom typing import Generic, TypeVar\n\nT = TypeVar(\"T\")\n\n\nclass GenericClass(Generic[T]):\n    var: T\n```\n\nUse instead:\n\n```python\nclass GenericClass[T]:\n    var: T\n```\n\n## See also\n\nThis rule replaces standalone type variables in classes but doesn't remove\nthe corresponding type variables even if they are unused after the fix. See\n[`unused-private-type-var`][PYI018] for a rule to clean up unused\nprivate type variables.\n\nThis rule will not rename private type variables to remove leading underscores, even though the\nnew type parameters are restricted in scope to their associated class. See\n[`private-type-parameter`][UP049] for a rule to update these names.\n\nThis rule will correctly handle classes with multiple base classes, as long as the single\n`Generic` base class is at the end of the argument list, as checked by\n[`generic-not-last-base-class`][PYI059]. If a `Generic` base class is\nfound outside of the last position, a diagnostic is emitted without a suggested fix.\n\nThis rule only applies to generic classes and does not include generic functions. See\n[`non-pep695-generic-function`][UP047] for the function version.\n\n## Options\n\n- `target-version`\n\n[PEP 695]: https://peps.python.org/pep-0695/\n[PEP 696]: https://peps.python.org/pep-0696/\n[PYI018]: https://docs.astral.sh/ruff/rules/unused-private-type-var/\n[PYI059]: https://docs.astral.sh/ruff/rules/generic-not-last-base-class/\n[UP047]: https://docs.astral.sh/ruff/rules/non-pep695-generic-function/\n[UP049]: https://docs.astral.sh/ruff/rules/private-type-parameter/\n[fail]: https://github.com/python/mypy/issues/18507\n",
+    "explanation": "## What it does\n\nChecks for use of standalone type variables and parameter specifications in generic classes.\n\n## Why is this bad?\n\nSpecial type parameter syntax was introduced in Python 3.12 by [PEP 695] for defining generic\nclasses. This syntax is easier to read and provides cleaner support for generics.\n\nIn particular, old-style `TypeVar` variables are typically allocated at module scope, but their\nsemantic meaning is only valid within the context of a generic class, function, or type alias.\n[PEP 695] eliminates this [source of confusion] by declaring type parameters at their point of\nuse.\n\n## Known problems\n\nThe rule currently skips generic classes nested inside of other functions or classes. It also\nskips type parameters with the `default` argument introduced in [PEP 696] and implemented in\nPython 3.13.\n\nThis rule can only offer a fix if all of the generic types in the class definition are defined\nin the current module. For external type parameters, a diagnostic is emitted without a suggested\nfix.\n\nNot all type checkers fully support PEP 695 yet, so even valid fixes suggested by this rule may\ncause type checking to [fail].\n\n## Fix safety\n\nThis fix is marked as unsafe, as [PEP 695] uses inferred variance for type parameters, instead\nof the `covariant` and `contravariant` keywords used by `TypeVar` variables. As such, replacing\na `TypeVar` variable with an inline type parameter may change its variance.\n\n## Examples\n\n```python\nfrom typing import Generic, TypeVar\n\nT = TypeVar(\"T\")\n\n\nclass GenericClass(Generic[T]):\n    var: T\n```\n\nUse instead:\n\n```python\nclass GenericClass[T]:\n    var: T\n```\n\nIn cases where you've intentionally defined a reusable `TypeVar` to share\nthe bounds across multiple uses:\n\n```python\nfrom typing import Generic, TypeVar\n\nReusableT = TypeVar(\"ReusableT\", bound=int | str | dict[int, str])\n\n\nclass GenericClass1(Generic[ReusableT]): ...\n\n\nclass GenericClass2(Generic[ReusableT]): ...\n\n\nclass GenericClass3(Generic[ReusableT]): ...\n```\n\nYou can instead extract the bound as a [type alias] to retain both the\nbenefits of the PEP 695 syntax and the reuse of the bound:\n\n```python\ntype ReusableTBound = int | str | dict[int, str]\n\n\nclass GenericClass1[ReusableT: ReusableTBound]: ...\n\n\nclass GenericClass2[ReusableT: ReusableTBound]: ...\n\n\nclass GenericClass3[ReusableT: ReusableTBound]: ...\n```\n\n## See also\n\nThis rule replaces standalone type variables in classes but doesn't remove\nthe corresponding type variables even if they are unused after the fix. See\n[`unused-private-type-var`][PYI018] for a rule to clean up unused\nprivate type variables.\n\nThis rule will not rename private type variables to remove leading underscores, even though the\nnew type parameters are restricted in scope to their associated class. See\n[`private-type-parameter`][UP049] for a rule to update these names.\n\nThis rule will correctly handle classes with multiple base classes, as long as the single\n`Generic` base class is at the end of the argument list, as checked by\n[`generic-not-last-base-class`][PYI059]. If a `Generic` base class is\nfound outside of the last position, a diagnostic is emitted without a suggested fix.\n\nThis rule only applies to generic classes and does not include generic functions. See\n[`non-pep695-generic-function`][UP047] for the function version.\n\n## Options\n\n- `target-version`\n\n[PEP 695]: https://peps.python.org/pep-0695/\n[PEP 696]: https://peps.python.org/pep-0696/\n[PYI018]: https://docs.astral.sh/ruff/rules/unused-private-type-var/\n[PYI059]: https://docs.astral.sh/ruff/rules/generic-not-last-base-class/\n[UP047]: https://docs.astral.sh/ruff/rules/non-pep695-generic-function/\n[UP049]: https://docs.astral.sh/ruff/rules/private-type-parameter/\n[fail]: https://github.com/python/mypy/issues/18507\n[source of confusion]: https://peps.python.org/pep-0695/#points-of-confusion\n[type alias]: https://docs.python.org/3/reference/simple_stmts.html#type-aliases\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -18444,7 +18467,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pyupgrade/rules/pep695/non_pep695_generic_class.rs",
-      "line": 92
+      "line": 133
     }
   },
   {
