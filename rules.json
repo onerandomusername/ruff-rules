@@ -3995,7 +3995,7 @@
     ],
     "fix": "Fix is always available.",
     "fix_availability": "Always",
-    "explanation": "## What it does\nChecks for the presence of prohibited trailing commas.\n\n## Why is this bad?\nTrailing commas are not essential in some cases and can therefore be viewed\nas unnecessary.\n\n## Example\n```python\nfoo = (1, 2, 3,)\n```\n\nUse instead:\n```python\nfoo = (1, 2, 3)\n```\n\n## Formatter compatibility\nWe recommend against using this rule alongside the [formatter]. The\nformatter enforces consistent use of trailing commas, making the rule redundant.\n\n[formatter]:https://docs.astral.sh/ruff/formatter/\n",
+    "explanation": "## What it does\nChecks for the presence of prohibited trailing commas.\n\n## Why is this bad?\nTrailing commas are not essential in some cases and can therefore be viewed\nas unnecessary.\n\n## Example\n```python\nfoo = (1, 2, 3,)\n```\n\nUse instead:\n```python\nfoo = (1, 2, 3)\n```\n\n## Formatter compatibility\nWe recommend against using this rule alongside the [formatter]. With the\ndefault `format.skip-magic-trailing-comma = false`, trailing commas can be\nintentional: the formatter treats them as a signal to preserve multiline\nformatting. When set to `true`, the formatter removes those trailing commas\nwhere possible, making this rule redundant.\n\n[formatter]:https://docs.astral.sh/ruff/formatter/\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -4004,7 +4004,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_commas/rules/trailing_commas.rs",
-      "line": 234
+      "line": 237
     }
   },
   {
@@ -6586,7 +6586,7 @@
     ],
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
-    "explanation": "## What it does\nChecks for methods that are annotated with a fixed return type which\nshould instead be returning `Self`.\n\n## Why is this bad?\nIf methods that generally return `self` at runtime are annotated with a\nfixed return type, and the class is subclassed, type checkers will not be\nable to infer the correct return type.\n\nFor example:\n```python\nclass Shape:\n    def set_scale(self, scale: float) -> Shape:\n        self.scale = scale\n        return self\n\nclass Circle(Shape):\n    def set_radius(self, radius: float) -> Circle:\n        self.radius = radius\n        return self\n\n# Type checker infers return type as `Shape`, not `Circle`.\nCircle().set_scale(0.5)\n\n# Thus, this expression is invalid, as `Shape` has no attribute `set_radius`.\nCircle().set_scale(0.5).set_radius(2.7)\n```\n\nSpecifically, this check enforces that the return type of the following\nmethods is `Self`:\n\n1. In-place binary-operation dunder methods, like `__iadd__`, `__imul__`, etc.\n1. `__new__`, `__enter__`, and `__aenter__`, if those methods return the\n   class name.\n1. `__iter__` methods that return `Iterator`, despite the class inheriting\n   directly from `Iterator`.\n1. `__aiter__` methods that return `AsyncIterator`, despite the class\n   inheriting directly from `AsyncIterator`.\n\nThe rule attempts to avoid flagging methods on metaclasses, since\n[PEP 673] specifies that `Self` is disallowed in metaclasses. Ruff can\ndetect a class as being a metaclass if it inherits from a stdlib\nmetaclass such as `builtins.type` or `abc.ABCMeta`, and additionally\ninfers that a class may be a metaclass if it has a `__new__` method\nwith a similar signature to `type.__new__`. The heuristic used to\nidentify a metaclass-like `__new__` method signature is that it:\n\n1. Has exactly 5 parameters (including `cls`)\n1. Has a second parameter annotated with `str`\n1. Has a third parameter annotated with a `tuple` type\n1. Has a fourth parameter annotated with a `dict` type\n1. Has a fifth parameter is keyword-variadic (`**kwargs`)\n\nFor example, the following class would be detected as a metaclass, disabling\nthe rule:\n\n```python\nclass MyMetaclass(django.db.models.base.ModelBase):\n    def __new__(cls, name: str, bases: tuple[Any, ...], attrs: dict[str, Any], **kwargs: Any) -> MyMetaclass:\n        ...\n```\n\n## Example\n\n```pyi\nclass Foo:\n    def __new__(cls, *args: Any, **kwargs: Any) -> Foo: ...\n    def __enter__(self) -> Foo: ...\n    async def __aenter__(self) -> Foo: ...\n    def __iadd__(self, other: Foo) -> Foo: ...\n```\n\nUse instead:\n\n```pyi\nfrom typing_extensions import Self\n\nclass Foo:\n    def __new__(cls, *args: Any, **kwargs: Any) -> Self: ...\n    def __enter__(self) -> Self: ...\n    async def __aenter__(self) -> Self: ...\n    def __iadd__(self, other: Foo) -> Self: ...\n```\n\n## Fix safety\nThis rule's fix is marked as unsafe as it changes the meaning of your type annotations.\n\n## Availability\n\nBecause this rule relies on the third-party `typing_extensions` module for Python versions\nbefore 3.11, its diagnostic will not be emitted, and no fix will be offered, if\n`typing_extensions` imports have been disabled by the [`lint.typing-extensions`] linter option.\n\n## Options\n\n- `lint.typing-extensions`\n\n## References\n- [Python documentation: `typing.Self`](https://docs.python.org/3/library/typing.html#typing.Self)\n\n[PEP 673]: https://peps.python.org/pep-0673/#valid-locations-for-self\n",
+    "explanation": "## What it does\nChecks for methods that are annotated with a fixed return type which\nshould instead be returning `Self`.\n\n## Why is this bad?\nIf methods that generally return `self` at runtime are annotated with a\nfixed return type, and the class is subclassed, type checkers will not be\nable to infer the correct return type.\n\nFor example:\n```python\nclass Shape:\n    def set_scale(self, scale: float) -> Shape:\n        self.scale = scale\n        return self\n\nclass Circle(Shape):\n    def set_radius(self, radius: float) -> Circle:\n        self.radius = radius\n        return self\n\n# Type checker infers return type as `Shape`, not `Circle`.\nCircle().set_scale(0.5)\n\n# Thus, this expression is invalid, as `Shape` has no attribute `set_radius`.\nCircle().set_scale(0.5).set_radius(2.7)\n```\n\nSpecifically, this check enforces that the return type of the following\nmethods is `Self`:\n\n1. In-place binary-operation dunder methods, like `__iadd__`, `__imul__`, etc.,\n   if those methods return the class name.\n1. `__new__`, `__enter__`, and `__aenter__`, if those methods return the\n   class name.\n1. `__iter__` methods that return `Iterator`, despite the class inheriting\n   directly from `Iterator`.\n1. `__aiter__` methods that return `AsyncIterator`, despite the class\n   inheriting directly from `AsyncIterator`.\n\nThe rule attempts to avoid flagging methods on metaclasses, since\n[PEP 673] specifies that `Self` is disallowed in metaclasses. Ruff can\ndetect a class as being a metaclass if it inherits from a stdlib\nmetaclass such as `builtins.type` or `abc.ABCMeta`, and additionally\ninfers that a class may be a metaclass if it has a `__new__` method\nwith a similar signature to `type.__new__`. The heuristic used to\nidentify a metaclass-like `__new__` method signature is that it:\n\n1. Has exactly 5 parameters (including `cls`)\n1. Has a second parameter annotated with `str`\n1. Has a third parameter annotated with a `tuple` type\n1. Has a fourth parameter annotated with a `dict` type\n1. Has a fifth parameter is keyword-variadic (`**kwargs`)\n\nFor example, the following class would be detected as a metaclass, disabling\nthe rule:\n\n```python\nclass MyMetaclass(django.db.models.base.ModelBase):\n    def __new__(cls, name: str, bases: tuple[Any, ...], attrs: dict[str, Any], **kwargs: Any) -> MyMetaclass:\n        ...\n```\n\n## Example\n\n```pyi\nclass Foo:\n    def __new__(cls, *args: Any, **kwargs: Any) -> Foo: ...\n    def __enter__(self) -> Foo: ...\n    async def __aenter__(self) -> Foo: ...\n    def __iadd__(self, other: Foo) -> Foo: ...\n```\n\nUse instead:\n\n```pyi\nfrom typing_extensions import Self\n\nclass Foo:\n    def __new__(cls, *args: Any, **kwargs: Any) -> Self: ...\n    def __enter__(self) -> Self: ...\n    async def __aenter__(self) -> Self: ...\n    def __iadd__(self, other: Foo) -> Self: ...\n```\n\n## Fix safety\nThis rule's fix is marked as unsafe as it changes the meaning of your type annotations.\n\n## Availability\n\nBecause this rule relies on the third-party `typing_extensions` module for Python versions\nbefore 3.11, its diagnostic will not be emitted, and no fix will be offered, if\n`typing_extensions` imports have been disabled by the [`lint.typing-extensions`] linter option.\n\n## Options\n\n- `lint.typing-extensions`\n\n## References\n- [Python documentation: `typing.Self`](https://docs.python.org/3/library/typing.html#typing.Self)\n\n[PEP 673]: https://peps.python.org/pep-0673/#valid-locations-for-self\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -6595,7 +6595,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_pyi/rules/non_self_return_type.rs",
-      "line": 115
+      "line": 116
     }
   },
   {
@@ -9020,6 +9020,28 @@
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_tidy_imports/rules/lazy_import_mismatch.rs",
       "line": 38
+    }
+  },
+  {
+    "name": "lazy-import-immediately-resolved",
+    "code": "TID255",
+    "linter": "flake8-tidy-imports",
+    "summary": "Lazy import `{name}` is resolved immediately",
+    "message_formats": [
+      "Lazy import `{name}` is resolved immediately"
+    ],
+    "fix": "Fix is sometimes available.",
+    "fix_availability": "Sometimes",
+    "explanation": "## What it does\nChecks for lazy imports that are resolved immediately at module load time.\n\n## Why is this bad?\nPython 3.15 adds support for `lazy import` and `lazy from ... import ...`,\nwhich defer the actual import work until the imported name is first used.\n\nWhen a lazily imported name is used immediately at module load time, the\nimport is resolved eagerly, defeating the purpose of marking the import as\nlazy. This is commonly caused by using a lazily imported module in a module\nglobal or in a top-level class definition.\n\n## Example\n```python\nlazy import foo\n\n\nclass Bar(foo.Foo): ...\n```\n\nUse instead:\n```python\nimport foo\n\n\nclass Bar(foo.Foo): ...\n```\n\n## Fix safety\nThis rule's fix is marked as unsafe because converting a lazy import to an\neager import changes when the imported module is executed, which can change\nruntime behavior if the module has import-time side effects.\n\nThe fix is only available when the lazy import statement imports a single\nmember, since removing `lazy` from a multi-member import would make every\nimported member eager, including names that may not be resolved immediately.\n",
+    "preview": true,
+    "status": {
+      "Preview": {
+        "since": "0.15.13"
+      }
+    },
+    "source_location": {
+      "file": "crates/ruff_linter/src/rules/flake8_tidy_imports/rules/lazy_import_immediately_resolved.rs",
+      "line": 48
     }
   },
   {
@@ -13095,7 +13117,7 @@
     ],
     "fix": "Fix is always available.",
     "fix_availability": "Always",
-    "explanation": "## What it does\nChecks for docstrings on class definitions that are not preceded by a\nblank line.\n\n## Why is this bad?\nUse a blank line to separate the docstring from the class definition, for\nconsistency.\n\nThis rule may not apply to all projects; its applicability is a matter of\nconvention. By default, this rule is disabled when using the `google`,\n`numpy`, and `pep257` conventions.\n\nFor an alternative, see [D211].\n\n## Example\n\n```python\nclass PhotoMetadata:\n    \"\"\"Metadata about a photo.\"\"\"\n```\n\nUse instead:\n\n```python\nclass PhotoMetadata:\n\n    \"\"\"Metadata about a photo.\"\"\"\n```\n\n## Options\n- `lint.pydocstyle.convention`\n\n[D211]: https://docs.astral.sh/ruff/rules/blank-line-before-class\n",
+    "explanation": "## What it does\nChecks for docstrings on class definitions that are not preceded by a\nblank line.\n\n## Why is this bad?\nUse a blank line to separate the docstring from the class definition, for\nconsistency.\n\nThis rule may not apply to all projects; its applicability is a matter of\nconvention. By default, this rule is disabled when using the `google`,\n`numpy`, and `pep257` conventions.\n\nFor an alternative, see [D211].\n\n## Example\n\n```python\nclass PhotoMetadata:\n    \"\"\"Metadata about a photo.\"\"\"\n```\n\nUse instead:\n\n```python\nclass PhotoMetadata:\n\n    \"\"\"Metadata about a photo.\"\"\"\n```\n\n## Formatter compatibility\nWe recommend against using this rule alongside the [formatter]. The\nformatter removes blank lines before class docstrings, which conflicts\nwith this rule's requirement to include them.\n\n## Options\n- `lint.pydocstyle.convention`\n\n[D211]: https://docs.astral.sh/ruff/rules/blank-line-before-class\n[formatter]: https://docs.astral.sh/ruff/formatter\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -13104,7 +13126,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pydocstyle/rules/blank_before_after_class.rs",
-      "line": 45
+      "line": 51
     }
   },
   {
@@ -13126,7 +13148,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pydocstyle/rules/blank_before_after_class.rs",
-      "line": 98
+      "line": 104
     }
   },
   {
@@ -13281,7 +13303,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pydocstyle/rules/blank_before_after_class.rs",
-      "line": 146
+      "line": 152
     }
   },
   {
@@ -14822,7 +14844,7 @@
     ],
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
-    "explanation": "## What it does\nChecks for `raise` statements that raise `NotImplemented`.\n\n## Why is this bad?\n`NotImplemented` is an exception used by binary special methods to indicate\nthat an operation is not implemented with respect to a particular type.\n\n`NotImplemented` should not be raised directly. Instead, raise\n`NotImplementedError`, which is used to indicate that the method is\nabstract or not implemented in the derived class.\n\n## Example\n```python\nclass Foo:\n    def bar(self):\n        raise NotImplemented\n```\n\nUse instead:\n```python\nclass Foo:\n    def bar(self):\n        raise NotImplementedError\n```\n\n## References\n- [Python documentation: `NotImplemented`](https://docs.python.org/3/library/constants.html#NotImplemented)\n- [Python documentation: `NotImplementedError`](https://docs.python.org/3/library/exceptions.html#NotImplementedError)\n",
+    "explanation": "## What it does\nChecks for `raise` statements that raise `NotImplemented`.\n\n## Why is this bad?\n`NotImplemented` is a special value returned by binary special methods to indicate\nthat an operation is not implemented with respect to a particular type.\n\nBecause `NotImplemented` is not an exception, it cannot be raised.\nRaise `NotImplementedError` instead, which is used to indicate that a method is\nabstract or not implemented in the derived class.\n\n## Example\n```python\nclass Foo:\n    def bar(self):\n        raise NotImplemented\n```\n\nUse instead:\n```python\nclass Foo:\n    def bar(self):\n        raise NotImplementedError\n```\n\n## References\n- [Python documentation: `NotImplemented`](https://docs.python.org/3/library/constants.html#NotImplemented)\n- [Python documentation: `NotImplementedError`](https://docs.python.org/3/library/exceptions.html#NotImplementedError)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -16367,9 +16389,9 @@
     "name": "too-many-locals",
     "code": "PLR0914",
     "linter": "Pylint",
-    "summary": "Too many local variables ({current_amount}/{max_amount})",
+    "summary": "Too many local variables ({current_amount} > {max_amount})",
     "message_formats": [
-      "Too many local variables ({current_amount}/{max_amount})"
+      "Too many local variables ({current_amount} > {max_amount})"
     ],
     "fix": "Fix is not available.",
     "fix_availability": "None",
@@ -16433,9 +16455,9 @@
     "name": "too-many-positional-arguments",
     "code": "PLR0917",
     "linter": "Pylint",
-    "summary": "Too many positional arguments ({c_pos}/{max_pos})",
+    "summary": "Too many positional arguments ({c_pos} > {max_pos})",
     "message_formats": [
-      "Too many positional arguments ({c_pos}/{max_pos})"
+      "Too many positional arguments ({c_pos} > {max_pos})"
     ],
     "fix": "Fix is not available.",
     "fix_availability": "None",
