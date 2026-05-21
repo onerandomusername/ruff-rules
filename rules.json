@@ -111,6 +111,28 @@
     }
   },
   {
+    "name": "airflow-task-implicit-multiple-outputs",
+    "code": "AIR202",
+    "linter": "Airflow",
+    "summary": "`@task`-decorated function relies on `multiple_outputs` inference",
+    "message_formats": [
+      "`@task`-decorated function relies on `multiple_outputs` inference"
+    ],
+    "fix": "Fix is always available.",
+    "fix_availability": "Always",
+    "explanation": "## What it does\nChecks for `@task`-decorated functions whose `multiple_outputs` behavior is\ndetermined by Airflow's runtime inference rather than being set explicitly.\n\n## Why is this bad?\nAt runtime, Airflow infers `multiple_outputs` from the return type\nannotation: if it resolves to a subclass of `collections.abc.Mapping`, the\nreturn value is split into one `XCom` per key; otherwise it is stored as a\nsingle `XCom`. This couples typing to `XCom` layout in a non-obvious way —\nrenaming, removing, or refining the return annotation silently changes the\nDag's `XCom` behavior.\n\nPassing `multiple_outputs=` explicitly makes the author's intent clear,\ninsulates the Dag from future changes to inference, and increases\nawareness of the parameter.\n\n## Example\n```python\nfrom airflow.sdk import task\n\n\n@task\ndef extract() -> dict:\n    return {\"x\": 1, \"y\": 2}\n```\n\nUse instead:\n```python\nfrom airflow.sdk import task\n\n\n@task(multiple_outputs=True)\ndef extract() -> dict:\n    return {\"x\": 1, \"y\": 2}\n```\n\n## Fix safety\nThe fix is always marked unsafe: the inserted value mirrors Airflow's\ncurrent inference (`True` when the return annotation is a `Mapping`\nsubclass, `False` otherwise), but the author may have intended a different\n`XCom` layout, and a function with multiple return paths may not always\nreturn a dict.\n",
+    "preview": true,
+    "status": {
+      "Preview": {
+        "since": "0.15.14"
+      }
+    },
+    "source_location": {
+      "file": "crates/ruff_linter/src/rules/airflow/rules/task_implicit_multiple_outputs.rs",
+      "line": 55
+    }
+  },
+  {
     "name": "airflow3-removal",
     "code": "AIR301",
     "linter": "Airflow",
@@ -4195,8 +4217,8 @@
       "Unnecessary tuple literal passed to `tuple()` (remove the outer call to `tuple()`)",
       "Unnecessary list comprehension passed to `tuple()` (rewrite as a generator)"
     ],
-    "fix": "Fix is always available.",
-    "fix_availability": "Always",
+    "fix": "Fix is sometimes available.",
+    "fix_availability": "Sometimes",
     "explanation": "## What it does\nChecks for `tuple` calls that take unnecessary list or tuple literals as\narguments. In [preview], this also includes unnecessary list comprehensions\nwithin tuple calls.\n\n## Why is this bad?\nIt's unnecessary to use a list or tuple literal within a `tuple()` call,\nsince there is a literal syntax for these types.\n\nIf a list literal was passed, then it should be rewritten as a `tuple`\nliteral. Otherwise, if a tuple literal was passed, then the outer call\nto `tuple()` should be removed.\n\nIn [preview], this rule also checks for list comprehensions within `tuple()`\ncalls. If a list comprehension is found, it should be rewritten as a\ngenerator expression.\n\n## Example\n```python\ntuple([1, 2])\ntuple((1, 2))\ntuple([x for x in range(10)])\n```\n\nUse instead:\n```python\n(1, 2)\n(1, 2)\ntuple(x for x in range(10))\n```\n\n## Fix safety\nThis rule's fix is marked as unsafe, as it may occasionally drop comments\nwhen rewriting the call. In most cases, though, comments will be preserved.\n\n[preview]: https://docs.astral.sh/ruff/preview/\n",
     "preview": false,
     "status": {
@@ -4240,8 +4262,8 @@
     "message_formats": [
       "Unnecessary `list()` call (remove the outer call to `list()`)"
     ],
-    "fix": "Fix is always available.",
-    "fix_availability": "Always",
+    "fix": "Fix is sometimes available.",
+    "fix_availability": "Sometimes",
     "explanation": "## What it does\nChecks for unnecessary `list()` calls around list comprehensions.\n\n## Why is this bad?\nIt is redundant to use a `list()` call around a list comprehension.\n\n## Example\n```python\nlist([f(x) for x in foo])\n```\n\nUse instead\n```python\n[f(x) for x in foo]\n```\n\n## Fix safety\nThis rule's fix is marked as unsafe, as it may occasionally drop comments\nwhen rewriting the call. In most cases, though, comments will be preserved.\n",
     "preview": false,
     "status": {
@@ -4372,8 +4394,8 @@
     "message_formats": [
       "Unnecessary dict {kind} passed to `dict()` (remove the outer call to `dict()`)"
     ],
-    "fix": "Fix is always available.",
-    "fix_availability": "Always",
+    "fix": "Fix is sometimes available.",
+    "fix_availability": "Sometimes",
     "explanation": "## What it does\nChecks for `dict()` calls that take unnecessary dict literals or dict\ncomprehensions as arguments.\n\n## Why is this bad?\nIt's unnecessary to wrap a dict literal or comprehension within a `dict()`\ncall, since the literal or comprehension syntax already returns a\ndictionary.\n\n## Example\n```python\ndict({})\ndict({\"a\": 1})\n```\n\nUse instead:\n```python\n{}\n{\"a\": 1}\n```\n\n## Fix safety\nThis rule's fix is marked as unsafe, as it may occasionally drop comments\nwhen rewriting the call. In most cases, though, comments will be preserved.\n",
     "preview": false,
     "status": {
@@ -8216,7 +8238,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_simplify/rules/ast_bool_op.rs",
-      "line": 47
+      "line": 46
     }
   },
   {
@@ -8351,7 +8373,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_simplify/rules/ast_bool_op.rs",
-      "line": 96
+      "line": 95
     }
   },
   {
@@ -8683,7 +8705,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_simplify/rules/ast_bool_op.rs",
-      "line": 130
+      "line": 129
     }
   },
   {
@@ -8705,7 +8727,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_simplify/rules/ast_bool_op.rs",
-      "line": 163
+      "line": 162
     }
   },
   {
@@ -8727,7 +8749,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_simplify/rules/ast_bool_op.rs",
-      "line": 216
+      "line": 215
     }
   },
   {
@@ -8749,7 +8771,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_simplify/rules/ast_bool_op.rs",
-      "line": 269
+      "line": 268
     }
   },
   {
@@ -16426,7 +16448,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pylint/rules/too_many_statements.rs",
-      "line": 50
+      "line": 51
     }
   },
   {
@@ -17272,6 +17294,28 @@
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pylint/rules/binary_op_exception.rs",
       "line": 49
+    }
+  },
+  {
+    "name": "too-many-statements-in-try-clause",
+    "code": "PLW0717",
+    "linter": "Pylint",
+    "summary": "Try clause contains too many statements ({statements} > {max_statements})",
+    "message_formats": [
+      "Try clause contains too many statements ({statements} > {max_statements})"
+    ],
+    "fix": "Fix is not available.",
+    "fix_availability": "None",
+    "explanation": "## What it does\nChecks for try clauses with too many statements.\n\nBy default, this rule allows up to 5 statements, as configured by the\n[`lint.pylint.max-statements-in-try`] option.\n\n## Why is this bad?\nTry clauses with many statements make unexpected exceptions harder\nto detect and debug.\n\nInstead, consider narrowing the try clause to only encompass code that\nmay raise exceptions you can anticipate or know about, moving all other\nstatements either before or after the try clause, or factoring out a helper function.\n\n## Example\n```python\nfrom random import randint\n\n\ndef random_ratio() -> float:\n    try:\n        a = randint(-100, 100)\n        b = randint(-100, 100)\n        c = randint(-100, 100)\n        d = randint(-100, 100)\n        scale = randint(1, 5)\n        res = scale * (a + b) / (c + d)\n    except ZeroDivisionError:\n        return random_ratio()\n    else:\n        return res\n```\n\nUse instead:\n```python\nfrom random import randint\n\n\ndef random_ratio() -> float:\n    a = randint(-100, 100)\n    b = randint(-100, 100)\n    c = randint(-100, 100)\n    d = randint(-100, 100)\n    scale = randint(1, 5)\n    try:\n        # every statement that cannot raise was moved outside the try clause\n        res = scale * (a + b) / (c + d)\n    except ZeroDivisionError:\n        return random_ratio()\n    else:\n        return res\n```\n\n## Options\n- `lint.pylint.max-statements-in-try`\n\n## References\n\n[Pylint's reference implementation](https://pylint.pycqa.org/en/latest/user_guide/configuration/all-options.html#broad-try-clause-checker)\nuses a different default setting.\nTo replicate it exactly, set `lint.pylint.max-statements-in-try` to 1.\n",
+    "preview": true,
+    "status": {
+      "Preview": {
+        "since": "0.15.14"
+      }
+    },
+    "source_location": {
+      "file": "crates/ruff_linter/src/rules/pylint/rules/too_many_try_statements.rs",
+      "line": 71
     }
   },
   {
@@ -20846,6 +20890,50 @@
     "source_location": {
       "file": "crates/ruff_linter/src/rules/ruff/rules/fstring_percent_format.rs",
       "line": 29
+    }
+  },
+  {
+    "name": "incorrect-decorator-order",
+    "code": "RUF074",
+    "linter": "Ruff-specific rules",
+    "summary": "`@{outer_decorator}` should be placed after `@{inner_decorator}`",
+    "message_formats": [
+      "`@{outer_decorator}` should be placed after `@{inner_decorator}`"
+    ],
+    "fix": "Fix is not available.",
+    "fix_availability": "None",
+    "explanation": "## What it does\nChecks for incorrect ordering of decorators on functions and methods.\n\n## Why is this bad?\nDecorators are applied bottom-up. Certain decorator combinations cause\nruntime errors or silent wrong behavior when placed in the wrong order.\nFor example, `@abstractmethod` must be the innermost (bottom) decorator\nwhen combined with `@property`, `@classmethod`, or `@staticmethod`.\n\n## Example\n```python\nfrom abc import abstractmethod\n\n\nclass Foo:\n    @abstractmethod\n    @property\n    def bar(self): ...\n```\n\nUse instead:\n```python\nfrom abc import abstractmethod\n\n\nclass Foo:\n    @property\n    @abstractmethod\n    def bar(self): ...\n```\n\n## References\n- [Python documentation: `abc.abstractmethod`](https://docs.python.org/3/library/abc.html#abc.abstractmethod)\n- [Python documentation: `contextlib.contextmanager`](https://docs.python.org/3/library/contextlib.html#contextlib.contextmanager)\n",
+    "preview": true,
+    "status": {
+      "Preview": {
+        "since": "0.15.14"
+      }
+    },
+    "source_location": {
+      "file": "crates/ruff_linter/src/rules/ruff/rules/incorrect_decorator_order.rs",
+      "line": 46
+    }
+  },
+  {
+    "name": "fallible-context-manager",
+    "code": "RUF075",
+    "linter": "Ruff-specific rules",
+    "summary": "Context manager does not catch exceptions",
+    "message_formats": [
+      "Context manager does not catch exceptions"
+    ],
+    "fix": "Fix is not available.",
+    "fix_availability": "None",
+    "explanation": "## What it does\nChecks for `@contextlib.contextmanager` decorated functions that contain\n`yield` expressions not protected against exceptions.\n\n## Why is this bad?\nWhen a context manager is used, code after `yield` is intended to run\nduring cleanup when the context exits. However, if an exception is raised\ninside the `with` block, code after an unprotected `yield` will never\nexecute.\n\nWrapping `yield` in a `try`/`finally` or `try`/`except` block ensures\nthat exceptions are handled appropriately.\n\n## Example\n```python\nfrom contextlib import contextmanager\n\n\n@contextmanager\ndef my_context():\n    print(\"setup\")\n    yield\n    print(\"cleanup\")  # This won't run if an exception is raised!\n```\n\nUse instead:\n```python\nfrom contextlib import contextmanager\n\n\n@contextmanager\ndef my_context():\n    print(\"setup\")\n    try:\n        yield\n    finally:\n        print(\"cleanup\")  # This always runs\n```\n\n## References\n- [Python documentation: `contextlib.contextmanager`](https://docs.python.org/3/library/contextlib.html#contextlib.contextmanager)\n",
+    "preview": true,
+    "status": {
+      "Preview": {
+        "since": "0.15.14"
+      }
+    },
+    "source_location": {
+      "file": "crates/ruff_linter/src/rules/ruff/rules/fallible_context_manager.rs",
+      "line": 51
     }
   },
   {

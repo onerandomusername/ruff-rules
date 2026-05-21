@@ -1294,6 +1294,14 @@
     "example": "max-statements = 75",
     "deprecated": null
   },
+  "lint.pylint.max-statements-in-try": {
+    "doc": "Maximum number of statements allowed for a try clause body (see `W0717`).",
+    "default": "5",
+    "value_type": "int",
+    "scope": null,
+    "example": "max-statements-in-try = 10",
+    "deprecated": null
+  },
   "lint.pyupgrade.keep-runtime-typing": {
     "doc": "Whether to avoid [PEP 585](https://peps.python.org/pep-0585/) (`List[int]` -> `list[int]`) and [PEP 604](https://peps.python.org/pep-0604/)\n(`Union[str, int]` -> `str | int`) rewrites even if a file imports\n`from __future__ import annotations`.\n\nThis setting is only applicable when the target Python version is below\n3.9 and 3.10 respectively, and is most commonly used when working with\nlibraries like Pydantic and FastAPI, which rely on the ability to parse\ntype annotations at runtime. The use of `from __future__ import annotations`\ncauses Python to treat the type annotations as strings, which typically\nallows for the use of language features that appear in later Python\nversions but are not yet supported by the current version (e.g., `str |\nint`). However, libraries that rely on runtime type annotations will\nbreak if the annotations are incompatible with the current Python\nversion.\n\nFor example, while the following is valid Python 3.8 code due to the\npresence of `from __future__ import annotations`, the use of `str | int`\nprior to Python 3.10 will cause Pydantic to raise a `TypeError` at\nruntime:\n\n```python\nfrom __future__ import annotations\n\nimport pydantic\n\nclass Foo(pydantic.BaseModel):\n    bar: str | int\n```",
     "default": "false",
