@@ -4352,7 +4352,7 @@
     ],
     "fix": "Fix is always available.",
     "fix_availability": "Always",
-    "explanation": "## What it does\nChecks for unnecessary dict, list, and set comprehension.\n\n## Why is this bad?\nIt's unnecessary to use a dict/list/set comprehension to build a data structure if the\nelements are unchanged. Wrap the iterable with `dict()`, `list()`, or `set()` instead.\n\n## Example\n```python\n{a: b for a, b in iterable}\n[x for x in iterable]\n{x for x in iterable}\n```\n\nUse instead:\n```python\ndict(iterable)\nlist(iterable)\nset(iterable)\n```\n\n## Known problems\n\nThis rule may produce false positives for dictionary comprehensions that iterate over a mapping.\nThe dict constructor behaves differently depending on if it receives a sequence (e.g., a\nlist) or a mapping (e.g., a dict). When a comprehension iterates over the keys of a mapping,\nreplacing it with a `dict()` constructor call will give a different result.\n\nFor example:\n\n```pycon\n>>> d1 = {(1, 2): 3, (4, 5): 6}\n>>> {x: y for x, y in d1}  # Iterates over the keys of a mapping\n{1: 2, 4: 5}\n>>> dict(d1)               # Ruff's incorrect suggested fix\n{(1, 2): 3, (4, 5): 6}\n>>> dict(d1.keys())        # Correct fix\n{1: 2, 4: 5}\n```\n\nWhen the comprehension iterates over a sequence, Ruff's suggested fix is correct. However, Ruff\ncannot consistently infer if the iterable type is a sequence or a mapping and cannot suggest\nthe correct fix for mappings.\n\n## Fix safety\nDue to the known problem with dictionary comprehensions, this fix is marked as unsafe.\n\nAdditionally, this fix may drop comments when rewriting the comprehension.\n",
+    "explanation": "## What it does\nChecks for unnecessary dict, list, and set comprehension.\n\n## Why is this bad?\nIt's unnecessary to use a dict/list/set comprehension to build a data structure if the\nelements are unchanged. Wrap the iterable with `dict()`, `list()`, or `set()` instead.\n\n## Example\n```python\n{a: b for a, b in iterable}\n[x for x in iterable]\n{x for x in iterable}\n```\n\nUse instead:\n```python\ndict(iterable)\nlist(iterable)\nset(iterable)\n```\n\n## Known problems\n\nThis rule may produce false positives for dictionary comprehensions that iterate over a mapping.\nThe dict constructor behaves differently depending on if it receives a sequence (e.g., a\nlist) or a mapping (e.g., a dict). When a comprehension iterates over the keys of a mapping,\nreplacing it with a `dict()` constructor call will give a different result.\n\nFor example:\n\n```pycon\n>>> d1 = {(1, 2): 3, (4, 5): 6}\n>>> {x: y for x, y in d1}  # Iterates over the keys of a mapping\n{1: 2, 4: 5}\n>>> dict(d1)               # Ruff's incorrect suggested fix\n{(1, 2): 3, (4, 5): 6}\n>>> dict(d1.keys())        # Correct fix\n{1: 2, 4: 5}\n```\n\nWhen the comprehension iterates over a sequence, Ruff's suggested fix is correct. However, Ruff\ncannot consistently infer if the iterable type is a sequence or a mapping and cannot suggest\nthe correct fix for mappings.\n\nAdditionally, rewriting comprehensions inside an object's `__len__` method may cause a\n`RecursionError`, as collection constructors can call back into `__len__`.\n\n## Fix safety\nThis rule's fix is always marked as unsafe because of the known problems described above and\nbecause comments may be dropped when rewriting the comprehension.\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -4361,7 +4361,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_comprehensions/rules/unnecessary_comprehension.rs",
-      "line": 59
+      "line": 61
     }
   },
   {
@@ -10378,7 +10378,7 @@
     ],
     "fix": "Fix is not available.",
     "fix_availability": "None",
-    "explanation": "## What it does\nChecks for functions with a high `McCabe` complexity.\n\n## Why is this bad?\nThe `McCabe` complexity of a function is a measure of the complexity of\nthe control flow graph of the function. It is calculated by adding\none to the number of decision points in the function. A decision\npoint is a place in the code where the program has a choice of two\nor more paths to follow.\n\nFunctions with a high complexity are hard to understand and maintain.\n\n## Example\n```python\ndef foo(a, b, c):\n    if a:\n        if b:\n            if c:\n                return 1\n            else:\n                return 2\n        else:\n            return 3\n    else:\n        return 4\n```\n\nUse instead:\n```python\ndef foo(a, b, c):\n    if not a:\n        return 4\n    if not b:\n        return 3\n    if not c:\n        return 2\n    return 1\n```\n\n## Options\n- `lint.mccabe.max-complexity`\n",
+    "explanation": "## What it does\nChecks for functions with a high `McCabe` complexity.\n\n## Why is this bad?\nThe `McCabe` complexity of a function is a measure of the complexity of\nthe control flow graph of the function. It is calculated by adding\none to the number of decision points in the function. A decision\npoint is a place in the code where the program has a choice of two\nor more paths to follow.\n\nFunctions with a high complexity are hard to understand and maintain.\n\n## Example\n```python\ndef normalize_status(status):\n    if status == \"new\":\n        return \"queued\"\n    if status == \"queued\":\n        return \"running\"\n    if status == \"running\":\n        return \"done\"\n    if status == \"failed\":\n        return \"retry\"\n    if status == \"cancelled\":\n        return \"closed\"\n    return \"unknown\"\n```\n\nUse instead:\n\n```python\nSTATUS_TRANSITIONS = {\n    \"new\": \"queued\",\n    \"queued\": \"running\",\n    \"running\": \"done\",\n    \"failed\": \"retry\",\n    \"cancelled\": \"closed\",\n}\n\n\ndef normalize_status(status):\n    return STATUS_TRANSITIONS.get(status, \"unknown\")\n```\n\nNote that this example assumes a `lint.mccabe.max-complexity` of 5 or less to trigger a\ndiagnostic because the initial code only has a complexity of 6.\n\n## Options\n- `lint.mccabe.max-complexity`\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -10387,7 +10387,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/mccabe/rules/function_is_too_complex.rs",
-      "line": 50
+      "line": 58
     }
   },
   {
@@ -14733,7 +14733,7 @@
     ],
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
-    "explanation": "## What it does\nChecks for variable definitions that redefine (or \"shadow\") unused\nvariables.\n\n## Why is this bad?\nRedefinitions of unused names are unnecessary and often indicative of a\nmistake.\n\n## Example\n```python\nimport foo\nimport bar\nimport foo  # Redefinition of unused `foo` from line 1\n```\n\nUse instead:\n```python\nimport foo\nimport bar\n```\n\n## Preview\nWhen [preview] is enabled, this rule also flags annotated variable\nredeclarations. For example, `bar: int = 1` followed by `bar: int = 2`\nwill be flagged as a redefinition of an unused variable, whereas plain\nreassignments like `bar = 1` followed by `bar = 2` remain unflagged.\n\n[preview]: https://docs.astral.sh/ruff/preview/\n\n## Options\n\nThis rule ignores dummy variables, as determined by:\n\n- `lint.dummy-variable-rgx`\n",
+    "explanation": "## What it does\nChecks for variable definitions that redefine (or \"shadow\") unused\nvariables.\n\n## Why is this bad?\nRedefinitions of unused names are unnecessary and often indicative of a\nmistake.\n\n## Example\n\n```python\nimport foo\nimport bar\nimport foo  # Redefinition of unused `foo` from line 1\n```\n\nUse instead:\n\n```python\nimport foo\nimport bar\n```\n\n## Preview\nWhen [preview] is enabled, this rule also flags annotated variable\nredeclarations. For example, `bar: int = 1` followed by `bar: int = 2`\nwill be flagged as a redefinition of an unused variable, whereas plain\nreassignments like `bar = 1` followed by `bar = 2` remain unflagged.\n\nIn preview, this rule will also flag redefinitions in `typing.TYPE_CHECKING` blocks:\n\n```python\nimport typing\nfrom collections.abc import Sequence\n\nif typing.TYPE_CHECKING:\n    # Redefinition of unused `Sequence` from line 2\n    from collections.abc import Sequence\n```\n\nUse instead:\n\n```python\nfrom collections.abc import Sequence\n```\n\n[preview]: https://docs.astral.sh/ruff/preview/\n\n## Options\n\nThis rule ignores dummy variables, as determined by:\n\n- `lint.dummy-variable-rgx`\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -14742,7 +14742,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pyflakes/rules/redefined_while_unused.rs",
-      "line": 49
+      "line": 72
     }
   },
   {
@@ -17682,7 +17682,7 @@
     ],
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
-    "explanation": "## What it does\nCheck for type annotations that can be rewritten based on [PEP 604] syntax.\n\n## Why is this bad?\n[PEP 604] introduced a new syntax for union type annotations based on the\n`|` operator. This syntax is more concise and readable than the previous\n`typing.Union` and `typing.Optional` syntaxes.\n\nThis rule is enabled when targeting Python 3.10 or later (see:\n[`target-version`]). By default, it's _also_ enabled for earlier Python\nversions if `from __future__ import annotations` is present, as\n`__future__` annotations are not evaluated at runtime. If your code relies\non runtime type annotations (either directly or via a library like\nPydantic), you can disable this behavior for Python versions prior to 3.10\nby setting [`lint.pyupgrade.keep-runtime-typing`] to `true`.\n\n## Example\n```python\nfrom typing import Union\n\nfoo: Union[int, str] = 1\n```\n\nUse instead:\n```python\nfoo: int | str = 1\n```\n\nNote that this rule only checks for usages of `typing.Union`,\nwhile `UP045` checks for `typing.Optional`.\n\n## Fix safety\nThis rule's fix is marked as unsafe, as it may lead to runtime errors when\nalongside libraries that rely on runtime type annotations, like Pydantic,\non Python versions prior to Python 3.10, or as it may remove comments if they\nare present within the type annotation being rewritten. It may also lead to\nruntime errors in unusual and likely incorrect type annotations where the type\ndoes not  support the `|` operator.\n\n## Options\n- `target-version`\n- `lint.pyupgrade.keep-runtime-typing`\n\n[PEP 604]: https://peps.python.org/pep-0604/\n",
+    "explanation": "## What it does\nCheck for type annotations that can be rewritten based on [PEP 604] syntax.\n\n## Why is this bad?\n[PEP 604] introduced a new syntax for union type annotations based on the\n`|` operator. This syntax is more concise and readable than the previous\n`typing.Union` and `typing.Optional` syntaxes.\n\nThis rule is enabled when targeting Python 3.10 or later (see:\n[`target-version`]). By default, it's _also_ enabled for earlier Python\nversions if `from __future__ import annotations` is present, as\n`__future__` annotations are not evaluated at runtime. If your code relies\non runtime type annotations (either directly or via a library like\nPydantic), you can disable this behavior for Python versions prior to 3.10\nby setting [`lint.pyupgrade.keep-runtime-typing`] to `true`.\n\n## Example\n```python\nfrom typing import Union\n\nfoo: Union[int, str] = 1\n```\n\nUse instead:\n```python\nfoo: int | str = 1\n```\n\nNote that this rule only checks for usages of `typing.Union`,\nwhile `UP045` checks for `typing.Optional`.\n\n## Fix safety\nThis rule's fix is marked as unsafe on Python versions prior to 3.10 because\nusing the PEP-604 syntax may lead to runtime errors in libraries that rely\non runtime type annotations, like Pydantic, or in unusual and likely\nincorrect type annotations where the type does not support the `|`\noperator. The fix is also marked as unsafe when it would remove comments\npresent within the type annotation being rewritten.\n\n## Options\n- `target-version`\n- `lint.pyupgrade.keep-runtime-typing`\n\n[PEP 604]: https://peps.python.org/pep-0604/\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -17825,7 +17825,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pyupgrade/rules/convert_typed_dict_functional_to_class.rs",
-      "line": 63
+      "line": 65
     }
   },
   {
@@ -17847,7 +17847,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pyupgrade/rules/convert_named_tuple_functional_to_class.rs",
-      "line": 52
+      "line": 54
     }
   },
   {
@@ -18502,7 +18502,7 @@
     ],
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
-    "explanation": "## What it does\nCheck for `typing.Optional` annotations that can be rewritten based on [PEP 604] syntax.\n\n## Why is this bad?\n[PEP 604] introduced a new syntax for union type annotations based on the\n`|` operator. This syntax is more concise and readable than the previous\n`typing.Optional` syntax.\n\nThis rule is enabled when targeting Python 3.10 or later (see:\n[`target-version`]). By default, it's _also_ enabled for earlier Python\nversions if `from __future__ import annotations` is present, as\n`__future__` annotations are not evaluated at runtime. If your code relies\non runtime type annotations (either directly or via a library like\nPydantic), you can disable this behavior for Python versions prior to 3.10\nby setting [`lint.pyupgrade.keep-runtime-typing`] to `true`.\n\n## Example\n```python\nfrom typing import Optional\n\nfoo: Optional[int] = None\n```\n\nUse instead:\n```python\nfoo: int | None = None\n```\n\n## Fix safety\nThis rule's fix is marked as unsafe, as it may lead to runtime errors\nusing libraries that rely on runtime type annotations, like Pydantic,\non Python versions prior to Python 3.10, or as it may remove comments if they\nare present within the type annotation being rewritten. It may also lead to runtime\nerrors in unusual and likely incorrect type annotations where the type does not\nsupport the `|` operator.\n\n## Options\n- `target-version`\n- `lint.pyupgrade.keep-runtime-typing`\n\n[PEP 604]: https://peps.python.org/pep-0604/\n",
+    "explanation": "## What it does\nCheck for `typing.Optional` annotations that can be rewritten based on [PEP 604] syntax.\n\n## Why is this bad?\n[PEP 604] introduced a new syntax for union type annotations based on the\n`|` operator. This syntax is more concise and readable than the previous\n`typing.Optional` syntax.\n\nThis rule is enabled when targeting Python 3.10 or later (see:\n[`target-version`]). By default, it's _also_ enabled for earlier Python\nversions if `from __future__ import annotations` is present, as\n`__future__` annotations are not evaluated at runtime. If your code relies\non runtime type annotations (either directly or via a library like\nPydantic), you can disable this behavior for Python versions prior to 3.10\nby setting [`lint.pyupgrade.keep-runtime-typing`] to `true`.\n\n## Example\n```python\nfrom typing import Optional\n\nfoo: Optional[int] = None\n```\n\nUse instead:\n```python\nfoo: int | None = None\n```\n\n## Fix safety\nThis rule's fix is marked as unsafe on Python versions prior to 3.10 because\nusing the PEP-604 syntax may lead to runtime errors in libraries that rely\non runtime type annotations, like Pydantic, or in unusual and likely\nincorrect type annotations where the type does not support the `|`\noperator. The fix is also marked as unsafe when it would remove comments\npresent within the type annotation being rewritten.\n\n## Options\n- `target-version`\n- `lint.pyupgrade.keep-runtime-typing`\n\n[PEP 604]: https://peps.python.org/pep-0604/\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -19392,7 +19392,7 @@
     ],
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
-    "explanation": "## What it does\nChecks for uses of `sorted()` to retrieve the minimum or maximum value in\na sequence.\n\n## Why is this bad?\nUsing `sorted()` to compute the minimum or maximum value in a sequence is\ninefficient and less readable than using `min()` or `max()` directly.\n\n## Example\n```python\nnums = [3, 1, 4, 1, 5]\nlowest = sorted(nums)[0]\nhighest = sorted(nums)[-1]\nhighest = sorted(nums, reverse=True)[0]\n```\n\nUse instead:\n```python\nnums = [3, 1, 4, 1, 5]\nlowest = min(nums)\nhighest = max(nums)\n```\n\n## Fix safety\nIn some cases, migrating to `min` or `max` can lead to a change in behavior,\nnotably when breaking ties.\n\nAs an example, `sorted(data, key=itemgetter(0), reverse=True)[0]` will return\nthe _last_ \"minimum\" element in the list, if there are multiple elements with\nthe same key. However, `min(data, key=itemgetter(0))` will return the _first_\n\"minimum\" element in the list in the same scenario.\n\nAs such, this rule's fix is marked as unsafe.\n\n## References\n- [Python documentation: `min`](https://docs.python.org/3/library/functions.html#min)\n- [Python documentation: `max`](https://docs.python.org/3/library/functions.html#max)\n",
+    "explanation": "## What it does\nChecks for uses of `sorted()` to retrieve the minimum or maximum value in\na sequence.\n\n## Why is this bad?\nUsing `sorted()` to compute the minimum or maximum value in a sequence is\ninefficient and less readable than using `min()` or `max()` directly.\n\n## Example\n```python\nnums = [3, 1, 4, 1, 5]\nlowest = sorted(nums)[0]\nhighest = sorted(nums)[-1]\nhighest = sorted(nums, reverse=True)[0]\n```\n\nUse instead:\n```python\nnums = [3, 1, 4, 1, 5]\nlowest = min(nums)\nhighest = max(nums)\n```\n\n## Fix safety\nIn some cases, migrating to `min` or `max` can lead to a change in behavior,\nnotably when breaking ties.\n\nAs an example, `sorted(data, key=itemgetter(0), reverse=True)[0]` will return\nthe _last_ \"minimum\" element in the list, if there are multiple elements with\nthe same key. However, `min(data, key=itemgetter(0))` will return the _first_\n\"minimum\" element in the list in the same scenario.\n\nThe fix also changes which exception is raised for an empty sequence:\n`sorted([])[0]` raises `IndexError`, but `min([])` and `max([])` raise\n`ValueError`. Code that catches one specific exception type will need to\nbe updated after the fix is applied.\n\nAs such, this rule's fix is marked as unsafe.\n\n## References\n- [Python documentation: `min`](https://docs.python.org/3/library/functions.html#min)\n- [Python documentation: `max`](https://docs.python.org/3/library/functions.html#max)\n",
     "preview": true,
     "status": {
       "Preview": {
@@ -19401,7 +19401,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/refurb/rules/sorted_min_max.rs",
-      "line": 49
+      "line": 54
     }
   },
   {
@@ -19658,7 +19658,7 @@
     ],
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
-    "explanation": "## What it does\nChecks for the use of implicit `Optional` in type annotations when the\ndefault parameter value is `None`.\n\nIf [`lint.future-annotations`] is set to `true`, `from __future__ import\nannotations` will be added if doing so would allow using the `|` operator on\na Python version before 3.10.\n\n## Why is this bad?\nImplicit `Optional` is prohibited by [PEP 484]. It is confusing and\ninconsistent with the rest of the type system.\n\nIt's recommended to use `Optional[T]` instead. For Python 3.10 and later,\nyou can also use `T | None`.\n\n## Example\n```python\ndef foo(arg: int = None):\n    pass\n```\n\nUse instead:\n```python\nfrom typing import Optional\n\n\ndef foo(arg: Optional[int] = None):\n    pass\n```\n\nOr, for Python 3.10 and later:\n```python\ndef foo(arg: int | None = None):\n    pass\n```\n\nIf you want to use the `|` operator in Python 3.9 and earlier, you can\nuse future imports:\n```python\nfrom __future__ import annotations\n\n\ndef foo(arg: int | None = None):\n    pass\n```\n\n## Limitations\n\nType aliases are not supported and could result in false negatives.\nFor example, the following code will not be flagged:\n```python\nText = str | bytes\n\n\ndef foo(arg: Text = None):\n    pass\n```\n\n## Options\n- `target-version`\n- `lint.future-annotations`\n\n## Fix safety\n\nThis fix is always marked as unsafe because it can change the behavior of code that relies on\ntype hints, and it assumes the default value is always appropriate—which might not be the case.\n\n[PEP 484]: https://peps.python.org/pep-0484/#union-types\n",
+    "explanation": "## What it does\nChecks for the use of implicit `Optional` in type annotations when the\ndefault parameter value is `None`.\n\nIf [`lint.future-annotations`] is set to `true`, `from __future__ import\nannotations` will be added if doing so would allow using the `|` operator on\na Python version before 3.10.\n\n## Why is this bad?\nImplicit `Optional` is prohibited by [PEP 484]. It is confusing and\ninconsistent with the rest of the type system.\n\nIt's recommended to use `Optional[T]` instead. For Python 3.10 and later,\nyou can also use `T | None`.\n\n## Example\n```python\ndef foo(arg: int = None):\n    pass\n```\n\nUse instead:\n```python\nfrom typing import Optional\n\n\ndef foo(arg: Optional[int] = None):\n    pass\n```\n\nOr, for Python 3.10 and later:\n```python\ndef foo(arg: int | None = None):\n    pass\n```\n\nIf you want to use the `|` operator in Python 3.9 and earlier, you can\nuse future imports:\n```python\nfrom __future__ import annotations\n\n\ndef foo(arg: int | None = None):\n    pass\n```\n\n## Limitations\n\nType aliases and other user-defined types are not supported and could\nresult in false negatives. For example, the following code will not be\nflagged:\n\n```python\nText = str | bytes\n\n\nclass Custom: ...\n\n\ndef foo(text_arg: Text = None, custom_arg: Custom = None):\n    pass\n```\n\n## Options\n- `target-version`\n- `lint.future-annotations`\n\n## Fix safety\n\nThis fix is always marked as unsafe because it can change the behavior of code that relies on\ntype hints, and it assumes the default value is always appropriate—which might not be the case.\n\n[PEP 484]: https://peps.python.org/pep-0484/#union-types\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -19667,7 +19667,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/ruff/rules/implicit_optional.rs",
-      "line": 86
+      "line": 91
     }
   },
   {
