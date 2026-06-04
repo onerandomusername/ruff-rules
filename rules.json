@@ -971,6 +971,28 @@
     }
   },
   {
+    "name": "yield-in-context-manager-in-async-generator",
+    "code": "ASYNC119",
+    "linter": "flake8-async",
+    "summary": "Yield in context manager in async generator may not trigger cleanup",
+    "message_formats": [
+      "Yield in context manager in async generator may not trigger cleanup"
+    ],
+    "fix": "Fix is not available.",
+    "fix_availability": "None",
+    "explanation": "## What it does\nChecks for `yield` inside a context manager in an async generator.\n\n## Why is this bad?\nYielding inside a context manager in an async generator is unsafe because\nthe cleanup of the context manager may be delayed until the generator is\nclosed, at which point `await` is no longer allowed. This can lead to\nresource leaks or other bugs.\n\nFor more information, see [PEP 533](https://peps.python.org/pep-0533/).\n\nIf the function is intended to yield only once and act as a context\nmanager, use `@asynccontextmanager`. If it's a true async generator\nthat yields multiple values, consumers should use `contextlib.aclosing` to\nensure timely cleanup, or the generator should be refactored to avoid\nholding context managers open across yields.\n\nThe rule also suppresses diagnostics for functions decorated with\n`@pytest.fixture` or `@pytest_asyncio.fixture`, as the pytest runner\nhandles generator cleanup automatically.\n\n## Example\n\nThe following function yields once inside a context manager, but without\n`@asynccontextmanager`, cleanup of the connection may be delayed:\n```python\nasync def open_connection():\n    async with connect() as conn:\n        yield conn\n```\n\nIf the function is intended to yield exactly once (i.e., it's a context\nmanager), add `@asynccontextmanager`:\n```python\nfrom contextlib import asynccontextmanager\n\n\n@asynccontextmanager\nasync def open_connection():\n    async with connect() as conn:\n        yield conn\n```\n\nFor async generators that yield multiple values, `@asynccontextmanager`\nis not appropriate. Instead, refactor to avoid holding context managers\nopen across yields, or ensure consumers use `contextlib.aclosing` for timely\ncleanup.\n\n## Known problems\nUsing `contextlib.aclosing` around all call sites of an async generator is a\nvalid way to guarantee timely cleanup, but this rule cannot verify that\nall callers use `aclosing`. As a result, it may flag generators that\nare always consumed safely.\n\n## References\n- [PEP 533 – Deterministic cleanup for iterators](https://peps.python.org/pep-0533/)\n- [`contextlib.aclosing`](https://docs.python.org/3/library/contextlib.html#contextlib.aclosing)\n- [trio.as_safe_channel](https://trio.readthedocs.io/en/latest/reference-core.html#trio.as_safe_channel)\n",
+    "preview": true,
+    "status": {
+      "Preview": {
+        "since": "0.15.16"
+      }
+    },
+    "source_location": {
+      "file": "crates/ruff_linter/src/rules/flake8_async/rules/yield_in_context_manager_in_async_generator.rs",
+      "line": 68
+    }
+  },
+  {
     "name": "blocking-http-call-in-async-function",
     "code": "ASYNC210",
     "linter": "flake8-async",
@@ -16073,7 +16095,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pylint/rules/invalid_string_characters.rs",
-      "line": 28
+      "line": 29
     }
   },
   {
@@ -16095,7 +16117,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pylint/rules/invalid_string_characters.rs",
-      "line": 64
+      "line": 65
     }
   },
   {
@@ -16117,7 +16139,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pylint/rules/invalid_string_characters.rs",
-      "line": 100
+      "line": 101
     }
   },
   {
@@ -16139,7 +16161,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pylint/rules/invalid_string_characters.rs",
-      "line": 136
+      "line": 137
     }
   },
   {
@@ -16161,7 +16183,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pylint/rules/invalid_string_characters.rs",
-      "line": 171
+      "line": 172
     }
   },
   {
@@ -19725,7 +19747,7 @@
     ],
     "fix": "Fix is always available.",
     "fix_availability": "Always",
-    "explanation": "## What it does\nChecks for the use of `sum()` to flatten lists of lists, which has\nquadratic complexity.\n\n## Why is this bad?\nThe use of `sum()` to flatten lists of lists is quadratic in the number of\nlists, as `sum()` creates a new list for each element in the summation.\n\nInstead, consider using another method of flattening lists to avoid\nquadratic complexity. The following methods are all linear in the number of\nlists:\n\n- `[*sublist for sublist in lists]` (Python 3.15+)\n- `functools.reduce(operator.iadd, lists, [])`\n- `list(itertools.chain.from_iterable(lists))`\n- `[item for sublist in lists for item in sublist]`\n\nWhen fixing relevant violations, Ruff uses the starred-list-comprehension\nform on Python 3.15 and later. On older Python versions, Ruff falls back to\nthe `functools.reduce` form, which outperforms the other pre-3.15\nalternatives in [microbenchmarks].\n\n## Example\n```python\nlists = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]\njoined = sum(lists, [])\n```\n\nUse instead:\n```python\nlists = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]\njoined = [*sublist for sublist in lists]\n```\n\n## Fix safety\n\nThis fix is always marked as unsafe because the replacement may accept any\niterable where `sum` previously required lists. On Python 3.15 and later,\nRuff uses iterable unpacking within a list comprehension; on older Python\nversions, Ruff uses `operator.iadd`. In both cases, code that previously\nraised an error may silently succeed. Moreover, the fix could remove\ncomments from the original code.\n\n## References\n- [_How Not to Flatten a List of Lists in Python_](https://mathieularose.com/how-not-to-flatten-a-list-of-lists-in-python)\n- [_How do I make a flat list out of a list of lists?_](https://stackoverflow.com/questions/952914/how-do-i-make-a-flat-list-out-of-a-list-of-lists/953097#953097)\n\n[microbenchmarks]: https://github.com/astral-sh/ruff/issues/5073#issuecomment-1591836349\n",
+    "explanation": "## What it does\nChecks for the use of `sum()` to flatten lists of lists, which has\nquadratic complexity.\n\n## Why is this bad?\nThe use of `sum()` to flatten lists of lists is quadratic in the number of\nlists, as `sum()` creates a new list for each element in the summation.\n\nInstead, consider using another method of flattening lists to avoid\nquadratic complexity. The following methods are all linear in the number of\nlists:\n\n- `[*sublist for sublist in lists]` (Python 3.15+)\n- `functools.reduce(operator.iadd, lists, [])`\n- `list(itertools.chain.from_iterable(lists))`\n- `[item for sublist in lists for item in sublist]`\n\nWhen fixing relevant violations, Ruff uses the starred-list-comprehension\nform on Python 3.15 and later. On older Python versions, Ruff falls back to\nthe `functools.reduce` form, which outperforms the other pre-3.15\nalternatives in [microbenchmarks].\n\n## Example\n```python\nlists = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]\njoined = sum(lists, [])\n```\n\nOn Python 3.14 and earlier, use instead:\n```python\nimport functools\nimport operator\n\nlists = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]\njoined = functools.reduce(operator.iadd, lists, [])\n```\n\nOn Python 3.15 and later, use instead:\n```python\nlists = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]\njoined = [*sublist for sublist in lists]\n```\n\n## Fix safety\n\nThis fix is always marked as unsafe because the replacement may accept any\niterable where `sum` previously required lists. On Python 3.15 and later,\nRuff uses iterable unpacking within a list comprehension; on older Python\nversions, Ruff uses `operator.iadd`. In both cases, code that previously\nraised an error may silently succeed. Moreover, the fix could remove\ncomments from the original code.\n\n## References\n- [_How Not to Flatten a List of Lists in Python_](https://mathieularose.com/how-not-to-flatten-a-list-of-lists-in-python)\n- [_How do I make a flat list out of a list of lists?_](https://stackoverflow.com/questions/952914/how-do-i-make-a-flat-list-out-of-a-list-of-lists/953097#953097)\n\n[microbenchmarks]: https://github.com/astral-sh/ruff/issues/5073#issuecomment-1591836349\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -19734,7 +19756,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/ruff/rules/quadratic_list_summation.rs",
-      "line": 62
+      "line": 71
     }
   },
   {
