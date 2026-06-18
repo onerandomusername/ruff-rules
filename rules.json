@@ -6275,8 +6275,8 @@
     "message_formats": [
       "Non-empty class body must not contain `...`"
     ],
-    "fix": "Fix is sometimes available.",
-    "fix_availability": "Sometimes",
+    "fix": "Fix is always available.",
+    "fix_availability": "Always",
     "explanation": "## What it does\nRemoves ellipses (`...`) in otherwise non-empty class bodies.\n\n## Why is this bad?\nAn ellipsis in a class body is only necessary if the class body is\notherwise empty. If the class body is non-empty, then the ellipsis\nis redundant.\n\n## Example\n```pyi\nclass Foo:\n    ...\n    value: int\n```\n\nUse instead:\n```pyi\nclass Foo:\n    value: int\n```\n",
     "preview": false,
     "status": {
@@ -6385,8 +6385,8 @@
     "message_formats": [
       "Private {type_var_like_kind} `{type_var_like_name}` is never used"
     ],
-    "fix": "Fix is sometimes available.",
-    "fix_availability": "Sometimes",
+    "fix": "Fix is always available.",
+    "fix_availability": "Always",
     "explanation": "## What it does\nChecks for the presence of unused private `TypeVar`, `ParamSpec` or\n`TypeVarTuple` declarations.\n\n## Why is this bad?\nA private `TypeVar` that is defined but not used is likely a mistake. It\nshould either be used, made public, or removed to avoid confusion. A type\nvariable is considered \"private\" if its name starts with an underscore.\n\n## Example\n```pyi\nimport typing\nimport typing_extensions\n\n_T = typing.TypeVar(\"_T\")\n_Ts = typing_extensions.TypeVarTuple(\"_Ts\")\n```\n\n## Fix safety\nThe fix is always marked as unsafe, as it would break your code if the type\nvariable is imported by another module.\n",
     "preview": false,
     "status": {
@@ -6561,8 +6561,8 @@
     "message_formats": [
       "Multiple literal members in a union. Use a single literal, e.g. `Literal[{}]`"
     ],
-    "fix": "Fix is sometimes available.",
-    "fix_availability": "Sometimes",
+    "fix": "Fix is always available.",
+    "fix_availability": "Always",
     "explanation": "## What it does\nChecks for the presence of multiple literal types in a union.\n\n## Why is this bad?\n`Literal[\"foo\", 42]` has identical semantics to\n`Literal[\"foo\"] | Literal[42]`, but is clearer and more concise.\n\n## Example\n```pyi\nfrom typing import Literal\n\nfield: Literal[1] | Literal[2] | str\n```\n\nUse instead:\n```pyi\nfrom typing import Literal\n\nfield: Literal[1, 2] | str\n```\n\n## Fix safety\nThis fix is marked unsafe if it would delete any comments within the replacement range.\n\nAn example to illustrate where comments are preserved and where they are not:\n\n```pyi\nfrom typing import Literal\n\nfield: (\n    # deleted comment\n    Literal[\"a\", \"b\"]  # deleted comment\n    # deleted comment\n    | Literal[\"c\", \"d\"]  # preserved comment\n)\n```\n\n## References\n- [Python documentation: `typing.Literal`](https://docs.python.org/3/library/typing.html#typing.Literal)\n",
     "preview": false,
     "status": {
@@ -6598,16 +6598,16 @@
     }
   },
   {
-    "name": "type-comment-in-stub",
+    "name": "legacy-type-comment",
     "code": "PYI033",
     "linter": "flake8-pyi",
-    "summary": "Don't use type comments in stub file",
+    "summary": "Don't use type comments",
     "message_formats": [
-      "Don't use type comments in stub file"
+      "Don't use type comments"
     ],
     "fix": "Fix is not available.",
     "fix_availability": "None",
-    "explanation": "## What it does\nChecks for the use of type comments (e.g., `x = 1  # type: int`) in stub\nfiles.\n\n## Why is this bad?\nStub (`.pyi`) files should use type annotations directly, rather\nthan type comments, even if they're intended to support Python 2, since\nstub files are not executed at runtime. The one exception is `# type: ignore`.\n\n## Example\n```pyi\nx = 1  # type: int\n```\n\nUse instead:\n```pyi\nx: int = 1\n```\n",
+    "explanation": "## What it does\nChecks for the use of type comments (e.g., `x = 1  # type: int`).\n\nBy default, this check only runs on stub files. If [`preview`] mode is enabled,\nthe check also runs on `.py` files.\n\n## Why is this bad?\nType comments are a soft-deprecated form of type annotation. They are unsupported\nby some modern type checkers, including ty and Pyrefly, and are only necessary when\nsupporting end-of-life Python versions such as 3.5 or older. They are never necessary\nin stub files, which are not executed at runtime.\n\nThis rule does not apply to `# type: ignore` suppression comments.\n\n## Example\n```pyi\nx = 1  # type: int\n```\n\nUse instead:\n```pyi\nx: int = 1\n```\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -6615,8 +6615,8 @@
       }
     },
     "source_location": {
-      "file": "crates/ruff_linter/src/rules/flake8_pyi/rules/type_comment_in_stub.rs",
-      "line": 30
+      "file": "crates/ruff_linter/src/rules/flake8_pyi/rules/legacy_type_comment.rs",
+      "line": 37
     }
   },
   {
@@ -7366,8 +7366,8 @@
       "Wrong values type in `pytest.mark.parametrize` expected `{values}`",
       "Wrong values type in `pytest.mark.parametrize` expected `{values}` of `{row}`"
     ],
-    "fix": "Fix is sometimes available.",
-    "fix_availability": "Sometimes",
+    "fix": "Fix is always available.",
+    "fix_availability": "Always",
     "explanation": "## What it does\nChecks for the type of parameter values passed to `pytest.mark.parametrize`.\n\n## Why is this bad?\nThe `argvalues` argument of `pytest.mark.parametrize` takes an iterator of\nparameter values, which can be provided as lists or tuples.\n\nTo aid in readability, it's recommended to use a consistent style for the\nlist of values rows, and, in the case of multiple parameters, for each row\nof values.\n\nThe style for the list of values rows can be configured via the\n[`lint.flake8-pytest-style.parametrize-values-type`] setting, while the\nstyle for each row of values can be configured via the\n[`lint.flake8-pytest-style.parametrize-values-row-type`] setting.\n\nFor example, [`lint.flake8-pytest-style.parametrize-values-type`] will lead to\nthe following expectations:\n\n- `tuple`: `@pytest.mark.parametrize(\"value\", (\"a\", \"b\", \"c\"))`\n- `list`: `@pytest.mark.parametrize(\"value\", [\"a\", \"b\", \"c\"])`\n\nSimilarly, [`lint.flake8-pytest-style.parametrize-values-row-type`] will lead to\nthe following expectations:\n\n- `tuple`: `@pytest.mark.parametrize((\"key\", \"value\"), [(\"a\", \"b\"), (\"c\", \"d\")])`\n- `list`: `@pytest.mark.parametrize((\"key\", \"value\"), [[\"a\", \"b\"], [\"c\", \"d\"]])`\n\n## Example\n\n```python\nimport pytest\n\n\n# expected list, got tuple\n@pytest.mark.parametrize(\"param\", (1, 2))\ndef test_foo(param): ...\n\n\n# expected top-level list, got tuple\n@pytest.mark.parametrize(\n    (\"param1\", \"param2\"),\n    (\n        (1, 2),\n        (3, 4),\n    ),\n)\ndef test_bar(param1, param2): ...\n\n\n# expected individual rows to be tuples, got lists\n@pytest.mark.parametrize(\n    (\"param1\", \"param2\"),\n    [\n        [1, 2],\n        [3, 4],\n    ],\n)\ndef test_baz(param1, param2): ...\n```\n\nUse instead:\n\n```python\nimport pytest\n\n\n@pytest.mark.parametrize(\"param\", [1, 2, 3])\ndef test_foo(param): ...\n\n\n@pytest.mark.parametrize((\"param1\", \"param2\"), [(1, 2), (3, 4)])\ndef test_bar(param1, param2): ...\n```\n\n## Options\n- `lint.flake8-pytest-style.parametrize-values-type`\n- `lint.flake8-pytest-style.parametrize-values-row-type`\n\n## References\n- [`pytest` documentation: How to parametrize fixtures and test functions](https://docs.pytest.org/en/latest/how-to/parametrize.html#pytest-mark-parametrize)\n",
     "preview": false,
     "status": {
@@ -9008,7 +9008,7 @@
     ],
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
-    "explanation": "## What it does\nChecks for relative imports.\n\n## Why is this bad?\nAbsolute imports, or relative imports from siblings, are recommended by [PEP 8]:\n\n> Absolute imports are recommended, as they are usually more readable and tend to be better behaved...\n> ```python\n> import mypkg.sibling\n> from mypkg import sibling\n> from mypkg.sibling import example\n> ```\n> However, explicit relative imports are an acceptable alternative to absolute imports,\n> especially when dealing with complex package layouts where using absolute imports would be\n> unnecessarily verbose:\n> ```python\n> from . import sibling\n> from .sibling import example\n> ```\n\n## Example\n```python\nfrom .. import foo\n```\n\nUse instead:\n```python\nfrom mypkg import foo\n```\n\n## Options\n- `lint.flake8-tidy-imports.ban-relative-imports`\n\n[PEP 8]: https://peps.python.org/pep-0008/#imports\n",
+    "explanation": "## What it does\nChecks for relative imports.\n\n## Why is this bad?\nAbsolute imports, or relative imports from siblings, are recommended by [PEP 8]:\n\n> Absolute imports are recommended, as they are usually more readable and tend to be better behaved...\n> ```python\n> import mypkg.sibling\n> from mypkg import sibling\n> from mypkg.sibling import example\n> ```\n> However, explicit relative imports are an acceptable alternative to absolute imports,\n> especially when dealing with complex package layouts where using absolute imports would be\n> unnecessarily verbose:\n> ```python\n> from . import sibling\n> from .sibling import example\n> ```\n\n## Example\n```python\nfrom .. import foo\n```\n\nUse instead:\n```python\nfrom mypkg import foo\n```\n\n## Options\n- `lint.flake8-tidy-imports.ban-relative-imports`\n\n## Fix safety\nWhen available, this rule's fix is always marked as unsafe because Ruff\ninfers the absolute import path from the file's location and configured\npackage roots, while Python resolves relative imports from the module's\nruntime package. If those differ, the rewritten import can fail or resolve\nto a different module. The fix may also remove comments attached to the\nimport statement.\n\n[PEP 8]: https://peps.python.org/pep-0008/#imports\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -9017,7 +9017,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_tidy_imports/rules/relative_imports.rs",
-      "line": 48
+      "line": 56
     }
   },
   {
@@ -9384,8 +9384,8 @@
     "message_formats": [
       "Add quotes to type alias"
     ],
-    "fix": "Fix is sometimes available.",
-    "fix_availability": "Sometimes",
+    "fix": "Fix is always available.",
+    "fix_availability": "Always",
     "explanation": "## What it does\nChecks if [PEP 613] explicit type aliases contain references to\nsymbols that are not available at runtime.\n\n## Why is this bad?\nReferencing type-checking only symbols results in a `NameError` at runtime.\n\n## Example\n```python\nfrom typing import TYPE_CHECKING, TypeAlias\n\nif TYPE_CHECKING:\n    from foo import Foo\nOptFoo: TypeAlias = Foo | None\n```\n\nUse instead:\n```python\nfrom typing import TYPE_CHECKING, TypeAlias\n\nif TYPE_CHECKING:\n    from foo import Foo\nOptFoo: TypeAlias = \"Foo | None\"\n```\n\n## Fix safety\nThis rule's fix is currently always marked as unsafe, since runtime\ntyping libraries may try to access/resolve the type alias in a way\nthat we can't statically determine during analysis and relies on the\ntype alias not containing any forward references.\n\n## References\n- [PEP 613 – Explicit Type Aliases](https://peps.python.org/pep-0613/)\n\n[PEP 613]: https://peps.python.org/pep-0613/\n",
     "preview": false,
     "status": {
@@ -12185,8 +12185,8 @@
     "message_formats": [
       "Multiple imports on one line"
     ],
-    "fix": "Fix is sometimes available.",
-    "fix_availability": "Sometimes",
+    "fix": "Fix is always available.",
+    "fix_availability": "Always",
     "explanation": "## What it does\nCheck for multiple imports on one line.\n\n## Why is this bad?\nAccording to [PEP 8], \"imports should usually be on separate lines.\"\n\n## Example\n```python\nimport sys, os\n```\n\nUse instead:\n```python\nimport os\nimport sys\n```\n\n[PEP 8]: https://peps.python.org/pep-0008/#imports\n",
     "preview": false,
     "status": {
@@ -13945,6 +13945,28 @@
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pydocstyle/rules/sections.rs",
       "line": 1430
+    }
+  },
+  {
+    "name": "property-docstring-starts-with-verb",
+    "code": "D421",
+    "linter": "pydocstyle",
+    "summary": "Property docstring should not start with a verb (\"{first_word}\")",
+    "message_formats": [
+      "Property docstring should not start with a verb (\"{first_word}\")"
+    ],
+    "fix": "Fix is not available.",
+    "fix_availability": "None",
+    "explanation": "## What it does\nChecks for `@property` method docstrings that start with known verbs\n(e.g., \"returns\", \"gets\", etc).\n\n## Why is this bad?\nThe [Google Python style guide] recommends that the docstring for a\n`@property` data descriptor use the same style as the docstring for an\nattribute or a function argument (e.g., `\"\"\"The Bigtable path.\"\"\"`),\nrather than a function-style docstring (e.g.,\n`\"\"\"Returns the Bigtable path.\"\"\"`).\n\n## Example\n```python\nclass Foo:\n    @property\n    def bar(self) -> str:\n        \"\"\"Returns the bar.\"\"\"\n        return self._bar\n```\n\nUse instead:\n```python\nclass Foo:\n    @property\n    def bar(self) -> str:\n        \"\"\"The bar.\"\"\"\n        return self._bar\n```\n\n## Options\n- `lint.pydocstyle.property-decorators`\n\n## References\n- [Google Python Style Guide – Properties](https://google.github.io/styleguide/pyguide.html#383-functions-and-methods)\n\n[Google Python style guide]: https://google.github.io/styleguide/pyguide.html#383-functions-and-methods\n",
+    "preview": true,
+    "status": {
+      "Preview": {
+        "since": "0.15.18"
+      }
+    },
+    "source_location": {
+      "file": "crates/ruff_linter/src/rules/pydocstyle/rules/property_docstring_starts_with_verb.rs",
+      "line": 48
     }
   },
   {
@@ -18681,8 +18703,8 @@
       "Unnecessary separator passed to `print`",
       "Unnecessary empty string and separator passed to `print`"
     ],
-    "fix": "Fix is sometimes available.",
-    "fix_availability": "Sometimes",
+    "fix": "Fix is always available.",
+    "fix_availability": "Always",
     "explanation": "## What it does\nChecks for `print` calls with unnecessary empty strings as positional\narguments and unnecessary `sep` keyword arguments.\n\n## Why is this bad?\nPrefer calling `print` without any positional arguments, which is\nequivalent and more concise.\n\nSimilarly, when printing one or fewer items, the `sep` keyword argument,\n(used to define the string that separates the `print` arguments) can be\nomitted, as it's redundant when there are no items to separate.\n\n## Example\n```python\nprint(\"\")\n```\n\nUse instead:\n```python\nprint()\n```\n\n## Fix safety\nThis fix is marked as unsafe if it removes comments or an unused `sep` keyword argument\nthat may have side effects. Removing such arguments may change the program's\nbehavior by skipping the execution of those side effects.\n\n## References\n- [Python documentation: `print`](https://docs.python.org/3/library/functions.html#print)\n",
     "preview": false,
     "status": {
@@ -18703,8 +18725,8 @@
     "message_formats": [
       "Replace ternary `if` expression with `or` operator"
     ],
-    "fix": "Fix is sometimes available.",
-    "fix_availability": "Sometimes",
+    "fix": "Fix is always available.",
+    "fix_availability": "Always",
     "explanation": "## What it does\nChecks for ternary `if` expressions that can be replaced with the `or`\noperator.\n\n## Why is this bad?\nTernary `if` expressions are more verbose than `or` expressions while\nproviding the same functionality.\n\n## Example\n```python\nx, y = 1, 2\n\nz = x if x else y\n```\n\nUse instead:\n```python\nx, y = 1, 2\n\nz = x or y\n```\n\n## Fix safety\nThis rule's fix is marked as unsafe in the event that the body of the\n`if` expression contains side effects or comments.\n\nFor example, `foo` will be called twice in `foo() if foo() else bar()`\n(assuming `foo()` returns a truthy value), but only once in\n`foo() or bar()`.\n",
     "preview": false,
     "status": {
@@ -18948,8 +18970,8 @@
     "message_formats": [
       "Prefer `copy` method over slicing"
     ],
-    "fix": "Fix is sometimes available.",
-    "fix_availability": "Sometimes",
+    "fix": "Fix is always available.",
+    "fix_availability": "Always",
     "explanation": "## What it does\nChecks for unbounded slice expressions to copy a list.\n\n## Why is this bad?\nThe `list.copy` method is more readable and consistent with copying other\ntypes.\n\n## Known problems\nThis rule is prone to false negatives due to type inference limitations,\nas it will only detect lists that are instantiated as literals or annotated\nwith a type annotation.\n\n## Example\n```python\na = [1, 2, 3]\nb = a[:]\n```\n\nUse instead:\n```python\na = [1, 2, 3]\nb = a.copy()\n```\n\n## Fix safety\nThis rule's fix is marked as safe, unless the slice expression contains comments.\n\n## References\n- [Python documentation: Mutable Sequence Types](https://docs.python.org/3/library/stdtypes.html#mutable-sequence-types)\n",
     "preview": true,
     "status": {
@@ -19213,8 +19235,8 @@
     "message_formats": [
       "Prefer `is` operator over `isinstance` to check if an object is `None`"
     ],
-    "fix": "Fix is sometimes available.",
-    "fix_availability": "Sometimes",
+    "fix": "Fix is always available.",
+    "fix_availability": "Always",
     "explanation": "## What it does\nChecks for uses of `isinstance` that check if an object is of type `None`.\n\n## Why is this bad?\nThere is only ever one instance of `None`, so it is more efficient and\nreadable to use the `is` operator to check if an object is `None`.\n\n## Example\n```python\nisinstance(obj, type(None))\n```\n\nUse instead:\n```python\nobj is None\n```\n\n## Fix safety\nThe fix will be marked as unsafe if there are any comments within the call.\n\n## References\n- [Python documentation: `isinstance`](https://docs.python.org/3/library/functions.html#isinstance)\n- [Python documentation: `None`](https://docs.python.org/3/library/constants.html#None)\n- [Python documentation: `type`](https://docs.python.org/3/library/functions.html#type)\n- [Python documentation: Identity comparisons](https://docs.python.org/3/reference/expressions.html#is-not)\n",
     "preview": false,
     "status": {
@@ -19257,8 +19279,8 @@
     "message_formats": [
       "Membership test against single-item container"
     ],
-    "fix": "Fix is sometimes available.",
-    "fix_availability": "Sometimes",
+    "fix": "Fix is always available.",
+    "fix_availability": "Always",
     "explanation": "## What it does\nChecks for membership tests against single-item containers.\n\n## Why is this bad?\nPerforming a membership test against a container (like a `list` or `set`)\nwith a single item is less readable and less efficient than comparing\nagainst the item directly.\n\n## Example\n```python\n1 in [1]\n```\n\nUse instead:\n```python\n1 == 1\n```\n\n## Fix safety\nThe fix is always marked as unsafe.\n\nWhen the right-hand side is a string, this fix can change the behavior of your program.\nThis is because `c in \"a\"` is true both when `c` is `\"a\"` and when `c` is the empty string.\n\nAdditionally, converting `in`/`not in` against a single-item container to `==`/`!=` can\nchange runtime behavior: `in` may consider identity (e.g., `NaN`) and always\nyields a `bool`.\n\nComments within the replacement range will also be removed.\n\n## References\n- [Python documentation: Comparisons](https://docs.python.org/3/reference/expressions.html#comparisons)\n- [Python documentation: Membership test operations](https://docs.python.org/3/reference/expressions.html#membership-test-operations)\n",
     "preview": false,
     "status": {
@@ -19901,8 +19923,8 @@
     "message_formats": [
       "Do not pass mutable objects as values to `dict.fromkeys`"
     ],
-    "fix": "Fix is sometimes available.",
-    "fix_availability": "Sometimes",
+    "fix": "Fix is always available.",
+    "fix_availability": "Always",
     "explanation": "## What it does\nChecks for mutable objects passed as a value argument to `dict.fromkeys`.\n\n## Why is this bad?\nAll values in the dictionary created by the `dict.fromkeys` method\nrefer to the same instance of the provided object. If that object is\nmodified, all values are modified, which can lead to unexpected behavior.\nFor example, if the empty list (`[]`) is provided as the default value,\nall values in the dictionary will use the same list; as such, appending to\nany one entry will append to all entries.\n\nInstead, use a comprehension to generate a dictionary with distinct\ninstances of the default value.\n\n## Example\n```python\ncities = dict.fromkeys([\"UK\", \"Poland\"], [])\ncities[\"UK\"].append(\"London\")\ncities[\"Poland\"].append(\"Poznan\")\nprint(cities)  # {'UK': ['London', 'Poznan'], 'Poland': ['London', 'Poznan']}\n```\n\nUse instead:\n```python\ncities = {country: [] for country in [\"UK\", \"Poland\"]}\ncities[\"UK\"].append(\"London\")\ncities[\"Poland\"].append(\"Poznan\")\nprint(cities)  # {'UK': ['London'], 'Poland': ['Poznan']}\n```\n\n## Fix safety\nThis rule's fix is marked as unsafe, as the edit will change the behavior of\nthe program by using a distinct object for every value in the dictionary,\nrather than a shared mutable instance. In some cases, programs may rely on\nthe previous behavior.\n\n## References\n- [Python documentation: `dict.fromkeys`](https://docs.python.org/3/library/stdtypes.html#dict.fromkeys)\n",
     "preview": false,
     "status": {
@@ -20256,8 +20278,8 @@
     "message_formats": [
       "Unnecessary nested `Literal`"
     ],
-    "fix": "Fix is sometimes available.",
-    "fix_availability": "Sometimes",
+    "fix": "Fix is always available.",
+    "fix_availability": "Always",
     "explanation": "## What it does\nChecks for unnecessary nested `Literal`.\n\n## Why is this bad?\nPrefer using a single `Literal`, which is equivalent and more concise.\n\nParameterization of literals by other literals is supported as an ergonomic\nfeature as proposed in [PEP 586], to enable patterns such as:\n```python\nReadOnlyMode         = Literal[\"r\", \"r+\"]\nWriteAndTruncateMode = Literal[\"w\", \"w+\", \"wt\", \"w+t\"]\nWriteNoTruncateMode  = Literal[\"r+\", \"r+t\"]\nAppendMode           = Literal[\"a\", \"a+\", \"at\", \"a+t\"]\n\nAllModes = Literal[ReadOnlyMode, WriteAndTruncateMode,\n                  WriteNoTruncateMode, AppendMode]\n```\n\nAs a consequence, type checkers also support nesting of literals\nwhich is less readable than a flat `Literal`:\n```python\nAllModes = Literal[Literal[\"r\", \"r+\"], Literal[\"w\", \"w+\", \"wt\", \"w+t\"],\n                  Literal[\"r+\", \"r+t\"], Literal[\"a\", \"a+\", \"at\", \"a+t\"]]\n```\n\n## Example\n```python\nAllModes = Literal[\n    Literal[\"r\", \"r+\"],\n    Literal[\"w\", \"w+\", \"wt\", \"w+t\"],\n    Literal[\"r+\", \"r+t\"],\n    Literal[\"a\", \"a+\", \"at\", \"a+t\"],\n]\n```\n\nUse instead:\n```python\nAllModes = Literal[\n    \"r\", \"r+\", \"w\", \"w+\", \"wt\", \"w+t\", \"r+\", \"r+t\", \"a\", \"a+\", \"at\", \"a+t\"\n]\n```\n\nor assign the literal to a variable as in the first example.\n\n## Fix safety\nThe fix for this rule is marked as unsafe when the `Literal` slice is split\nacross multiple lines and some of the lines have trailing comments.\n\n## References\n- [Typing documentation: Legal parameters for `Literal` at type check time](https://typing.python.org/en/latest/spec/literal.html#legal-parameters-for-literal-at-type-check-time)\n\n[PEP 586]: https://peps.python.org/pep-0586/\n",
     "preview": false,
     "status": {
@@ -20993,7 +21015,7 @@
     ],
     "fix": "Fix is always available.",
     "fix_availability": "Always",
-    "explanation": "## What it does\nChecks for `noqa` directives that are no longer applicable.\n\n## Why is this bad?\nA `noqa` directive that no longer matches any diagnostic violations is\nlikely included by mistake, and should be removed to avoid confusion.\n\n## Example\n```python\nimport foo  # noqa: F401\n\n\ndef bar():\n    foo.bar()\n```\n\nUse instead:\n```python\nimport foo\n\n\ndef bar():\n    foo.bar()\n```\n\n## Conflict with other linters\nWhen using `RUF100` with the `--fix` option, Ruff may remove trailing comments\nthat follow a `# noqa` directive on the same line, as it interprets the\nremainder of the line as a description for the suppression.\n\nTo prevent Ruff from removing suppressions for other tools (like `pylint`\nor `mypy`), separate them with a second `#` character:\n\n```python\n# Bad: Ruff --fix will remove the pylint comment\ndef visit_ImportFrom(self, node):  # noqa: N802, pylint: disable=invalid-name\n    pass\n\n\n# Good: Ruff will preserve the pylint comment\ndef visit_ImportFrom(self, node):  # noqa: N802 # pylint: disable=invalid-name\n    pass\n```\n\n## See also\n\nThis rule ignores any codes that are unknown to Ruff, as it can't determine\nif the codes are valid or used by other tools. Enable [`invalid-rule-code`][RUF102]\nto flag any unknown rule codes.\n\n## References\n- [Ruff error suppression](https://docs.astral.sh/ruff/linter/#error-suppression)\n\n[RUF102]: https://docs.astral.sh/ruff/rules/invalid-rule-code/\n",
+    "explanation": "## What it does\nChecks for `noqa` directives that are no longer applicable.\n\n## Why is this bad?\nA `noqa` directive that no longer matches any diagnostic violations is\nlikely included by mistake, and should be removed to avoid confusion.\n\n## Example\n```python\nimport foo  # noqa: F401\n\n\ndef bar():\n    foo.bar()\n```\n\nUse instead:\n```python\nimport foo\n\n\ndef bar():\n    foo.bar()\n```\n\n## Conflict with other linters\nWhen using `RUF100` with the `--fix` option, Ruff may remove trailing comments\nthat follow a `# noqa` directive on the same line, as it interprets the\nremainder of the line as a description for the suppression.\n\nTo prevent Ruff from removing suppressions for other tools (like `pylint`\nor `mypy`), separate them with a second `#` character:\n\n```python\n# Bad: Ruff --fix will remove the pylint comment\ndef visit_ImportFrom(self, node):  # noqa: N802, pylint: disable=invalid-name\n    pass\n\n\n# Good: Ruff will preserve the pylint comment\ndef visit_ImportFrom(self, node):  # noqa: N802 # pylint: disable=invalid-name\n    pass\n```\n\n## Fix safety\n\nThe rule's fix is marked as unsafe when a full suppression comment would be removed and there\nare other nested comments on the same line. Removing such a comment can change the behavior of\nother suppression comments before or after the removed comment.\n\n## See also\n\nThis rule ignores any codes that are unknown to Ruff, as it can't determine\nif the codes are valid or used by other tools. Enable [`invalid-rule-code`][RUF102]\nto flag any unknown rule codes.\n\n## References\n- [Ruff error suppression](https://docs.astral.sh/ruff/linter/#error-suppression)\n\n[RUF102]: https://docs.astral.sh/ruff/rules/invalid-rule-code/\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -21002,7 +21024,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/ruff/rules/unused_noqa.rs",
-      "line": 83
+      "line": 89
     }
   },
   {
@@ -21037,7 +21059,7 @@
     ],
     "fix": "Fix is always available.",
     "fix_availability": "Always",
-    "explanation": "## What it does\nChecks for `noqa` codes that are invalid.\n\n## Why is this bad?\nInvalid rule codes serve no purpose and may indicate outdated code suppressions.\n\n## Example\n```python\nimport os  # noqa: XYZ999\n```\n\nUse instead:\n```python\nimport os\n```\n\nOr if there are still valid codes needed:\n```python\nimport os  # noqa: E402\n```\n\n## Options\n\nThis rule will flag rule codes that are unknown to Ruff, even if they are\nvalid for other tools. You can tell Ruff to ignore such codes by configuring\nthe list of known \"external\" rule codes with the following option:\n\n- `lint.external`\n",
+    "explanation": "## What it does\nChecks for `noqa` codes that are invalid.\n\n## Why is this bad?\nInvalid rule codes serve no purpose and may indicate outdated code suppressions.\n\n## Example\n```python\nimport os  # noqa: XYZ999\n```\n\nUse instead:\n```python\nimport os\n```\n\nOr if there are still valid codes needed:\n```python\nimport os  # noqa: E402\n```\n\n## Fix safety\n\nThe rule's fix is marked as unsafe when a full suppression comment would be removed and there\nare other nested comments on the same line. Removing such a comment can change the behavior of\nother suppression comments before or after the removed comment.\n\n## Options\n\nThis rule will flag rule codes that are unknown to Ruff, even if they are\nvalid for other tools. You can tell Ruff to ignore such codes by configuring\nthe list of known \"external\" rule codes with the following option:\n\n- `lint.external`\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -21046,7 +21068,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/ruff/rules/invalid_rule_code.rs",
-      "line": 57
+      "line": 63
     }
   },
   {
