@@ -6925,7 +6925,7 @@
     ],
     "fix": "Fix is not available.",
     "fix_availability": "None",
-    "explanation": "## What it does\nChecks for redundant unions between a `Literal` and a builtin supertype of\nthat `Literal`.\n\n## Why is this bad?\nUsing a `Literal` type in a union with its builtin supertype is redundant,\nas the supertype will be strictly more general than the `Literal` type.\nFor example, `Literal[\"A\"] | str` is equivalent to `str`, and\n`Literal[1] | int` is equivalent to `int`, as `str` and `int` are the\nsupertypes of `\"A\"` and `1` respectively.\n\n## Example\n```pyi\nfrom typing import Literal\n\nx: Literal[\"A\", b\"B\"] | str\n```\n\nUse instead:\n```pyi\nfrom typing import Literal\n\nx: Literal[b\"B\"] | str\n```\n",
+    "explanation": "## What it does\nChecks for redundant unions between a `Literal` and a builtin supertype of\nthat `Literal`.\n\n## Why is this bad?\nUsing a `Literal` type in a union with its builtin supertype is redundant,\nas the supertype will be strictly more general than the `Literal` type.\nFor example, `Literal[\"A\"] | str` is equivalent to `str`, and\n`Literal[1] | int` is equivalent to `int`, as `str` and `int` are the\nsupertypes of `\"A\"` and `1` respectively.\n\n## Example\n```pyi\nfrom typing import Literal\n\nx: Literal[\"A\", b\"B\"] | str\n```\n\nUse instead:\n```pyi\nfrom typing import Literal\n\nx: Literal[b\"B\"] | str\n```\n\n## Known issues\nThis rule is opinionated and may not be appropriate for projects that keep\nliteral members for editor suggestions, generated documentation, or another\nnon-type-checking purpose. In those cases, disabling this rule for the\naffected annotations may be reasonable.\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -6934,7 +6934,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_pyi/rules/redundant_literal_union.rs",
-      "line": 39
+      "line": 45
     }
   },
   {
@@ -18193,7 +18193,7 @@
     ],
     "fix": "Fix is always available.",
     "fix_availability": "Always",
-    "explanation": "## What it does\nChecks for unnecessary imports of builtins.\n\n## Why is this bad?\nBuiltins are always available. Importing them is unnecessary and should be\nremoved to avoid confusion.\n\n## Example\n```python\nfrom builtins import str\n\nstr(1)\n```\n\nUse instead:\n```python\nstr(1)\n```\n\n## Fix safety\nThis fix is marked as unsafe because it will remove comments attached to the unused import.\n\n## Options\n\nThis rule will not trigger on imports required by the `isort` configuration.\n\n- `lint.isort.required-imports`\n\n## References\n- [Python documentation: The Python Standard Library](https://docs.python.org/3/library/index.html)\n",
+    "explanation": "## What it does\nChecks for imports of Python 3 builtins from Python 2 compatibility shims\nsuch as `python-future` and `six`.\n\n## Why is this bad?\nThese shims existed to access Python 3 builtins from code that also ran on\nPython 2. On Python 3-only code, the imports are redundant.\n\n## Example\n```python\nfrom builtins import str\n\nstr(1)\n```\n\nUse instead:\n```python\nstr(1)\n```\n\n## Fix safety\nThis fix is marked as unsafe because it will remove comments attached to the unused import.\n\n## Options\n\nThis rule will not trigger on imports required by the `isort` configuration.\n\n- `lint.isort.required-imports`\n\n## References\n- [Python documentation: The Python Standard Library](https://docs.python.org/3/library/index.html)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -18202,7 +18202,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pyupgrade/rules/unnecessary_builtin_import.rs",
-      "line": 42
+      "line": 43
     }
   },
   {
