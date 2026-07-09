@@ -2771,7 +2771,7 @@
     ],
     "fix": "Fix is not available.",
     "fix_availability": "None",
-    "explanation": "## What it does\nChecks for uses of the `mako` templates.\n\n## Why is this bad?\nMako templates allow HTML and JavaScript rendering by default, and are\ninherently open to XSS attacks. Ensure variables in all templates are\nproperly sanitized via the `n`, `h` or `x` flags (depending on context).\nFor example, to HTML escape the variable `data`, use `${ data |h }`.\n\n## Example\n```python\nfrom mako.template import Template\n\nTemplate(\"hello\")\n```\n\nUse instead:\n```python\nfrom mako.template import Template\n\nTemplate(\"hello |h\")\n```\n\n## References\n- [Mako documentation](https://www.makotemplates.org/)\n- [OpenStack security: Cross site scripting XSS](https://security.openstack.org/guidelines/dg_cross-site-scripting-xss.html)\n- [Common Weakness Enumeration: CWE-80](https://cwe.mitre.org/data/definitions/80.html)\n",
+    "explanation": "## What it does\nChecks for uses of the `mako` templates.\n\n## Why is this bad?\nMako templates allow HTML and JavaScript rendering by default, and are\ninherently open to XSS attacks. Ensure variables in all templates are\nproperly escaped via the `h` (HTML) or `x` (XML) filters, depending on\ncontext. For example, to HTML escape the variable `data`, use `${ data |h }`.\n\n## Example\n```python\nfrom mako.template import Template\n\nTemplate(\"${ data }\")  # Unescaped: vulnerable to XSS.\n```\n\nUse instead:\n```python\nfrom mako.template import Template\n\nTemplate(\"${ data |h }\")  # HTML-escaped with the `h` filter.\n```\n\n## References\n- [Mako documentation](https://www.makotemplates.org/)\n- [OpenStack security: Cross site scripting XSS](https://security.openstack.org/guidelines/dg_cross-site-scripting-xss.html)\n- [Common Weakness Enumeration: CWE-80](https://cwe.mitre.org/data/definitions/80.html)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -4236,12 +4236,11 @@
     "summary": "Unnecessary list literal passed to `tuple()` (rewrite as a tuple literal)",
     "message_formats": [
       "Unnecessary list literal passed to `tuple()` (rewrite as a tuple literal)",
-      "Unnecessary tuple literal passed to `tuple()` (remove the outer call to `tuple()`)",
-      "Unnecessary list comprehension passed to `tuple()` (rewrite as a generator)"
+      "Unnecessary tuple literal passed to `tuple()` (remove the outer call to `tuple()`)"
     ],
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
-    "explanation": "## What it does\nChecks for `tuple` calls that take unnecessary list or tuple literals as\narguments. In [preview], this also includes unnecessary list comprehensions\nwithin tuple calls.\n\n## Why is this bad?\nIt's unnecessary to use a list or tuple literal within a `tuple()` call,\nsince there is a literal syntax for these types.\n\nIf a list literal was passed, then it should be rewritten as a `tuple`\nliteral. Otherwise, if a tuple literal was passed, then the outer call\nto `tuple()` should be removed.\n\nIn [preview], this rule also checks for list comprehensions within `tuple()`\ncalls. If a list comprehension is found, it should be rewritten as a\ngenerator expression.\n\n## Example\n```python\ntuple([1, 2])\ntuple((1, 2))\ntuple([x for x in range(10)])\n```\n\nUse instead:\n```python\n(1, 2)\n(1, 2)\ntuple(x for x in range(10))\n```\n\n## Fix safety\nThis rule's fix is marked as unsafe, as it may occasionally drop comments\nwhen rewriting the call. In most cases, though, comments will be preserved.\n\n[preview]: https://docs.astral.sh/ruff/preview/\n",
+    "explanation": "## What it does\nChecks for `tuple` calls that take unnecessary list or tuple literals as\narguments.\n\n## Why is this bad?\nIt's unnecessary to use a list or tuple literal within a `tuple()` call,\nsince there is a literal syntax for these types.\n\nIf a list literal was passed, then it should be rewritten as a `tuple`\nliteral. Otherwise, if a tuple literal was passed, then the outer call\nto `tuple()` should be removed.\n\n## Example\n```python\ntuple([1, 2])\ntuple((1, 2))\n```\n\nUse instead:\n```python\n(1, 2)\n(1, 2)\n```\n\n## Fix safety\nThis rule's fix is marked as unsafe, as it may occasionally drop comments\nwhen rewriting the call. In most cases, though, comments will be preserved.\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -4250,7 +4249,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_comprehensions/rules/unnecessary_literal_within_tuple_call.rs",
-      "line": 50
+      "line": 38
     }
   },
   {
@@ -4620,7 +4619,7 @@
     ],
     "fix": "Fix is not available.",
     "fix_availability": "None",
-    "explanation": "## What it does\nChecks for usage of `datetime.datetime.fromtimestamp()` that do not specify\na timezone.\n\n## Why is this bad?\nPython datetime objects can be naive or timezone-aware. While an aware\nobject represents a specific moment in time, a naive object does not\ncontain enough information to unambiguously locate itself relative to other\ndatetime objects. Since this can lead to errors, it is recommended to\nalways use timezone-aware objects.\n\n`datetime.datetime.fromtimestamp(ts)` or\n`datetime.datetime.fromtimestampe(ts, tz=None)` returns a naive datetime\nobject. Instead, use `datetime.datetime.fromtimestamp(ts, tz=<timezone>)`\nto create a timezone-aware object.\n\n## Example\n```python\nimport datetime\n\ndatetime.datetime.fromtimestamp(946684800)\n```\n\nUse instead:\n```python\nimport datetime\n\ndatetime.datetime.fromtimestamp(946684800, tz=datetime.timezone.utc)\n```\n\nOr, on Python 3.11 and later:\n```python\nimport datetime\n\ndatetime.datetime.fromtimestamp(946684800, tz=datetime.UTC)\n```\n\n## References\n- [Python documentation: Aware and Naive Objects](https://docs.python.org/3/library/datetime.html#aware-and-naive-objects)\n",
+    "explanation": "## What it does\nChecks for usage of `datetime.datetime.fromtimestamp()` that do not specify\na timezone.\n\n## Why is this bad?\nPython datetime objects can be naive or timezone-aware. While an aware\nobject represents a specific moment in time, a naive object does not\ncontain enough information to unambiguously locate itself relative to other\ndatetime objects. Since this can lead to errors, it is recommended to\nalways use timezone-aware objects.\n\n`datetime.datetime.fromtimestamp(ts)` or\n`datetime.datetime.fromtimestamp(ts, tz=None)` returns a naive datetime\nobject. Instead, use `datetime.datetime.fromtimestamp(ts, tz=<timezone>)`\nto create a timezone-aware object.\n\n## Example\n```python\nimport datetime\n\ndatetime.datetime.fromtimestamp(946684800)\n```\n\nUse instead:\n```python\nimport datetime\n\ndatetime.datetime.fromtimestamp(946684800, tz=datetime.timezone.utc)\n```\n\nOr, on Python 3.11 and later:\n```python\nimport datetime\n\ndatetime.datetime.fromtimestamp(946684800, tz=datetime.UTC)\n```\n\n## References\n- [Python documentation: Aware and Naive Objects](https://docs.python.org/3/library/datetime.html#aware-and-naive-objects)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -5040,7 +5039,7 @@
     ],
     "fix": "Fix is always available.",
     "fix_availability": "Always",
-    "explanation": "## What it does\nChecks for whitespace before a shebang directive.\n\n## Why is this bad?\nIn Python, a shebang (also known as a hashbang) is the first line of a\nscript, which specifies the interpreter that should be used to run the\nscript.\n\nThe shebang's `#!` prefix must be the first two characters of a file. The\npresence of whitespace before the shebang will cause the shebang to be\nignored, which is likely a mistake.\n\n## Example\n```python\n #!/usr/bin/env python3\n```\n\nUse instead:\n```python\n#!/usr/bin/env python3\n```\n\n## References\n- [Python documentation: Executable Python Scripts](https://docs.python.org/3/tutorial/appendix.html#executable-python-scripts)\n",
+    "explanation": "## What it does\nChecks for whitespace before a shebang directive.\n\n## Why is this bad?\nIn Python, a shebang (also known as a hashbang) is the first line of a\nscript, which specifies the interpreter that should be used to run the\nscript.\n\nThe shebang's `#!` prefix must be the first two characters of a file. The\npresence of whitespace before the shebang will cause the shebang to be\nignored, which is likely a mistake.\n\n## Example\n```python\n #!/usr/bin/env python3\n```\n\nUse instead:\n```python\n#!/usr/bin/env python3\n```\n\n## Fix safety\nThis rule's fix is marked as unsafe when the whitespace before the shebang\ncontains a newline. Deleting the newline can activate an encoding declaration\nand change how the file is decoded.\n\n## References\n- [Python documentation: Executable Python Scripts](https://docs.python.org/3/tutorial/appendix.html#executable-python-scripts)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -5049,7 +5048,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_executable/rules/shebang_leading_whitespace.rs",
-      "line": 33
+      "line": 39
     }
   },
   {
@@ -7120,12 +7119,12 @@
     "summary": "Use `None` rather than `Literal[None]`",
     "message_formats": [
       "Use `None` rather than `Literal[None]`",
-      "Use `Optional[Literal[...]]` rather than `Literal[None, ...]` ",
-      "Use `Literal[...] | None` rather than `Literal[None, ...]` "
+      "Use `Optional[Literal[...]]` rather than `Literal[None, ...]`",
+      "Use `Literal[...] | None` rather than `Literal[None, ...]`"
     ],
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
-    "explanation": "## What it does\nChecks for redundant `Literal[None]` annotations.\n\n## Why is this bad?\nWhile `Literal[None]` is a valid type annotation, it is semantically equivalent to `None`.\nPrefer `None` over `Literal[None]` for both consistency and readability.\n\n## Example\n```python\nfrom typing import Literal\n\nLiteral[None]\nLiteral[1, 2, 3, \"foo\", 5, None]\n```\n\nUse instead:\n```python\nfrom typing import Literal\n\nNone\nLiteral[1, 2, 3, \"foo\", 5] | None\n```\n\n## Fix safety and availability\nThis rule's fix is marked as safe unless the literal contains comments.\n\nThere is currently no fix available when applying the fix would lead to\na `TypeError` from an expression of the form `None | None` or when we\nare unable to import the symbol `typing.Optional` and the Python version\nis 3.9 or below.\n\n## References\n- [Typing documentation: Legal parameters for `Literal` at type check time](https://typing.python.org/en/latest/spec/literal.html#legal-parameters-for-literal-at-type-check-time)\n",
+    "explanation": "## What it does\nChecks for redundant `Literal[None]` annotations.\n\n## Why is this bad?\nWhile `Literal[None]` is a valid type annotation, it is semantically equivalent to `None`.\nPrefer `None` over `Literal[None]` for both consistency and readability.\n\n## Example\n```python\nfrom typing import Literal\n\nLiteral[None]\nLiteral[1, 2, 3, \"foo\", 5, None]\n```\n\nUse instead:\n```python\nfrom typing import Literal\n\nNone\nLiteral[1, 2, 3, \"foo\", 5] | None\n```\n\n## Fix safety and availability\nIn Python files, this rule's fix is marked as unsafe because replacing\n`Literal[...]` can change runtime-visible annotation objects, such as the\nresult of `typing.get_args`.\n\nIn stub files, the fix is marked as safe unless the literal contains comments.\n\nThere is currently no fix available when applying the fix would lead to\na `TypeError` from an expression of the form `None | None` or when we\nare unable to import the symbol `typing.Optional` and the Python version\nis 3.9 or below.\n\n## References\n- [Typing documentation: Legal parameters for `Literal` at type check time](https://typing.python.org/en/latest/spec/literal.html#legal-parameters-for-literal-at-type-check-time)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -7134,7 +7133,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_pyi/rules/redundant_none_literal.rs",
-      "line": 51
+      "line": 55
     }
   },
   {
@@ -8520,7 +8519,7 @@
     ],
     "fix": "Fix is not available.",
     "fix_availability": "None",
-    "explanation": "## What it does\nChecks for three or more consecutive if-statements with direct returns\n\n## Why is this bad?\nThese can be simplified by using a dictionary\n\n## Example\n```python\ndef find_phrase(x):\n    if x == 1:\n        return \"Hello\"\n    elif x == 2:\n        return \"Goodbye\"\n    elif x == 3:\n        return \"Good morning\"\n    else:\n        return \"Goodnight\"\n```\n\nUse instead:\n```python\ndef find_phrase(x):\n    phrases = {1: \"Hello\", 2: \"Goodye\", 3: \"Good morning\"}\n    return phrases.get(x, \"Goodnight\")\n```\n",
+    "explanation": "## What it does\nChecks for three or more consecutive if-statements with direct returns\n\n## Why is this bad?\nThese can be simplified by using a dictionary\n\n## Example\n```python\ndef find_phrase(x):\n    if x == 1:\n        return \"Hello\"\n    elif x == 2:\n        return \"Goodbye\"\n    elif x == 3:\n        return \"Good morning\"\n    else:\n        return \"Goodnight\"\n```\n\nUse instead:\n```python\ndef find_phrase(x):\n    phrases = {1: \"Hello\", 2: \"Goodbye\", 3: \"Good morning\"}\n    return phrases.get(x, \"Goodnight\")\n```\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -13891,7 +13890,7 @@
     ],
     "fix": "Fix is not available.",
     "fix_availability": "None",
-    "explanation": "## What it does\nChecks for `@overload` function definitions that contain a docstring.\n\n## Why is this bad?\nThe `@overload` decorator is used to define multiple compatible signatures\nfor a given function, to support type-checking. A series of `@overload`\ndefinitions should be followed by a single non-decorated definition that\ncontains the implementation of the function.\n\n`@overload` function definitions should not contain a docstring; instead,\nthe docstring should be placed on the non-decorated definition that contains\nthe implementation.\n\n## Example\n\n```python\nfrom typing import overload\n\n\n@overload\ndef factorial(n: int) -> int:\n    \"\"\"Return the factorial of n.\"\"\"\n\n\n@overload\ndef factorial(n: float) -> float:\n    \"\"\"Return the factorial of n.\"\"\"\n\n\ndef factorial(n):\n    \"\"\"Return the factorial of n.\"\"\"\n\n\nfactorial.__doc__  # \"Return the factorial of n.\"\n```\n\nUse instead:\n\n```python\nfrom typing import overload\n\n\n@overload\ndef factorial(n: int) -> int: ...\n\n\n@overload\ndef factorial(n: float) -> float: ...\n\n\ndef factorial(n):\n    \"\"\"Return the factorial of n.\"\"\"\n\n\nfactorial.__doc__  # \"Return the factorial of n.\"\n```\n\n## Options\n\n- `lint.pydocstyle.ignore-decorators`\n\n## References\n- [PEP 257 – Docstring Conventions](https://peps.python.org/pep-0257/)\n- [Python documentation: `typing.overload`](https://docs.python.org/3/library/typing.html#typing.overload)\n",
+    "explanation": "## What it does\nChecks for `@overload` function definitions that contain a docstring.\n\n## Why is this bad?\nThe `@overload` decorator is used to define multiple compatible signatures\nfor a given function, to support type-checking. A series of `@overload`\ndefinitions should be followed by a single non-decorated definition that\ncontains the implementation of the function.\n\n`@overload` function definitions should not contain a docstring; instead,\nthe docstring should be placed on the non-decorated definition that contains\nthe implementation.\n\nThis rule does not apply to stub files, which don't contain implementations.\n\n## Example\n\n```python\nfrom typing import overload\n\n\n@overload\ndef factorial(n: int) -> int:\n    \"\"\"Return the factorial of n.\"\"\"\n\n\n@overload\ndef factorial(n: float) -> float:\n    \"\"\"Return the factorial of n.\"\"\"\n\n\ndef factorial(n):\n    \"\"\"Return the factorial of n.\"\"\"\n\n\nfactorial.__doc__  # \"Return the factorial of n.\"\n```\n\nUse instead:\n\n```python\nfrom typing import overload\n\n\n@overload\ndef factorial(n: int) -> int: ...\n\n\n@overload\ndef factorial(n: float) -> float: ...\n\n\ndef factorial(n):\n    \"\"\"Return the factorial of n.\"\"\"\n\n\nfactorial.__doc__  # \"Return the factorial of n.\"\n```\n\n## Options\n\n- `lint.pydocstyle.ignore-decorators`\n\n## References\n- [PEP 257 – Docstring Conventions](https://peps.python.org/pep-0257/)\n- [Python documentation: `typing.overload`](https://docs.python.org/3/library/typing.html#typing.overload)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -13900,7 +13899,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pydocstyle/rules/if_needed.rs",
-      "line": 73
+      "line": 75
     }
   },
   {
@@ -18648,6 +18647,28 @@
     }
   },
   {
+    "name": "deprecated-abc-decorator",
+    "code": "UP051",
+    "linter": "pyupgrade",
+    "summary": "Use `@{to}` and `@abstractmethod` instead of `{from}`",
+    "message_formats": [
+      "Use `@{to}` and `@abstractmethod` instead of `{from}`"
+    ],
+    "fix": "Fix is always available.",
+    "fix_availability": "Always",
+    "explanation": "## What it does\nChecks for uses of `abstractclassmethod`, `abstractstaticmethod`, `abstractproperty`.\n\n## Why is this bad?\nThese have been deprecated since Python 3.3 and are expected to be removed in a future version\nof Python.\n\n## Example\n\n```python\nimport abc\n\n\nclass Foo(abc.ABC):\n    @abc.abstractclassmethod\n    def class_method(cls, arg1): ...\n\n    @abc.abstractstaticmethod\n    def static_method(arg1): ...\n\n    @abc.abstractproperty\n    def prop(self): ...\n```\n\nUse instead:\n\n```python\nimport abc\n\n\nclass Foo(abc.ABC):\n    @classmethod\n    @abc.abstractmethod\n    def class_method(cls, arg1): ...\n\n    @staticmethod\n    @abc.abstractmethod\n    def static_method(arg1): ...\n\n    @property\n    @abc.abstractmethod\n    def prop(self): ...\n```\n",
+    "preview": true,
+    "status": {
+      "Preview": {
+        "since": "0.15.21"
+      }
+    },
+    "source_location": {
+      "file": "crates/ruff_linter/src/rules/pyupgrade/rules/deprecated_abc_decorator.rs",
+      "line": 54
+    }
+  },
+  {
     "name": "read-whole-file",
     "code": "FURB101",
     "linter": "refurb",
@@ -20258,7 +20279,7 @@
     ],
     "fix": "Fix is not available.",
     "fix_availability": "None",
-    "explanation": "## What it does\nChecks for invalid use of literals in assert message arguments.\n\n## Why is this bad?\nAn assert message which is a non-string literal was likely intended\nto be used in a comparison assertion, rather than as a message.\n\n## Example\n```python\nfruits = [\"apples\", \"plums\", \"pears\"]\nfruits.filter(lambda fruit: fruit.startwith(\"p\"))\nassert len(fruits), 2  # True unless the list is empty\n```\n\nUse instead:\n```python\nfruits = [\"apples\", \"plums\", \"pears\"]\nfruits.filter(lambda fruit: fruit.startwith(\"p\"))\nassert len(fruits) == 2\n```\n",
+    "explanation": "## What it does\nChecks for invalid use of literals in assert message arguments.\n\n## Why is this bad?\nAn assert message which is a non-string literal was likely intended\nto be used in a comparison assertion, rather than as a message.\n\n## Example\n```python\nfruits = [\"apples\", \"plums\", \"pears\"]\nfruits.filter(lambda fruit: fruit.startswith(\"p\"))\nassert len(fruits), 2  # True unless the list is empty\n```\n\nUse instead:\n```python\nfruits = [\"apples\", \"plums\", \"pears\"]\nfruits.filter(lambda fruit: fruit.startswith(\"p\"))\nassert len(fruits) == 2\n```\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -20456,7 +20477,7 @@
     ],
     "fix": "Fix is always available.",
     "fix_availability": "Always",
-    "explanation": "## What it does\nChecks for `if key in dictionary: del dictionary[key]`.\n\n## Why is this bad?\nTo remove a key-value pair from a dictionary, it's more concise to use `.pop(..., None)`.\n\n## Example\n\n```python\nif key in dictionary:\n    del dictionary[key]\n```\n\nUse instead:\n\n```python\ndictionary.pop(key, None)\n```\n\n## Fix safety\nThis rule's fix is marked as safe, unless the if statement contains comments.\n",
+    "explanation": "## What it does\nChecks for `if key in dictionary: del dictionary[key]`.\n\n## Why is this bad?\nTo remove a key-value pair from a dictionary, it's more concise to use `.pop(..., None)`.\n\n## Example\n\n```python\ndictionary = {}\nif key in dictionary:\n    del dictionary[key]\n```\n\nUse instead:\n\n```python\ndictionary = {}\ndictionary.pop(key, None)\n```\n\n## Fix safety\nThis rule's fix is marked as safe, unless the if statement contains comments.\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -20465,7 +20486,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/ruff/rules/if_key_in_dict_del.rs",
-      "line": 32
+      "line": 34
     }
   },
   {
