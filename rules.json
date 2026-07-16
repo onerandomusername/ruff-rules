@@ -4529,7 +4529,7 @@
     ],
     "fix": "Fix is not available.",
     "fix_availability": "None",
-    "explanation": "## What it does\nChecks for usage of `datetime.datetime.today()`.\n\n## Why is this bad?\n`datetime` objects are \"naive\" by default, in that they do not include\ntimezone information. \"Naive\" objects are easy to understand, but ignore\nsome aspects of reality, which can lead to subtle bugs. Timezone-aware\n`datetime` objects are preferred, as they represent a specific moment in\ntime, unlike \"naive\" objects.\n\n`datetime.datetime.today()` creates a \"naive\" object; instead, use\n`datetime.datetime.now(tz=...)` to create a timezone-aware object.\n\n## Example\n```python\nimport datetime\n\ndatetime.datetime.today()\n```\n\nUse instead:\n```python\nimport datetime\n\ndatetime.datetime.now(tz=datetime.timezone.utc)\n```\n\nOr, for Python 3.11 and later:\n```python\nimport datetime\n\ndatetime.datetime.now(tz=datetime.UTC)\n```\n\n## References\n- [Python documentation: Aware and Naive Objects](https://docs.python.org/3/library/datetime.html#aware-and-naive-objects)\n",
+    "explanation": "## What it does\nChecks for usage of `datetime.datetime.today()`.\n\n## Why is this bad?\n`datetime` objects are \"naive\" by default, in that they do not include\ntimezone information. \"Naive\" objects are easy to understand, but ignore\nsome aspects of reality, which can lead to subtle bugs. Timezone-aware\n`datetime` objects are preferred, as they represent a specific moment in\ntime, unlike \"naive\" objects.\n\n`datetime.datetime.today()` creates a \"naive\" object; instead, use\n`datetime.datetime.now(tz=...)` to create a timezone-aware object.\n\nThe name `today()` can be misleading, because it suggests a calendar date,\nbut it actually returns the current local date and time as a `datetime`.\nThat can make intent harder to infer when reading code.\n\n## Example\n```python\nimport datetime\n\ndatetime.datetime.today()\n```\n\nUse instead:\n```python\nimport datetime\n\ndatetime.datetime.now(tz=datetime.timezone.utc)\n```\n\nOr, for Python 3.11 and later:\n```python\nimport datetime\n\ndatetime.datetime.now(tz=datetime.UTC)\n```\n\n## References\n- [Python documentation: Aware and Naive Objects](https://docs.python.org/3/library/datetime.html#aware-and-naive-objects)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -4538,7 +4538,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_datetimez/rules/call_datetime_today.rs",
-      "line": 48
+      "line": 52
     }
   },
   {
@@ -6968,7 +6968,7 @@
     ],
     "fix": "Fix is always available.",
     "fix_availability": "Always",
-    "explanation": "## What it does\nChecks for the use of string and bytes literals longer than 50 characters\nin stub (`.pyi`) files.\n\n## Why is this bad?\nIf a function or variable has a default value where the string or bytes\nrepresentation is greater than 50 characters long, it is likely to be an\nimplementation detail or a constant that varies depending on the system\nyou're running on.\n\nAlthough IDEs may find them useful, default values are ignored by type\ncheckers, the primary consumers of stub files. Replace very long constants\nwith ellipses (`...`) to simplify the stub.\n\n## Example\n\n```pyi\ndef foo(arg: str = \"51 character stringgggggggggggggggggggggggggggggggg\") -> None: ...\n```\n\nUse instead:\n\n```pyi\ndef foo(arg: str = ...) -> None: ...\n```\n",
+    "explanation": "## What it does\nChecks for the use of string and bytes literals longer than 50 characters\nin stub (`.pyi`) files.\n\n## Why is this bad?\nIf a function or variable has a default value where the string or bytes\nrepresentation is greater than 50 characters long, it is likely to be an\nimplementation detail or a constant that varies depending on the system\nyou're running on.\n\nAlthough IDEs may find them useful, default values are ignored by type\ncheckers, the primary consumers of stub files. Replace very long constants\nwith ellipses (`...`) to simplify the stub.\n\nThe rule does not apply to long entries in `__all__`, which are assumed to\nbe outside the stub author's control.\n\n## Example\n\n```pyi\ndef foo(arg: str = \"51 character stringgggggggggggggggggggggggggggggggg\") -> None: ...\n```\n\nUse instead:\n\n```pyi\ndef foo(arg: str = ...) -> None: ...\n```\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -6977,7 +6977,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_pyi/rules/string_or_bytes_too_long.rs",
-      "line": 35
+      "line": 38
     }
   },
   {
@@ -12207,9 +12207,9 @@
       "Module level import not at top of cell",
       "Module level import not at top of file"
     ],
-    "fix": "Fix is not available.",
-    "fix_availability": "None",
-    "explanation": "## What it does\nChecks for imports that are not at the top of the file.\n\n## Why is this bad?\nAccording to [PEP 8], \"imports are always put at the top of the file, just after any\nmodule comments and docstrings, and before module globals and constants.\"\n\nThis rule makes an exception for both `sys.path` modifications (allowing for\n`sys.path.insert`, `sys.path.append`, etc.) and `os.environ` modifications\nbetween imports.\n\n## Example\n```python\n\"One string\"\n\"Two string\"\na = 1\nimport os\nfrom sys import x\n```\n\nUse instead:\n```python\nimport os\nfrom sys import x\n\n\"One string\"\n\"Two string\"\na = 1\n```\n\n## Notebook behavior\nFor Jupyter notebooks, this rule checks for imports that are not at the top of a *cell*.\n\n[PEP 8]: https://peps.python.org/pep-0008/#imports\n",
+    "fix": "Fix is sometimes available.",
+    "fix_availability": "Sometimes",
+    "explanation": "## What it does\nChecks for imports that are not at the top of the file.\n\n## Why is this bad?\nAccording to [PEP 8], \"imports are always put at the top of the file, just after any\nmodule comments and docstrings, and before module globals and constants.\"\n\nThis rule makes an exception for both `sys.path` modifications (allowing for\n`sys.path.insert`, `sys.path.append`, etc.) and `os.environ` modifications\nbetween imports.\n\n## Example\n```python\n\"One string\"\n\"Two string\"\na = 1\nimport os\nfrom sys import x\n```\n\nUse instead:\n```python\nimport os\nfrom sys import x\n\n\"One string\"\n\"Two string\"\na = 1\n```\n\n## Notebook behavior\nFor Jupyter notebooks, this rule checks for imports that are not at the top of a *cell*.\n\n## Fix safety\nThis rule's fix is marked as unsafe as imports moved to the top of the file\nare placed above existing imports, in reverse order than they were in the\nfile. Re-ordering imports is unsafe as it can change the execution order of\nthe imported code.\n\n[PEP 8]: https://peps.python.org/pep-0008/#imports\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -12218,7 +12218,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pycodestyle/rules/module_import_not_at_top_of_file.rs",
-      "line": 42
+      "line": 50
     }
   },
   {
@@ -12477,7 +12477,7 @@
     ],
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
-    "explanation": "## What it does\nChecks for lambda expressions which are assigned to a variable.\n\n## Why is this bad?\nPer PEP 8, you should \"Always use a def statement instead of an assignment\nstatement that binds a lambda expression directly to an identifier.\"\n\nUsing a `def` statement leads to better tracebacks, and the assignment\nitself negates the primary benefit of using a `lambda` expression (i.e.,\nthat it can be embedded inside another expression).\n\n## Example\n```python\nf = lambda x: 2 * x\n```\n\nUse instead:\n```python\ndef f(x):\n    return 2 * x\n```\n\n[PEP 8]: https://peps.python.org/pep-0008/#programming-recommendations\n",
+    "explanation": "## What it does\nChecks for lambda expressions which are assigned to a variable.\n\n## Why is this bad?\nPer PEP 8, you should \"Always use a def statement instead of an assignment\nstatement that binds a lambda expression directly to an identifier.\"\n\nUsing a `def` statement leads to better tracebacks, and the assignment\nitself negates the primary benefit of using a `lambda` expression (i.e.,\nthat it can be embedded inside another expression).\n\n## Example\n```python\nf = lambda x: 2 * x\n```\n\nUse instead:\n```python\ndef f(x):\n    return 2 * x\n```\n\n## Fix safety\nThis fix is marked as unsafe because converting a lambda assignment into a\nfunction definition changes observable properties of the callable.\n\nIn particular, a lambda function has the name `\"<lambda>\"`, while the\ngenerated function uses the name of the assigned variable. Code that relies\non function metadata, such as logging, registration, or introspection, may\ntherefore behave differently after the fix.\n\n[PEP 8]: https://peps.python.org/pep-0008/#programming-recommendations\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -12486,7 +12486,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pycodestyle/rules/lambda_assignment.rs",
-      "line": 38
+      "line": 47
     }
   },
   {
@@ -17559,7 +17559,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pylint/rules/redefined_loop_name.rs",
-      "line": 57
+      "line": 58
     }
   },
   {
@@ -19435,7 +19435,7 @@
     ],
     "fix": "Fix is always available.",
     "fix_availability": "Always",
-    "explanation": "## What it does\nChecks for subclasses of `dict`, `list` or `str`.\n\n## Why is this bad?\nBuilt-in types don't consistently use their own dunder methods. For example,\n`dict.__init__` and `dict.update()` bypass `__setitem__`, making inheritance unreliable.\n\nUse the `UserDict`, `UserList`, and `UserString` objects from the `collections` module\ninstead.\n\n## Example\n\n```python\nclass UppercaseDict(dict):\n    def __setitem__(self, key, value):\n        super().__setitem__(key.upper(), value)\n\n\nd = UppercaseDict({\"a\": 1, \"b\": 2})  # Bypasses __setitem__\nprint(d)  # {'a': 1, 'b': 2}\n```\n\nUse instead:\n\n```python\nfrom collections import UserDict\n\n\nclass UppercaseDict(UserDict):\n    def __setitem__(self, key, value):\n        super().__setitem__(key.upper(), value)\n\n\nd = UppercaseDict({\"a\": 1, \"b\": 2})  # Uses __setitem__\nprint(d)  # {'A': 1, 'B': 2}\n```\n\n## Fix safety\nThis fix is marked as unsafe because `isinstance()` checks for `dict`,\n`list`, and `str` types will fail when using the corresponding User class.\nIf you need to pass custom `dict` or `list` objects to code you don't\ncontrol, ignore this check. If you do control the code, consider using\nthe following type checks instead:\n\n* `dict` -> `collections.abc.MutableMapping`\n* `list` -> `collections.abc.MutableSequence`\n* `str` -> No such conversion exists\n\n## References\n\n- [Python documentation: `collections`](https://docs.python.org/3/library/collections.html)\n",
+    "explanation": "## What it does\nChecks for subclasses of `dict`, `list` or `str`.\n\n## Why is this bad?\nBuilt-in types don't consistently use their own dunder methods. For example,\n`dict.__init__` and `dict.update()` bypass `__setitem__`, making inheritance unreliable.\n\nUse the `UserDict`, `UserList`, and `UserString` objects from the `collections` module\ninstead.\n\nThis rule does not apply to stub files, which should faithfully represent the runtime\nimplementation and may be out of the author's control.\n\n## Example\n\n```python\nclass UppercaseDict(dict):\n    def __setitem__(self, key, value):\n        super().__setitem__(key.upper(), value)\n\n\nd = UppercaseDict({\"a\": 1, \"b\": 2})  # Bypasses __setitem__\nprint(d)  # {'a': 1, 'b': 2}\n```\n\nUse instead:\n\n```python\nfrom collections import UserDict\n\n\nclass UppercaseDict(UserDict):\n    def __setitem__(self, key, value):\n        super().__setitem__(key.upper(), value)\n\n\nd = UppercaseDict({\"a\": 1, \"b\": 2})  # Uses __setitem__\nprint(d)  # {'A': 1, 'B': 2}\n```\n\n## Fix safety\nThis fix is marked as unsafe because `isinstance()` checks for `dict`,\n`list`, and `str` types will fail when using the corresponding User class.\nIf you need to pass custom `dict` or `list` objects to code you don't\ncontrol, ignore this check. If you do control the code, consider using\nthe following type checks instead:\n\n* `dict` -> `collections.abc.MutableMapping`\n* `list` -> `collections.abc.MutableSequence`\n* `str` -> No such conversion exists\n\n## References\n\n- [Python documentation: `collections`](https://docs.python.org/3/library/collections.html)\n",
     "preview": true,
     "status": {
       "Preview": {
@@ -19444,7 +19444,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/refurb/rules/subclass_builtin.rs",
-      "line": 59
+      "line": 62
     }
   },
   {
@@ -20034,7 +20034,7 @@
     ],
     "fix": "Fix is not available.",
     "fix_availability": "None",
-    "explanation": "## What it does\nChecks for functions declared `async` that do not await or otherwise use features requiring the\nfunction to be declared `async`.\n\n## Why is this bad?\nDeclaring a function `async` when it's not is usually a mistake, and will artificially limit the\ncontexts where that function may be called. In some cases, labeling a function `async` is\nsemantically meaningful (e.g. with the trio library).\n\n## Example\n```python\nasync def foo():\n    bar()\n```\n\nUse instead:\n```python\ndef foo():\n    bar()\n```\n",
+    "explanation": "## What it does\nChecks for functions declared `async` that do not await or otherwise use features requiring the\nfunction to be declared `async`.\n\n## Why is this bad?\nDeclaring a function `async` when it's not is usually a mistake, and will artificially limit the\ncontexts where that function may be called. In some cases, labeling a function `async` is\nsemantically meaningful. For example, an async test or callback may need to run in an async\nexecution context, even if it only uses a `ContextVar`.\n\nIf the async context is intentional, add an actual await expression, such as\n`await asyncio.sleep(0)`, or disable this rule for the function.\n\n## Example\n```python\nasync def foo():\n    bar()\n```\n\nUse instead:\n```python\ndef foo():\n    bar()\n```\n",
     "preview": true,
     "status": {
       "Preview": {
@@ -20043,7 +20043,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/ruff/rules/unused_async.rs",
-      "line": 34
+      "line": 38
     }
   },
   {
@@ -21137,6 +21137,51 @@
     }
   },
   {
+    "name": "noqa-comments",
+    "code": "RUF105",
+    "linter": "Ruff-specific rules",
+    "summary": "`noqa` comment used instead of `ruff:ignore`",
+    "message_formats": [
+      "`noqa` comment used instead of `ruff:ignore`",
+      "`ruff: noqa` comment used instead of `ruff:file-ignore`"
+    ],
+    "fix": "Fix is sometimes available.",
+    "fix_availability": "Sometimes",
+    "explanation": "## What it does\n\nChecks for the use of `noqa` comments instead of Ruff-specific `ruff:ignore` comments.\n\n## Why is this bad?\n\n`ruff:ignore` comments allow the use of rule names instead of codes and can be used in more\nplaces than `noqa` comments.\n\nNote that this is an opinionated, stylistic rule. `noqa` comments may be needed for backwards\ncompatibility with other tools. You should also feel free to disable this rule if you simply\nprefer `noqa` comments.\n\n## Example\n\n```python\nimport os  # noqa: F401\n```\n\nUse instead:\n```python\nimport os  # ruff:ignore[F401]\n```\n\nOr if you prefer the own-line form:\n\n```python\n# ruff:ignore[unused-import]\nimport os\n```\n\n## Options\n\nThis rule will flag `noqa` comments containing rule codes that are unknown to Ruff, even if they\nare valid for other tools. You can tell Ruff to ignore such codes by configuring the list of\nknown \"external\" rule codes with the following option:\n\n- `lint.external`\n\nRuff will still emit a diagnostic without a fix if `external` and known codes are present in the\nsame `noqa` comment, assuming that only the `external` codes need to remain in the `noqa`\ncomment.\n\n## See also\n\nThis rule avoids offering a fix if any of the rule codes in a `noqa` comment are unused. See\n`unused-noqa` for a rule that will remove these and allow the remaining codes to be moved into a\n`ruff:ignore` comment.\n",
+    "preview": true,
+    "status": {
+      "Preview": {
+        "since": "0.15.22"
+      }
+    },
+    "source_location": {
+      "file": "crates/ruff_linter/src/rules/ruff/rules/noqa_comments.rs",
+      "line": 60
+    }
+  },
+  {
+    "name": "rule-codes-in-suppression-comments",
+    "code": "RUF106",
+    "linter": "Ruff-specific rules",
+    "summary": "Rule code used instead of name in suppression comment",
+    "message_formats": [
+      "Rule code used instead of name in suppression comment"
+    ],
+    "fix": "Fix is always available.",
+    "fix_availability": "Always",
+    "explanation": "## What it does\n\nChecks for rule codes in Ruff-specific suppression comments.\n\n## Why is this bad?\n\nHuman-readable rule names are easier to understand than rule codes. Using names also avoids\nrequiring readers to look up the meaning of each code.\n\nThis rule applies to `ruff:ignore`, `ruff:file-ignore`, `ruff:disable`, and `ruff:enable`\ncomments.\n\n## Example\n\n```python\nimport os  # ruff:ignore[F401]\n```\n\nUse instead:\n```python\nimport os  # ruff:ignore[unused-import]\n```\n",
+    "preview": true,
+    "status": {
+      "Preview": {
+        "since": "0.15.22"
+      }
+    },
+    "source_location": {
+      "file": "crates/ruff_linter/src/rules/ruff/rules/rule_codes_in_suppression_comments.rs",
+      "line": 27
+    }
+  },
+  {
     "name": "invalid-pyproject-toml",
     "code": "RUF200",
     "linter": "Ruff-specific rules",
@@ -21155,7 +21200,30 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/ruff/rules/invalid_pyproject_toml.rs",
-      "line": 33
+      "line": 39
+    }
+  },
+  {
+    "name": "rule-codes-in-selectors",
+    "code": "RUF201",
+    "linter": "Ruff-specific rules",
+    "summary": "Rule code used instead of name in `lint.{selector}`",
+    "message_formats": [
+      "Rule code used instead of name in `lint.{selector}`",
+      "Rule code used instead of name in `{selector}`"
+    ],
+    "fix": "Fix is always available.",
+    "fix_availability": "Always",
+    "explanation": "## What it does\n\nChecks for any configuration files that use rule codes as selectors.\n\n## Why is this bad?\n\nHuman-readable rule names are easier to understand than rule codes. Using names also avoids\nrequiring readers to look up the meaning of each code.\n\n## Example\n\n```toml\n[tool.ruff.lint]\nselect = [\"F401\"]\n```\n\nUse instead:\n\n```toml\n[tool.ruff.lint]\nselect = [\"unused-import\"]\n```\n",
+    "preview": true,
+    "status": {
+      "Preview": {
+        "since": "0.15.22"
+      }
+    },
+    "source_location": {
+      "file": "crates/ruff_linter/src/rules/ruff/rules/rule_codes_in_selectors.rs",
+      "line": 37
     }
   },
   {
