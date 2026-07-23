@@ -299,11 +299,11 @@
     "deprecated": null
   },
   "lint.extend-select": {
-    "doc": "A list of rule codes or prefixes to enable, in addition to those\nspecified by [`select`](#lint_select).\n\nUnlike [`select`](#lint_select), which _replaces_ the default rule set\nwhen specified, `extend-select` _adds_ to whatever rules are already\nactive. This makes `extend-select` the preferred option when you want\nto enable additional rules on top of the defaults without having to\nenumerate them.\n\nFor example, to enable the defaults plus flake8-bugbear:\n\n```toml\n[tool.ruff.lint]\n# Adds flake8-bugbear on top of the default rules (E4, E7, E9, F).\nextend-select = [\"B\"]\n```\n\nUsing `select = [\"B\"]` instead would _replace_ the defaults, enabling\nonly flake8-bugbear.",
+    "doc": "A list of rule codes or prefixes to enable, in addition to those\nspecified by [`select`](#lint_select).\n\nUnlike [`select`](#lint_select), which _replaces_ the default rule set\nwhen specified, `extend-select` _adds_ to whatever rules are already\nactive. This makes `extend-select` the preferred option when you want\nto enable additional rules on top of the defaults without having to\nenumerate them.\n\nFor example, to enable the defaults plus flake8-bugbear:\n\n```toml\n[tool.ruff.lint]\n# Adds flake8-bugbear on top of the default rules.\nextend-select = [\"B\"]\n```\n\nUsing `select = [\"B\"]` instead would _replace_ the defaults, enabling\nonly flake8-bugbear.",
     "default": "[]",
     "value_type": "list[RuleSelector]",
     "scope": null,
-    "example": "# On top of the default `select` (`E4`, E7`, `E9`, and `F`), enable flake8-bugbear (`B`) and flake8-quotes (`Q`).\nextend-select = [\"B\", \"Q\"]",
+    "example": "# On top of the default `select`, enable flake8-bugbear (`B`) and flake8-quotes (`Q`).\nextend-select = [\"B\", \"Q\"]",
     "deprecated": null
   },
   "lint.extend-unsafe-fixes": {
@@ -1350,10 +1350,10 @@
   },
   "lint.select": {
     "doc": "A list of rule codes or prefixes to enable. Prefixes can specify exact\nrules (like `F841`), entire categories (like `F`), or anything in\nbetween.\n\nWhen breaking ties between enabled and disabled rules (via `select` and\n`ignore`, respectively), more specific prefixes override less\nspecific prefixes. `ignore` takes precedence over `select` if the\nsame prefix appears in both.",
-    "default": "[\"E4\", \"E7\", \"E9\", \"F\"]",
+    "default": "See https://docs.astral.sh/ruff/default-rules/ or run `ruff check --show-settings --isolated`",
     "value_type": "list[RuleSelector]",
     "scope": null,
-    "example": "# On top of the defaults (`E4`, E7`, `E9`, and `F`), enable flake8-bugbear (`B`) and flake8-quotes (`Q`).\nselect = [\"E4\", \"E7\", \"E9\", \"F\", \"B\", \"Q\"]",
+    "example": "# On top of the defaults, enable flake8-bugbear (`B`) and flake8-quotes (`Q`).\nextend-select = [\"B\", \"Q\"]",
     "deprecated": null
   },
   "lint.task-tags": {
