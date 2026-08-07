@@ -6711,7 +6711,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_pyi/rules/redundant_numeric_union.rs",
-      "line": 56
+      "line": 57
     }
   },
   {
