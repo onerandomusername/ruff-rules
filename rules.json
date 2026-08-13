@@ -1519,7 +1519,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/suspicious_function_call.rs",
-      "line": 105
+      "line": 107
     }
   },
   {
@@ -1541,7 +1541,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/suspicious_function_call.rs",
-      "line": 156
+      "line": 158
     }
   },
   {
@@ -1563,7 +1563,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/suspicious_function_call.rs",
-      "line": 199
+      "line": 201
     }
   },
   {
@@ -1585,7 +1585,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/suspicious_function_call.rs",
-      "line": 244
+      "line": 246
     }
   },
   {
@@ -1607,7 +1607,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/suspicious_function_call.rs",
-      "line": 294
+      "line": 296
     }
   },
   {
@@ -1629,7 +1629,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/suspicious_function_call.rs",
-      "line": 335
+      "line": 337
     }
   },
   {
@@ -1651,7 +1651,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/suspicious_function_call.rs",
-      "line": 389
+      "line": 391
     }
   },
   {
@@ -1673,7 +1673,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/suspicious_function_call.rs",
-      "line": 442
+      "line": 444
     }
   },
   {
@@ -1695,7 +1695,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/suspicious_function_call.rs",
-      "line": 485
+      "line": 489
     }
   },
   {
@@ -1717,7 +1717,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/suspicious_function_call.rs",
-      "line": 915
+      "line": 936
     }
   },
   {
@@ -1739,7 +1739,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/suspicious_function_call.rs",
-      "line": 530
+      "line": 534
     }
   },
   {
@@ -1761,7 +1761,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/suspicious_function_call.rs",
-      "line": 575
+      "line": 581
     }
   },
   {
@@ -1783,7 +1783,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/suspicious_function_call.rs",
-      "line": 620
+      "line": 628
     }
   },
   {
@@ -1805,7 +1805,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/suspicious_function_call.rs",
-      "line": 665
+      "line": 675
     }
   },
   {
@@ -1827,7 +1827,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/suspicious_function_call.rs",
-      "line": 710
+      "line": 722
     }
   },
   {
@@ -1849,7 +1849,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/suspicious_function_call.rs",
-      "line": 755
+      "line": 769
     }
   },
   {
@@ -1871,7 +1871,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/suspicious_function_call.rs",
-      "line": 800
+      "line": 816
     }
   },
   {
@@ -1893,7 +1893,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/suspicious_function_call.rs",
-      "line": 842
+      "line": 860
     }
   },
   {
@@ -1915,7 +1915,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/suspicious_function_call.rs",
-      "line": 941
+      "line": 962
     }
   },
   {
@@ -1937,7 +1937,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/suspicious_function_call.rs",
-      "line": 889
+      "line": 907
     }
   },
   {
@@ -2003,7 +2003,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/suspicious_imports.rs",
-      "line": 52
+      "line": 54
     }
   },
   {
@@ -2025,7 +2025,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/suspicious_imports.rs",
-      "line": 78
+      "line": 82
     }
   },
   {
@@ -2047,7 +2047,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/suspicious_imports.rs",
-      "line": 100
+      "line": 104
     }
   },
   {
@@ -2069,7 +2069,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/suspicious_imports.rs",
-      "line": 124
+      "line": 128
     }
   },
   {
@@ -2091,7 +2091,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/suspicious_imports.rs",
-      "line": 148
+      "line": 152
     }
   },
   {
@@ -2113,7 +2113,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/suspicious_imports.rs",
-      "line": 172
+      "line": 176
     }
   },
   {
@@ -2135,7 +2135,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/suspicious_imports.rs",
-      "line": 196
+      "line": 200
     }
   },
   {
@@ -2157,7 +2157,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/suspicious_imports.rs",
-      "line": 220
+      "line": 224
     }
   },
   {
@@ -2179,7 +2179,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/suspicious_imports.rs",
-      "line": 251
+      "line": 255
     }
   },
   {
@@ -2201,7 +2201,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/suspicious_imports.rs",
-      "line": 275
+      "line": 279
     }
   },
   {
@@ -2223,7 +2223,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/suspicious_imports.rs",
-      "line": 302
+      "line": 306
     }
   },
   {
@@ -2245,7 +2245,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/suspicious_imports.rs",
-      "line": 328
+      "line": 335
     }
   },
   {
@@ -2267,7 +2267,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/suspicious_imports.rs",
-      "line": 354
+      "line": 361
     }
   },
   {
@@ -2535,7 +2535,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/shell_injection.rs",
-      "line": 82
+      "line": 90
     }
   },
   {
@@ -2558,7 +2558,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/shell_injection.rs",
-      "line": 121
+      "line": 129
     }
   },
   {
@@ -2581,7 +2581,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/shell_injection.rs",
-      "line": 174
+      "line": 182
     }
   },
   {
@@ -2603,7 +2603,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/shell_injection.rs",
-      "line": 216
+      "line": 228
     }
   },
   {
@@ -2625,7 +2625,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/shell_injection.rs",
-      "line": 252
+      "line": 264
     }
   },
   {
@@ -2669,7 +2669,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/shell_injection.rs",
-      "line": 286
+      "line": 298
     }
   },
   {
@@ -3827,7 +3827,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bugbear/rules/batched_without_explicit_strict.rs",
-      "line": 51
+      "line": 52
     }
   },
   {
@@ -4404,7 +4404,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_comprehensions/rules/unnecessary_map.rs",
-      "line": 46
+      "line": 47
     }
   },
   {
@@ -4516,7 +4516,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_datetimez/rules/call_datetime_without_tzinfo.rs",
-      "line": 47
+      "line": 48
     }
   },
   {
@@ -4605,7 +4605,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_datetimez/rules/call_datetime_now_without_tzinfo.rs",
-      "line": 48
+      "line": 49
     }
   },
   {
@@ -4628,7 +4628,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_datetimez/rules/call_datetime_fromtimestamp.rs",
-      "line": 50
+      "line": 51
     }
   },
   {
@@ -4651,7 +4651,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_datetimez/rules/call_datetime_strptime_without_zone.rs",
-      "line": 53
+      "line": 54
     }
   },
   {
@@ -5579,7 +5579,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_logging/rules/root_logger_call.rs",
-      "line": 31
+      "line": 32
     }
   },
   {
@@ -11247,7 +11247,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/perflint/rules/manual_list_copy.rs",
-      "line": 38
+      "line": 39
     }
   },
   {
@@ -15940,7 +15940,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pylint/rules/bad_string_format_character.rs",
-      "line": 29
+      "line": 25
     }
   },
   {
@@ -18603,6 +18603,28 @@
     }
   },
   {
+    "name": "while-one",
+    "code": "UP048",
+    "linter": "pyupgrade",
+    "summary": "Use `while True:` instead of `while 1:`",
+    "message_formats": [
+      "Use `while True:` instead of `while 1:`"
+    ],
+    "fix": "Fix is always available.",
+    "fix_availability": "Always",
+    "explanation": "## What it does\nChecks for `while` loops that use `1` as their condition.\n\n## Why is this bad?\n`while 1:` is a Python 2 idiom, where `True` was a global that could be\nrebound and so had to be loaded and tested on every iteration. In Python 3\n`True` is a keyword, so both spellings compile to the same bytecode and\n`while True:` is clearer about the loop being infinite.\n\n## Example\n```python\nwhile 1:\n    print(\"Hello, world!\")\n```\n\nUse instead:\n```python\nwhile True:\n    print(\"Hello, world!\")\n```\n\n## References\n- [Python documentation: `while`](https://docs.python.org/3/reference/compound_stmts.html#the-while-statement)\n- [PEP 285 – Adding a bool type](https://peps.python.org/pep-0285/)\n",
+    "preview": true,
+    "status": {
+      "Preview": {
+        "since": "0.16.3"
+      }
+    },
+    "source_location": {
+      "file": "crates/ruff_linter/src/rules/pyupgrade/rules/while_one.rs",
+      "line": 32
+    }
+  },
+  {
     "name": "private-type-parameter",
     "code": "UP049",
     "linter": "pyupgrade",
@@ -19267,7 +19289,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/refurb/rules/isinstance_type_none.rs",
-      "line": 34
+      "line": 35
     }
   },
   {
@@ -19569,7 +19591,7 @@
     ],
     "fix": "Fix is not available.",
     "fix_availability": "None",
-    "explanation": "## What it does\nChecks for `asyncio.create_task` and `asyncio.ensure_future` calls\nthat do not store a reference to the returned result.\n\n## Why is this bad?\nPer the `asyncio` documentation, the event loop only retains a weak\nreference to tasks. If the task returned by `asyncio.create_task` and\n`asyncio.ensure_future` is not stored in a variable, or a collection,\nor otherwise referenced, it may be garbage collected at any time. This\ncan lead to unexpected and inconsistent behavior, as your tasks may or\nmay not run to completion.\n\n## Example\n```python\nimport asyncio\n\nfor i in range(10):\n    # This creates a weak reference to the task, which may be garbage\n    # collected at any time.\n    asyncio.create_task(some_coro(param=i))\n```\n\nUse instead:\n```python\nimport asyncio\n\nbackground_tasks = set()\n\nfor i in range(10):\n    task = asyncio.create_task(some_coro(param=i))\n\n    # Add task to the set. This creates a strong reference.\n    background_tasks.add(task)\n\n    # To prevent keeping references to finished tasks forever,\n    # make each task remove its own reference from the set after\n    # completion:\n    task.add_done_callback(background_tasks.discard)\n```\n\n## References\n- [_The Heisenbug lurking in your async code_](https://textual.textualize.io/blog/2023/02/11/the-heisenbug-lurking-in-your-async-code/)\n- [The Python Standard Library](https://docs.python.org/3/library/asyncio-task.html#asyncio.create_task)\n",
+    "explanation": "## What it does\nChecks for `asyncio.create_task` and `asyncio.ensure_future` calls\nthat do not store a reference to the returned result.\n\n## Why is this bad?\nPer the `asyncio` documentation, the event loop only retains a weak\nreference to tasks. If the task returned by `asyncio.create_task` and\n`asyncio.ensure_future` is not stored in a variable, or a collection,\nor otherwise referenced, it may be garbage collected at any time. This\ncan lead to unexpected and inconsistent behavior, as your tasks may or\nmay not run to completion.\n\n## Example\n```python\nimport asyncio\n\nfor i in range(10):\n    # This creates a weak reference to the task, which may be garbage\n    # collected at any time.\n    asyncio.create_task(some_coro(param=i))\n```\n\nUse instead:\n```python\nimport asyncio\n\nbackground_tasks = set()\n\nfor i in range(10):\n    task = asyncio.create_task(some_coro(param=i))\n\n    # Add task to the set. This creates a strong reference.\n    background_tasks.add(task)\n\n    # To prevent keeping references to finished tasks forever,\n    # make each task remove its own reference from the set after\n    # completion:\n    task.add_done_callback(background_tasks.discard)\n```\n\nOr, for Python 3.11 and later, use structured concurrency with\n`asyncio.TaskGroup` when the tasks should be awaited as part of the current\noperation:\n```python\nimport asyncio\n\n\nasync def main() -> None:\n    async with asyncio.TaskGroup() as tg:\n        for i in range(10):\n            tg.create_task(some_coro(param=i))\n```\n\n## References\n- [_The Heisenbug lurking in your async code_](https://textual.textualize.io/blog/2023/02/11/the-heisenbug-lurking-in-your-async-code/)\n- [Python documentation: `asyncio.create_task`](https://docs.python.org/3/library/asyncio-task.html#asyncio.create_task)\n- [Python documentation: `asyncio.TaskGroup`](https://docs.python.org/3/library/asyncio-task.html#asyncio.TaskGroup)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -19578,7 +19600,7 @@
     },
     "source_location": {
       "file": "crates/ruff_linter/src/rules/ruff/rules/asyncio_dangling_task.rs",
-      "line": 55
+      "line": 69
     }
   },
   {
