@@ -1111,11 +1111,11 @@
     "deprecated": null
   },
   "lint.per-file-ignores": {
-    "doc": "A list of mappings from file pattern to rule codes or prefixes to\nexclude, when considering any matching files. An initial '!' negates\nthe file pattern.",
+    "doc": "A list of mappings from file pattern to rule codes or prefixes to\nexclude, when considering any matching files. An initial '!' negates\nthe file pattern.\n\nFor more information on the glob syntax, refer to the [`globset` documentation](https://docs.rs/globset/latest/globset/#syntax).",
     "default": "{}",
     "value_type": "dict[str, list[RuleSelector]]",
     "scope": "per-file-ignores",
-    "example": "# Ignore `E402` (import violations) in all `__init__.py` files, and in `path/to/file.py`.\n\"__init__.py\" = [\"E402\"]\n\"path/to/file.py\" = [\"E402\"]\n# Ignore `D` rules everywhere except for the `src/` directory.\n\"!src/**.py\" = [\"D\"]",
+    "example": "# Ignore `E402` (import violations) in all `__init__.py` files, and in `path/to/file.py`.\n\"__init__.py\" = [\"E402\"]\n\"path/to/file.py\" = [\"E402\"]\n# Ignore `D` rules everywhere except for the `src/` directory.\n\"!src/**.py\" = [\"D\"]\n# Ignore check for packages that are missing an `__init__.py` file.\n\"{benchmark,scripts,.github/action-name/}/*.py\" = [\"INP001\"]",
     "deprecated": null
   },
   "lint.preview": {
