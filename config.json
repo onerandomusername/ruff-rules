@@ -716,7 +716,7 @@
     "deprecated": null
   },
   "lint.flake8-tidy-imports.banned-api": {
-    "doc": "Specific modules or module members that may not be imported or accessed.\nNote that this rule is only meant to flag accidental uses,\nand can be circumvented via `eval` or `importlib`.",
+    "doc": "Specific modules or module members that may not be imported or accessed.\nThese can be extended by the\n[`extend-banned-api`](#lint_flake8-tidy-imports_extend-banned-api) option.\n\nNote that this rule is only meant to flag accidental uses,\nand can be circumvented via `eval` or `importlib`.",
     "default": "{}",
     "value_type": "dict[str, { \"msg\": str }]",
     "scope": "banned-api",
@@ -729,6 +729,14 @@
     "value_type": "list[str]",
     "scope": null,
     "example": "# Ban certain modules from being imported at module level, instead requiring\n# that they're imported lazily (e.g., within a function definition).\nbanned-module-level-imports = [\"torch\", \"tensorflow\"]",
+    "deprecated": null
+  },
+  "lint.flake8-tidy-imports.extend-banned-api": {
+    "doc": "Additional modules or module members that may not be imported or accessed.\nThese entries will be added to the\n[`banned-api`](#lint_flake8-tidy-imports_banned-api) mapping and will override\nany existing entries if the two settings overlap.",
+    "default": "{}",
+    "value_type": "dict[str, { \"msg\": str }]",
+    "scope": "extend-banned-api",
+    "example": "\"typing.TypedDict\".msg = \"Use typing_extensions.TypedDict instead.\"",
     "deprecated": null
   },
   "lint.flake8-tidy-imports.require-lazy": {
