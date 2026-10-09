@@ -240,8 +240,8 @@
     "deprecated": null
   },
   "lint.dummy-variable-rgx": {
-    "doc": "A regular expression used to identify \"dummy\" variables, or those which\nshould be ignored when enforcing (e.g.) unused-variable rules. The\ndefault expression matches `_`, `__`, and `_var`, but not `_var_`.",
-    "default": "\"^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$\"",
+    "doc": "A regular expression used to identify \"dummy\" variables, or those which\nshould be ignored when enforcing (e.g.) unused-variable rules. The\ndefault expression matches `_`, `__`, `_var`, and `_次`, but not `_var_`\nor `_次_`.",
+    "default": "\"^(_+|(_+[\\\\p{XID_Continue}]*[\\\\p{XID_Continue}--_]+?))$\"",
     "value_type": "str",
     "scope": null,
     "example": "# Only ignore variables named \"_\".\ndummy-variable-rgx = \"^_$\"",
@@ -549,10 +549,10 @@
   },
   "lint.flake8-import-conventions.aliases": {
     "doc": "The conventional aliases for imports. These aliases can be extended by\nthe [`extend-aliases`](#lint_flake8-import-conventions_extend-aliases) option.",
-    "default": "{\"altair\": \"alt\", \"matplotlib\": \"mpl\", \"matplotlib.pyplot\": \"plt\", \"numpy\": \"np\", \"numpy.typing\": \"npt\", \"pandas\": \"pd\", \"seaborn\": \"sns\", \"tensorflow\": \"tf\", \"tkinter\":  \"tk\", \"holoviews\": \"hv\", \"panel\": \"pn\", \"plotly.express\": \"px\", \"polars\": \"pl\", \"pyarrow\": \"pa\", \"xml.etree.ElementTree\": \"ET\"}",
+    "default": "{\"altair\": \"alt\", \"datetime\": \"dt\", \"matplotlib\": \"mpl\", \"matplotlib.pyplot\": \"plt\", \"numpy\": \"np\", \"numpy.typing\": \"npt\", \"pandas\": \"pd\", \"seaborn\": \"sns\", \"tensorflow\": \"tf\", \"tkinter\":  \"tk\", \"holoviews\": \"hv\", \"panel\": \"pn\", \"plotly.express\": \"px\", \"polars\": \"pl\", \"pyarrow\": \"pa\", \"xml.etree.ElementTree\": \"ET\"}",
     "value_type": "dict[str, str]",
     "scope": "aliases",
-    "example": "# Declare the default aliases.\naltair = \"alt\"\n\"matplotlib.pyplot\" = \"plt\"\nnumpy = \"np\"\npandas = \"pd\"\nseaborn = \"sns\"\nscipy = \"sp\"",
+    "example": "# Declare the default aliases.\naltair = \"alt\"\ndatetime = \"dt\"\n\"matplotlib.pyplot\" = \"plt\"\nnumpy = \"np\"\npandas = \"pd\"\nseaborn = \"sns\"\nscipy = \"sp\"",
     "deprecated": null
   },
   "lint.flake8-import-conventions.banned-aliases": {
@@ -764,19 +764,19 @@
     "deprecated": null
   },
   "lint.flake8-type-checking.runtime-evaluated-base-classes": {
-    "doc": "Exempt classes that list any of the enumerated classes as a base class\nfrom needing to be moved into type-checking blocks.\n\nCommon examples include Pydantic's `pydantic.BaseModel` and SQLAlchemy's\n`sqlalchemy.orm.DeclarativeBase`, but can also support user-defined\nclasses that inherit from those base classes. For example, if you define\na common `DeclarativeBase` subclass that's used throughout your project\n(e.g., `class Base(DeclarativeBase) ...` in `base.py`), you can add it to\nthis list (`runtime-evaluated-base-classes = [\"base.Base\"]`) to exempt\nmodels from being moved into type-checking blocks.",
-    "default": "[]",
-    "value_type": "list[str]",
-    "scope": null,
-    "example": "runtime-evaluated-base-classes = [\"pydantic.BaseModel\", \"sqlalchemy.orm.DeclarativeBase\"]",
+    "doc": "Exempt classes that list any of the enumerated classes as a base class\nfrom needing to be moved into type-checking blocks.\n\nThis can either be configured as a list, if all entries share the same\nruntime semantics of being runtime required. Or a table where each entry\nis assigned to its desired runtime semantics.\n\nA common example for `\"runtime\"` required semantics is Pydantic's `pydantic.BaseModel`\nbut can also support user-defined classes that inherit from those base classes.\nFor example, if you define a common `BaseModel` subclass that's used throughout\nyour project (e.g., `class Base(BaseModel) ...` in `base.py`), you can add it to\nthis list/table (`runtime-evaluated-base-classes = [\"base.Base\"]`) to exempt\nmodels from being moved into type-checking blocks.\n\n```toml\n[tool.ruff.lint.flake8-type-checking]\nruntime-evaluated-base-classes = [\"pydantic.BaseModel\"]\n```\n\nOr\n\n```toml\n[tool.ruff.lint.flake8-type-checking.runtime-evaluated-base-classes]\n\"pydantic.BaseModel\" = \"required\"\n```\n\nFor some use-cases like SQLAlchemy's `sqlalchemy.orm.DeclarativeBase` it makes more\nsense to mark the class as runtime `\"ambiguous\"`, since references to other models do\nnot need to resolve at runtime. With these semantics ruff will assume the annotations\nalready contain all of the correct forward references, and will not attempt to move\nrelated imports and/or quote annotations.\n\n```toml\n[tool.ruff.lint.flake8-type-checking.runtime-evaluated-base-classes]\n\"sqlalchemy.orm.DeclarativeBase\" = \"ambiguous\"\n```",
+    "default": "{}",
+    "value_type": "list[str] | dict[str, \"required\" | \"ambiguous\"]",
+    "scope": "runtime-evaluated-base-classes",
+    "example": "\"pydantic.BaseModel\" = \"required\"\n\"sqlalchemy.orm.DeclarativeBase\" = \"ambiguous\"",
     "deprecated": null
   },
   "lint.flake8-type-checking.runtime-evaluated-decorators": {
-    "doc": "Exempt classes and functions decorated with any of the enumerated\ndecorators from being moved into type-checking blocks.\n\nCommon examples include Pydantic's `@pydantic.validate_call` decorator\n(for functions) and attrs' `@attrs.define` decorator (for classes).\n\nThis also supports framework decorators like FastAPI's `fastapi.FastAPI.get`\nwhich will work across assignments in the same module.\n\nFor example:\n```python\nfrom fastapi import FastAPI\n\napp = FastAPI(\"app\")\n\n@app.get(\"/home\")\ndef home() -> str: ...\n```\n\nHere `app.get` will correctly be identified as `fastapi.FastAPI.get`.",
-    "default": "[]",
-    "value_type": "list[str]",
-    "scope": null,
-    "example": "runtime-evaluated-decorators = [\"pydantic.validate_call\", \"attrs.define\"]",
+    "doc": "Exempt classes and functions decorated with any of the enumerated\ndecorators from being moved into type-checking blocks.\n\nCommon examples include Pydantic's `@pydantic.validate_call` decorator\n(for functions) and attrs' `@attrs.define` decorator (for classes).\n\nThis also supports framework decorators like FastAPI's `fastapi.FastAPI.get`\nwhich will work across assignments in the same module.\n\nFor example:\n```python\nfrom fastapi import FastAPI\n\napp = FastAPI(\"app\")\n\n@app.get(\"/home\")\ndef home() -> str: ...\n```\n\nHere `app.get` will correctly be identified as `fastapi.FastAPI.get`.\n\nJust like with `runtime-evaluated-base-classes` it's possible to mark\ndecorators as runtime `\"ambiguous\"`.",
+    "default": "{}",
+    "value_type": "list[str] | dict[str, \"required\" | \"ambiguous\"]",
+    "scope": "runtime-evaluated-decorators",
+    "example": "\"pydantic.validate_call\" = \"required\"\n\"sqlalchemy.orm.declared_attr\" = \"ambiguous\"",
     "deprecated": null
   },
   "lint.flake8-type-checking.strict": {
@@ -1349,11 +1349,11 @@
     "deprecated": null
   },
   "lint.ruff.strictly-empty-init-modules": {
-    "doc": "Whether to require `__init__.py` files to contain no code at all, including imports and\ndocstrings (see `RUF067`).",
+    "doc": "Whether to require `__init__.py` files to contain no code at all, including imports and\n`__all__` assignments (see `RUF067`). Module and attribute docstrings are still allowed.",
     "default": "false",
     "value_type": "bool",
     "scope": null,
-    "example": "# Make it a violation to include any code, including imports and docstrings in `__init__.py`\nstrictly-empty-init-modules = true",
+    "example": "# Make it a violation to include any code, including imports, in `__init__.py`\nstrictly-empty-init-modules = true",
     "deprecated": null
   },
   "lint.select": {
@@ -1469,9 +1469,9 @@
     "deprecated": null
   },
   "target-version": {
-    "doc": "The minimum Python version to target, e.g., when considering automatic\ncode upgrades, like rewriting type annotations. Ruff will not propose\nchanges using features that are not available in the given version.\n\nFor example, to represent supporting Python >=3.11 or ==3.11\nspecify `target-version = \"py311\"`.\n\nIf you're already using a `pyproject.toml` file, we recommend\n`project.requires-python` instead, as it's based on Python packaging\nstandards, and will be respected by other tools. For example, Ruff\ntreats the following as identical to `target-version = \"py38\"`:\n\n```toml\n[project]\nrequires-python = \">=3.8\"\n```\n\nIf both are specified, `target-version` takes precedence over\n`requires-python`. See [_Inferring the Python version_](https://docs.astral.sh/ruff/configuration/#inferring-the-python-version)\nfor a complete description of how the `target-version` is determined\nwhen left unspecified.\n\nNote that a stub file can [sometimes make use of a typing feature](https://typing.python.org/en/latest/spec/distributing.html#syntax)\nbefore it is available at runtime, as long as the stub does not make\nuse of new *syntax*. For example, a type checker will understand\n`int | str` in a stub as being a `Union` type annotation, even if the\ntype checker is run using Python 3.9, despite the fact that the `|`\noperator can only be used to create union types at runtime on Python\n3.10+. As such, Ruff will often recommend newer features in a stub\nfile than it would for an equivalent runtime file with the same target\nversion.",
-    "default": "\"py310\"",
-    "value_type": "\"py37\" | \"py38\" | \"py39\" | \"py310\" | \"py311\" | \"py312\" | \"py313\" | \"py314\"",
+    "doc": "The minimum Python version to target, e.g., when considering automatic\ncode upgrades, like rewriting type annotations. Ruff will not propose\nchanges using features that are not available in the given version.\n\nFor example, to represent supporting Python >=3.12 or ==3.12\nspecify `target-version = \"py312\"`.\n\nIf you're already using a `pyproject.toml` file, we recommend\n`project.requires-python` instead, as it's based on Python packaging\nstandards, and will be respected by other tools. For example, Ruff\ntreats the following as identical to `target-version = \"py38\"`:\n\n```toml\n[project]\nrequires-python = \">=3.8\"\n```\n\nIf both are specified, `target-version` takes precedence over\n`requires-python`. See [_Inferring the Python version_](https://docs.astral.sh/ruff/configuration/#inferring-the-python-version)\nfor a complete description of how the `target-version` is determined\nwhen left unspecified.\n\nNote that a stub file can [sometimes make use of a typing feature](https://typing.python.org/en/latest/spec/distributing.html#syntax)\nbefore it is available at runtime, as long as the stub does not make\nuse of new *syntax*. For example, a type checker will understand\n`int | str` in a stub as being a `Union` type annotation, even if the\ntype checker is run using Python 3.9, despite the fact that the `|`\noperator can only be used to create union types at runtime on Python\n3.10+. As such, Ruff will often recommend newer features in a stub\nfile than it would for an equivalent runtime file with the same target\nversion.",
+    "default": "\"py311\"",
+    "value_type": "\"py37\" | \"py38\" | \"py39\" | \"py310\" | \"py311\" | \"py312\" | \"py313\" | \"py314\" | \"py315\"",
     "scope": null,
     "example": "# Always generate Python 3.7-compatible code.\ntarget-version = \"py37\"",
     "deprecated": null
