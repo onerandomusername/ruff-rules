@@ -11736,7 +11736,7 @@
     "category": "pedantic",
     "source_location": {
       "file": "crates/ruff_linter/src/rules/perflint/rules/manual_list_comprehension.rs",
-      "line": 52
+      "line": 53
     }
   },
   {
@@ -11783,7 +11783,7 @@
     "category": "pedantic",
     "source_location": {
       "file": "crates/ruff_linter/src/rules/perflint/rules/manual_dict_comprehension.rs",
-      "line": 49
+      "line": 50
     }
   },
   {

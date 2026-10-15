@@ -549,10 +549,10 @@
   },
   "lint.flake8-import-conventions.aliases": {
     "doc": "The conventional aliases for imports. These aliases can be extended by\nthe [`extend-aliases`](#lint_flake8-import-conventions_extend-aliases) option.",
-    "default": "{\"altair\": \"alt\", \"datetime\": \"dt\", \"matplotlib\": \"mpl\", \"matplotlib.pyplot\": \"plt\", \"numpy\": \"np\", \"numpy.typing\": \"npt\", \"pandas\": \"pd\", \"seaborn\": \"sns\", \"tensorflow\": \"tf\", \"tkinter\":  \"tk\", \"holoviews\": \"hv\", \"panel\": \"pn\", \"plotly.express\": \"px\", \"polars\": \"pl\", \"pyarrow\": \"pa\", \"xml.etree.ElementTree\": \"ET\"}",
+    "default": "{\"altair\": \"alt\", \"datetime\": \"dt\", \"matplotlib\": \"mpl\", \"matplotlib.pyplot\": \"plt\", \"networkx\": \"nx\", \"numpy\": \"np\", \"numpy.typing\": \"npt\", \"pandas\": \"pd\", \"seaborn\": \"sns\", \"tensorflow\": \"tf\", \"tkinter\":  \"tk\", \"holoviews\": \"hv\", \"panel\": \"pn\", \"plotly.express\": \"px\", \"polars\": \"pl\", \"pyarrow\": \"pa\", \"xml.etree.ElementTree\": \"ET\"}",
     "value_type": "dict[str, str]",
     "scope": "aliases",
-    "example": "# Declare the default aliases.\naltair = \"alt\"\ndatetime = \"dt\"\n\"matplotlib.pyplot\" = \"plt\"\nnumpy = \"np\"\npandas = \"pd\"\nseaborn = \"sns\"\nscipy = \"sp\"",
+    "example": "# Declare the default aliases.\naltair = \"alt\"\ndatetime = \"dt\"\nmatplotlib = \"mpl\"\n\"matplotlib.pyplot\" = \"plt\"\nnetworkx = \"nx\"\nnumpy = \"np\"\n\"numpy.typing\" = \"npt\"\npandas = \"pd\"\nseaborn = \"sns\"\ntensorflow = \"tf\"\ntkinter = \"tk\"\nholoviews = \"hv\"\npanel = \"pn\"\n\"plotly.express\" = \"px\"\npolars = \"pl\"\npyarrow = \"pa\"\n\"xml.etree.ElementTree\" = \"ET\"",
     "deprecated": null
   },
   "lint.flake8-import-conventions.banned-aliases": {
