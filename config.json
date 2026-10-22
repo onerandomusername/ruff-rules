@@ -1230,6 +1230,22 @@
     "example": "allow-magic-value-types = [\"int\"]",
     "deprecated": null
   },
+  "lint.pylint.allow-magic-values": {
+    "doc": "Specific literal values to ignore when used as \"magic values\" (see `PLR2004`).",
+    "default": "[0, 1, -1, 0.0, 1.0, -1.0, \"\", \"__main__\"]",
+    "value_type": "list[str | int | float]",
+    "scope": null,
+    "example": "allow-magic-values = [42, 3.14, \"special\"]",
+    "deprecated": null
+  },
+  "lint.pylint.extend-allow-magic-values": {
+    "doc": "Literal values to ignore when used as \"magic values\" (see `PLR2004`),\nin addition to those included in [`allow-magic-values`](#lint_pylint_allow-magic-values).",
+    "default": "[]",
+    "value_type": "list[str | int | float]",
+    "scope": null,
+    "example": "extend-allow-magic-values = [42, 3.14, \"magic\"]",
+    "deprecated": null
+  },
   "lint.pylint.max-args": {
     "doc": "Maximum number of arguments allowed for a function or method definition\n(see `PLR0913`).",
     "default": "5",
