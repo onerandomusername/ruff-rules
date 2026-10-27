@@ -1486,7 +1486,7 @@
     ],
     "fix": "Fix is not available.",
     "fix_availability": "None",
-    "explanation": "## What it does\nChecks for uses of the Python `requests` or `httpx` module that omit the\n`timeout` parameter.\n\n## Why is this bad?\nThe `timeout` parameter is used to set the maximum time to wait for a\nresponse from the server. By omitting the `timeout` parameter, the program\nmay hang indefinitely while awaiting a response.\n\n## Example\n```python\nimport requests\n\nrequests.get(\"https://www.example.com/\")\n```\n\nUse instead:\n```python\nimport requests\n\nrequests.get(\"https://www.example.com/\", timeout=10)\n```\n\n## References\n- [Requests documentation: Timeouts](https://requests.readthedocs.io/en/latest/user/advanced/#timeouts)\n- [httpx documentation: Timeouts](https://www.python-httpx.org/advanced/timeouts/)\n",
+    "explanation": "## What it does\nChecks for uses of the Python `requests` or `httpx` module without timeouts.\n\n## Why is this bad?\nThe `timeout` parameter is used to set the maximum time to wait for a\nresponse from the server. By omitting the `timeout` parameter or\nexplicitly disabling it, the program may hang indefinitely while awaiting a\nresponse.\n\n`requests` has no timeout by default, so both omitting the `timeout` argument\nand setting it to `None` are flagged. `httpx` applies a default timeout, so only an explicit\n`timeout=None` is flagged.\n\n## Example\n```python\nimport requests\n\nrequests.get(\"https://www.example.com/\")\n```\n\nUse instead:\n```python\nimport requests\n\nrequests.get(\"https://www.example.com/\", timeout=10)\n```\n\n## References\n- [Requests documentation: Timeouts](https://requests.readthedocs.io/en/latest/user/advanced/#timeouts)\n- [httpx documentation: Timeouts](https://www.python-httpx.org/advanced/timeouts/)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -1496,7 +1496,7 @@
     "category": "security",
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/request_without_timeout.rs",
-      "line": 36
+      "line": 40
     }
   },
   {
@@ -19096,7 +19096,7 @@
     "category": "complexity",
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pyupgrade/rules/f_strings.rs",
-      "line": 43
+      "line": 44
     }
   },
   {
@@ -22485,6 +22485,29 @@
     "source_location": {
       "file": "crates/ruff_linter/src/rules/ruff/rules/pytest_fixture_autouse.rs",
       "line": 63
+    }
+  },
+  {
+    "name": "shared-clock-mock",
+    "code": null,
+    "linter": null,
+    "summary": "Changing `{function}` may affect unrelated threads or tasks",
+    "message_formats": [
+      "Changing `{function}` may affect unrelated threads or tasks"
+    ],
+    "fix": "Fix is not available.",
+    "fix_availability": "None",
+    "explanation": "## What it does\nChecks for patches, assignments, and deletions of shared clock and sleep\nfunctions in `time` and `asyncio`.\n\n## Why is this bad?\nIf `worker` uses `import time`, then `worker.time` and `time` refer to\nthe same module. Patching `worker.time.sleep` can make an\n`assert_called_once()` check fail when another thread calls `time.sleep`.\nThe same can happen when another task calls a patched `asyncio.sleep`.\n\nTo keep the patch local to `worker`, replace `worker.time` or\n`worker.asyncio` with an object that provides the functions `worker` uses.\n\n## Example\n```python\nfrom unittest.mock import Mock, patch\n\nfrom example import worker\n\nsleep = Mock()\nwith patch.object(worker.time, \"sleep\", sleep):\n    worker.retry()\n```\n\nUse instead:\n```python\nfrom types import SimpleNamespace\nfrom unittest.mock import Mock, patch\n\nfrom example import worker\n\nsleep = Mock()\nwith patch.object(worker, \"time\", SimpleNamespace(sleep=sleep)):\n    worker.retry()\n```\n\n## Known problems\nRuff can flag a patch to `worker.time.sleep` even if a fixture has\nreplaced `worker.time` with a private clock. It can miss a patch when\nthe target is a dynamically built string or when the test assigns\n`clock = worker.time` and then patches `clock.sleep`.\n\n## References\n- [Python documentation: Where to patch](https://docs.python.org/3/library/unittest.mock.html#where-to-patch)\n- [pytest documentation: Monkeypatching](https://docs.pytest.org/en/stable/how-to/monkeypatch.html)\n",
+    "preview": true,
+    "status": {
+      "Preview": {
+        "since": "0.17.3"
+      }
+    },
+    "category": "suspicious",
+    "source_location": {
+      "file": "crates/ruff_linter/src/rules/ruff/rules/shared_clock_mock.rs",
+      "line": 56
     }
   },
   {
