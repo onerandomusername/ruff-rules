@@ -1496,7 +1496,7 @@
     "category": "security",
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/request_without_timeout.rs",
-      "line": 40
+      "line": 41
     }
   },
   {
@@ -2393,7 +2393,7 @@
     "category": "security",
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/request_with_no_cert_validation.rs",
-      "line": 34
+      "line": 35
     }
   },
   {
@@ -2416,7 +2416,7 @@
     "category": "security",
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/ssl_insecure_version.rs",
-      "line": 38
+      "line": 39
     }
   },
   {
@@ -2462,7 +2462,7 @@
     "category": "security",
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/ssl_with_no_version.rs",
-      "line": 29
+      "line": 30
     }
   },
   {
@@ -2509,7 +2509,7 @@
     "category": "security",
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/unsafe_yaml_load.rs",
-      "line": 39
+      "line": 40
     }
   },
   {
@@ -2555,7 +2555,7 @@
     "category": "security",
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/snmp_insecure_version.rs",
-      "line": 34
+      "line": 35
     }
   },
   {
@@ -2578,7 +2578,7 @@
     "category": "security",
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/snmp_weak_cryptography.rs",
-      "line": 32
+      "line": 33
     }
   },
   {
@@ -2601,7 +2601,7 @@
     "category": "security",
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/paramiko_calls.rs",
-      "line": 29
+      "line": 30
     }
   },
   {
@@ -2883,7 +2883,7 @@
     "category": "security",
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/jinja2_autoescape_false.rs",
-      "line": 38
+      "line": 39
     }
   },
   {
@@ -2906,7 +2906,7 @@
     "category": "security",
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bandit/rules/mako_templates.rs",
-      "line": 36
+      "line": 37
     }
   },
   {
@@ -3315,7 +3315,7 @@
     ],
     "fix": "Fix is always available.",
     "fix_availability": "Always",
-    "explanation": "## What it does\nChecks for exception handlers that catch duplicate exceptions.\n\n## Why is this bad?\nIncluding the same exception multiple times in the same handler is redundant,\nas the first exception will catch the exception, making the second exception\nunreachable. The same applies to exception hierarchies, as a handler for a\nparent exception (like `Exception`) will also catch child exceptions (like\n`ValueError`).\n\n## Example\n```python\ntry:\n    ...\nexcept (Exception, ValueError):  # `Exception` includes `ValueError`.\n    ...\n```\n\nUse instead:\n```python\ntry:\n    ...\nexcept Exception:\n    ...\n```\n\n## References\n- [Python documentation: `except` clause](https://docs.python.org/3/reference/compound_stmts.html#except-clause)\n- [Python documentation: Exception hierarchy](https://docs.python.org/3/library/exceptions.html#exception-hierarchy)\n",
+    "explanation": "## What it does\nChecks for exception handlers that catch duplicate exceptions.\n\n## Why is this bad?\nIncluding the same exception multiple times in the same handler is redundant,\nas the first exception will catch the exception, making the second exception\nunreachable. The same applies to exception hierarchies, as a handler for a\nparent exception (like `Exception`) will also catch child exceptions (like\n`ValueError`).\n\n## Example\n```python\ntry:\n    ...\nexcept (ValueError, ValueError):\n    ...\n```\n\nUse instead:\n```python\ntry:\n    ...\nexcept ValueError:\n    ...\n```\n\n## References\n- [Python documentation: `except` clause](https://docs.python.org/3/reference/compound_stmts.html#except-clause)\n- [Python documentation: Exception hierarchy](https://docs.python.org/3/library/exceptions.html#exception-hierarchy)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -3511,7 +3511,7 @@
     "category": "correctness",
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bugbear/rules/useless_contextlib_suppress.rs",
-      "line": 40
+      "line": 41
     }
   },
   {
@@ -3650,7 +3650,7 @@
     "category": "pedantic",
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bugbear/rules/no_explicit_stacklevel.rs",
-      "line": 49
+      "line": 50
     }
   },
   {
@@ -3791,7 +3791,7 @@
     "category": "pedantic",
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_bugbear/rules/re_sub_positional_args.rs",
-      "line": 43
+      "line": 44
     }
   },
   {
@@ -4721,7 +4721,7 @@
     "category": "pedantic",
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_datetimez/rules/call_datetime_without_tzinfo.rs",
-      "line": 49
+      "line": 50
     }
   },
   {
@@ -4814,7 +4814,7 @@
     "category": "pedantic",
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_datetimez/rules/call_datetime_now_without_tzinfo.rs",
-      "line": 50
+      "line": 51
     }
   },
   {
@@ -4838,7 +4838,7 @@
     "category": "pedantic",
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_datetimez/rules/call_datetime_fromtimestamp.rs",
-      "line": 52
+      "line": 53
     }
   },
   {
@@ -4862,7 +4862,7 @@
     "category": "pedantic",
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_datetimez/rules/call_datetime_strptime_without_zone.rs",
-      "line": 55
+      "line": 56
     }
   },
   {
@@ -5914,7 +5914,7 @@
     ],
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
-    "explanation": "## What it does\nChecks for uses of f-strings to format logging messages.\n\n## Why is this bad?\nThe `logging` module provides a mechanism for passing additional values to\nbe logged using the `extra` keyword argument. This is more consistent, more\nefficient, and less error-prone than formatting the string directly.\n\nUsing f-strings to format a logging message requires that Python eagerly\nformat the string, even if the logging statement is never executed (e.g.,\nif the log level is above the level of the logging statement), whereas\nusing the `extra` keyword argument defers formatting until required.\n\nAdditionally, the use of `extra` will ensure that the values are made\navailable to all handlers, which can then be configured to log the values\nin a consistent manner.\n\nAs an alternative to `extra`, passing values as arguments to the logging\nmethod can also be used to defer string formatting until required.\n\n## Known problems\n\nThis rule detects uses of the `logging` module via a heuristic.\nSpecifically, it matches against:\n\n- Uses of the `logging` module itself (e.g., `import logging; logging.info(...)`).\n- Uses of `flask.current_app.logger` (e.g., `from flask import current_app; current_app.logger.info(...)`).\n- Objects whose name starts with `log` or ends with `logger` or `logging`,\n  when used in the same file in which they are defined (e.g., `logger = logging.getLogger(); logger.info(...)`).\n- Imported objects marked as loggers via the [`lint.logger-objects`] setting, which can be\n  used to enforce these rules against shared logger objects (e.g., `from module import logger; logger.info(...)`,\n  when [`lint.logger-objects`] is set to `[\"module.logger\"]`).\n\n## Example\n```python\nimport logging\n\nlogging.basicConfig(format=\"%(message)s\", level=logging.INFO)\n\nuser = \"Maria\"\n\nlogging.info(f\"{user} - Something happened\")\n```\n\nUse instead:\n```python\nimport logging\n\nlogging.basicConfig(format=\"%(user_id)s - %(message)s\", level=logging.INFO)\n\nuser = \"Maria\"\n\nlogging.info(\"Something happened\", extra=dict(user_id=user))\n```\n\nOr:\n```python\nimport logging\n\nlogging.basicConfig(format=\"%(message)s\", level=logging.INFO)\n\nuser = \"Maria\"\n\nlogging.info(\"%s - Something happened\", user)\n```\n\n## Options\n- `lint.logger-objects`\n\n## References\n- [Python documentation: `logging`](https://docs.python.org/3/library/logging.html)\n- [Python documentation: Optimization](https://docs.python.org/3/howto/logging.html#optimization)\n",
+    "explanation": "## What it does\nChecks for uses of f-strings to format logging messages.\n\n## Why is this bad?\nThe `logging` module provides a mechanism for passing additional values to\nbe logged using the `extra` keyword argument. This is more consistent, more\nefficient, and less error-prone than formatting the string directly.\n\nUsing f-strings to format a logging message requires that Python eagerly\nformat the string, even if the logging statement is never executed (e.g.,\nif the log level is above the level of the logging statement), whereas\nusing the `extra` keyword argument defers formatting until required.\n\nAdditionally, the use of `extra` will ensure that the values are made\navailable to all handlers, which can then be configured to log the values\nin a consistent manner.\n\nAs an alternative to `extra`, passing values as arguments to the logging\nmethod can also be used to defer string formatting until required.\n\n## Known problems\n\nThis rule detects uses of the `logging` module via a heuristic.\nSpecifically, it matches against:\n\n- Uses of the `logging` module itself (e.g., `import logging; logging.info(...)`).\n- Uses of `flask.current_app.logger` (e.g., `from flask import current_app; current_app.logger.info(...)`).\n- Objects whose name starts with `log` or ends with `logger` or `logging`,\n  when used in the same file in which they are defined (e.g., `logger = logging.getLogger(); logger.info(...)`).\n- Imported objects marked as loggers via the [`lint.logger-objects`] setting, which can be\n  used to enforce these rules against shared logger objects (e.g., `from module import logger; logger.info(...)`,\n  when [`lint.logger-objects`] is set to `[\"module.logger\"]`).\n\n## Example\n```python\nimport logging\n\nlogging.basicConfig(format=\"%(message)s\", level=logging.INFO)\n\nuser = \"Maria\"\n\nlogging.info(f\"{user} - Something happened\")\n```\n\nUse instead:\n```python\nimport logging\n\nlogging.basicConfig(format=\"%(user_id)s - %(message)s\", level=logging.INFO)\n\nuser = \"Maria\"\n\nlogging.info(\"Something happened\", extra=dict(user_id=user))\n```\n\nOr:\n```python\nimport logging\n\nlogging.basicConfig(format=\"%(message)s\", level=logging.INFO)\n\nuser = \"Maria\"\n\nlogging.info(\"%s - Something happened\", user)\n```\n\n## Fix safety\nThis rule's fix is marked as unsafe if the message,\nor the parentheses around it, contain comments,\nsince the rewrite replaces that whole range and would delete them.\n\n## Options\n- `lint.logger-objects`\n\n## References\n- [Python documentation: `logging`](https://docs.python.org/3/library/logging.html)\n- [Python documentation: Optimization](https://docs.python.org/3/howto/logging.html#optimization)\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -5924,7 +5924,7 @@
     "category": "pedantic",
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_logging_format/violations.rs",
-      "line": 330
+      "line": 335
     }
   },
   {
@@ -5947,7 +5947,7 @@
     "category": "suspicious",
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_logging_format/violations.rs",
-      "line": 388
+      "line": 393
     }
   },
   {
@@ -5970,7 +5970,7 @@
     "category": "correctness",
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_logging_format/violations.rs",
-      "line": 456
+      "line": 461
     }
   },
   {
@@ -5993,7 +5993,7 @@
     "category": "complexity",
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_logging_format/violations.rs",
-      "line": 519
+      "line": 524
     }
   },
   {
@@ -6016,7 +6016,7 @@
     "category": "style",
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_logging_format/violations.rs",
-      "line": 582
+      "line": 587
     }
   },
   {
@@ -6030,7 +6030,7 @@
     ],
     "fix": "Fix is not available.",
     "fix_availability": "None",
-    "explanation": "## What it does\nChecks for packages that are missing an `__init__.py` file.\n\n## Why is this bad?\nPython packages are directories that contain a file named `__init__.py`.\nThe existence of this file indicates that the directory is a Python\npackage, and so it can be imported the same way a module can be\nimported.\n\nDirectories that lack an `__init__.py` file can still be imported, but\nthey're indicative of a special kind of package, known as a \"namespace\npackage\" (see: [PEP 420](https://peps.python.org/pep-0420/)).\nNamespace packages are less widely used, so a package that lacks an\n`__init__.py` file is typically meant to be a regular package, and\nthe absence of the `__init__.py` file is probably an oversight.\n\n## Options\n- `namespace-packages`\n",
+    "explanation": "## What it does\nChecks for packages that are missing an `__init__.py` file.\n\n## Why is this bad?\nPython packages are directories that contain a file named `__init__.py`.\nThe existence of this file indicates that the directory is a Python\npackage, and so it can be imported the same way a module can be\nimported.\n\nDirectories that lack an `__init__.py` file can still be imported, but\nthey're indicative of a special kind of package, known as a \"namespace\npackage\" (see: [PEP 420](https://peps.python.org/pep-0420/)).\nNamespace packages are less widely used, so a package that lacks an\n`__init__.py` file is typically meant to be a regular package, and\nthe absence of the `__init__.py` file is probably an oversight.\n\n## Preview\n\nIn preview, the rule also checks for packages without `__init__.py` files between two regular\npackages, such as `bar` in the project structure below.\n\n```text\nfoo/\n├── __init__.py\n└── bar/\n    └── baz/\n        └── __init__.py\n```\n\n## Options\n- `namespace-packages`\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -6040,7 +6040,7 @@
     "category": "pedantic",
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_no_pep420/rules/implicit_namespace_package.rs",
-      "line": 35
+      "line": 48
     }
   },
   {
@@ -6248,7 +6248,7 @@
     "category": "restriction",
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_print/rules/print_call.rs",
-      "line": 56
+      "line": 57
     }
   },
   {
@@ -6271,7 +6271,7 @@
     "category": "restriction",
     "source_location": {
       "file": "crates/ruff_linter/src/rules/flake8_print/rules/print_call.rs",
-      "line": 106
+      "line": 107
     }
   },
   {
@@ -10827,7 +10827,7 @@
     ],
     "fix": "Fix is sometimes available.",
     "fix_availability": "Sometimes",
-    "explanation": "## What it does\nDe-duplicates, groups, and sorts imports based on the provided `isort` settings.\n\n## Why is this bad?\nConsistency is good. Use a common convention for imports to make your code\nmore readable and idiomatic.\n\n## Example\n```python\nimport pandas\nimport numpy as np\n```\n\nUse instead:\n```python\nimport numpy as np\nimport pandas\n```\n\n",
+    "explanation": "## What it does\nDe-duplicates, groups, and sorts imports based on the provided `isort` settings.\n\nBy default, imports are categorized into the following sections in order:\n1. `future` (`__future__`)\n2. `standard-library` (e.g., `sys`, `os`, `json`)\n3. `third-party` (e.g., `numpy`, `pandas`)\n4. `first-party` (modules within the current project or package)\n5. `local-folder` (relative imports starting with `.`, e.g., `from . import utils`)\n\nWith the default settings, each section is separated by a blank line. Within a section, Ruff\ngenerally places `import` statements before `from` imports and sorts each group by module name.\n\nRuff defaults to two blank lines between a top-level import block and a function or class\ndefinition, and one blank line before other top-level statements. In stub files (`.pyi`), the\ndefault is one blank line in either case.\n\nSee the FAQ for more information on how Ruff [determines which imports are first-party][1] and\nfor how Ruff [compares to isort][2] more broadly.\n\n## Why is this bad?\nConsistency is good. Use a common convention for imports to make your code\nmore readable and idiomatic.\n\n## Example\n```python\nimport pandas\nimport numpy as np\nimport sys\n\n\ndef main(): ...\n```\n\nUse instead:\n```python\nimport sys\n\nimport numpy as np\nimport pandas\n\n\ndef main(): ...\n```\n\n## Options\nSee the [`isort` settings](https://docs.astral.sh/ruff/settings/#lintisort) for all available\nconfiguration options.\n\n## References\n- [PEP 8: Imports](https://peps.python.org/pep-0008/#imports)\n- [isort documentation](https://isort.readthedocs.io/en/latest/)\n\n[1]: https://docs.astral.sh/ruff/faq/#how-does-ruff-determine-which-of-my-imports-are-first-party-third-party-etc\n[2]: https://docs.astral.sh/ruff/faq/#how-does-ruffs-import-sorting-compare-to-isort\n",
     "preview": false,
     "status": {
       "Stable": {
@@ -10837,7 +10837,7 @@
     "category": "style",
     "source_location": {
       "file": "crates/ruff_linter/src/rules/isort/rules/organize_imports.rs",
-      "line": 42
+      "line": 78
     }
   },
   {
@@ -10929,7 +10929,7 @@
     "category": "suspicious",
     "source_location": {
       "file": "crates/ruff_linter/src/rules/numpy/rules/legacy_random.rs",
-      "line": 49
+      "line": 50
     }
   },
   {
@@ -11552,7 +11552,7 @@
     "category": "complexity",
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pandas_vet/rules/read_table.rs",
-      "line": 39
+      "line": 40
     }
   },
   {
@@ -16734,7 +16734,7 @@
     "category": "correctness",
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pylint/rules/invalid_envvar_value.rs",
-      "line": 33
+      "line": 34
     }
   },
   {
@@ -18216,7 +18216,7 @@
     "category": "suspicious",
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pylint/rules/invalid_envvar_default.rs",
-      "line": 36
+      "line": 37
     }
   },
   {
@@ -18727,7 +18727,7 @@
     "category": "pedantic",
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pyupgrade/rules/redundant_open_modes.rs",
-      "line": 33
+      "line": 34
     }
   },
   {
@@ -18819,7 +18819,7 @@
     "category": "style",
     "source_location": {
       "file": "crates/ruff_linter/src/rules/pyupgrade/rules/open_alias.rs",
-      "line": 36
+      "line": 37
     }
   },
   {
@@ -20026,7 +20026,7 @@
     "category": "complexity",
     "source_location": {
       "file": "crates/ruff_linter/src/rules/refurb/rules/verbose_decimal_constructor.rs",
-      "line": 54
+      "line": 55
     }
   },
   {
@@ -20095,7 +20095,7 @@
     "category": "correctness",
     "source_location": {
       "file": "crates/ruff_linter/src/rules/refurb/rules/redundant_log_base.rs",
-      "line": 54
+      "line": 55
     }
   },
   {
@@ -20929,7 +20929,7 @@
     "category": "correctness",
     "source_location": {
       "file": "crates/ruff_linter/src/rules/ruff/rules/default_factory_kwarg.rs",
-      "line": 54
+      "line": 55
     }
   },
   {
@@ -21068,7 +21068,7 @@
     "category": "suspicious",
     "source_location": {
       "file": "crates/ruff_linter/src/rules/ruff/rules/decimal_from_float_literal.rs",
-      "line": 36
+      "line": 37
     }
   },
   {
@@ -21183,7 +21183,7 @@
     "category": "complexity",
     "source_location": {
       "file": "crates/ruff_linter/src/rules/ruff/rules/unnecessary_literal_within_deque_call.rs",
-      "line": 49
+      "line": 50
     }
   },
   {
@@ -21553,7 +21553,7 @@
     "category": "complexity",
     "source_location": {
       "file": "crates/ruff_linter/src/rules/ruff/rules/unnecessary_regular_expression.rs",
-      "line": 59
+      "line": 60
     }
   },
   {
@@ -21622,7 +21622,7 @@
     "category": "complexity",
     "source_location": {
       "file": "crates/ruff_linter/src/rules/ruff/rules/starmap_zip.rs",
-      "line": 44
+      "line": 45
     }
   },
   {
@@ -22508,6 +22508,30 @@
     "source_location": {
       "file": "crates/ruff_linter/src/rules/ruff/rules/shared_clock_mock.rs",
       "line": 56
+    }
+  },
+  {
+    "name": "tarfile-ignore-zeros-true",
+    "code": null,
+    "linter": null,
+    "summary": "`tarfile` opened with `ignore_zeros=True`",
+    "message_formats": [
+      "`tarfile` opened with `ignore_zeros=True`",
+      "`tarfile` opened with truthy `ignore_zeros`"
+    ],
+    "fix": "Fix is not available.",
+    "fix_availability": "None",
+    "explanation": "## What it does\nChecks for `tarfile` archives opened with `ignore_zeros=True`.\n\n## Why is this bad?\nBy default, `tarfile` stops at the first empty block. `ignore_zeros=True`\nmakes it skip empty *and invalid* blocks and read on, a mode the Python\ndocumentation recommends only for concatenated or damaged archives.\n\nIt is usually enabled to tolerate a missing end-of-archive marker, but it\nrelaxes every other structural check too. The archive's contents then\ndepend on how Python recovers from malformed data, so a crafted archive can\nyield different members here than under a stricter parser.\n\n## Example\n```python\nimport tarfile\n\ntar = tarfile.open(\"archive.tar\", ignore_zeros=True)\n```\n\nUse instead:\n```python\nimport tarfile\n\ntar = tarfile.open(\"archive.tar\")\n```\n\n## References\n- [Python documentation: `tarfile.TarFile`](https://docs.python.org/3/library/tarfile.html#tarfile.TarFile)\n",
+    "preview": true,
+    "status": {
+      "Preview": {
+        "since": "0.17.4"
+      }
+    },
+    "category": "security",
+    "source_location": {
+      "file": "crates/ruff_linter/src/rules/ruff/rules/tarfile_ignore_zeros_true.rs",
+      "line": 40
     }
   },
   {
